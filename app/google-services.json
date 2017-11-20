@@ -1,0 +1,51 @@
+{
+  "project_info": {
+    "project_number": "905133369130",
+    "project_id": "tossinstaller"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905133369130:android:fe770e41f79e6c56",
+        "android_client_info": {
+          "package_name": "th.co.thiensurat.toss_installer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "905133369130-9ovb5pllf84eme9timbordi49u8630o7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "th.co.thiensurat.toss_installer",
+            "certificate_hash": "40fcaebe36879e99ed9d085c28b9ceb88380bc76"
+          }
+        },
+        {
+          "client_id": "905133369130-g5i57nv0iv76mjcsfbipp8tvmg00cpts.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGnxebFBsTNCLAxaWlAt4AGQTvh6rWZ5s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-109807495-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

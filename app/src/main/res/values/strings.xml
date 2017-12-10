@@ -4,7 +4,15 @@
     <string name="openDrawer"></string>
     <string name="closeDrawer"></string>
 
+    <string name="company_name">บริษัท เธียรสุรัตน์ จำกัด (มหาชน)</string>
+    <string name="company_detail">เลขประจำตัวผู้เสียภาษี 0107556000213\n43/9 หมู่ 7 ซ.ชูชาติอนุสรณ์ 4 ต.บางตลาด\nอ.ปากเกร็ด จ.นนทบุรี 11120\nโทร. 0 2819 8888  แฟกซ์ 0 2962 6951-3\nอีเมล์. thiensurat@thiensurat.co.th</string>
+    <string name="address">43/9 หมู่ 7 ซ.ชูชาติอนุสรณ์ 4\nต.บางตลาด อ.ปากเกร็ด จ.นนทบุรี\n11120</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="none_paired">No devices have been paired</string>
+    <string name="scanning">scanning for devices...</string>
+    <string name="select_device">select a device to connect</string>
+    <string name="none_found">No devices found</string>
 </resources>

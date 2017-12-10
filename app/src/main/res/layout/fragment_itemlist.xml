@@ -8,14 +8,53 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerview"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_above="@+id/layout_bottom">
+            android:layout_above="@+id/layout_bottom"
+            android:orientation="vertical">
 
-        </android.support.v7.widget.RecyclerView>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_margin="8dp"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <EditText
+                    android:id="@+id/edittext_search"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:background="@drawable/border_rounded_colorprimarydark"
+                    android:padding="6dp"
+                    android:layout_marginRight="8dp"
+                    android:hint="ใส่เลขที่ใบเบิกสินค้า"
+                    android:inputType="number"
+                    android:imeOptions="actionDone"/>
+
+                <ImageView
+                    android:id="@+id/button_search"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:src="@drawable/ic_search_white_24dp"
+                    android:background="@drawable/background_rounded_colorprimarydark"/>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true">
+
+            </android.support.v7.widget.RecyclerView>
+
+
+        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/layout_bottom"
@@ -26,19 +65,47 @@
             android:padding="8dp">
 
             <Button
-                android:id="@+id/button_print"
+                android:id="@+id/button_confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:background="@drawable/background_rounded_colorprimarydark"
-                android:text="พิมพ์ใบเบิกสินค้า"
+                android:background="@drawable/background_rounded_accent"
+                android:text="ยืนยันการเบิกสินค้า"
                 android:textColor="@color/White"/>
 
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/layout_fail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_centerInParent="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/ic_internet_error"/>
+
+                <TextView
+                    android:id="@+id/textview_fail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ไม่มีรายการเบิกสินค้า"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
     </RelativeLayout>
-
-
 
 </FrameLayout>

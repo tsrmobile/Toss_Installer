@@ -39,6 +39,7 @@
                 android:src="@drawable/ic_internet_error"/>
 
             <TextView
+                android:id="@+id/textview_fail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ไม่มีสามารถโหลดข้อมูลได้ หรือไม่มีข้อมูลในระบบ"/>

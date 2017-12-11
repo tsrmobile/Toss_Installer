@@ -6,10 +6,24 @@ import android.util.Log;
 
 import com.hwangjr.rxbus.RxBus;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import th.co.thiensurat.toss_installer.api.ApiService;
+import th.co.thiensurat.toss_installer.api.ApiURL;
+import th.co.thiensurat.toss_installer.api.Service;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
+import th.co.thiensurat.toss_installer.api.request.RequestAuth;
+import th.co.thiensurat.toss_installer.api.result.AuthItemResultGroup;
+import th.co.thiensurat.toss_installer.api.result.DashboardItemResultGroup;
+import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
@@ -139,5 +153,26 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
         dbHelper.setTableProduct(jobItemList);
 
         getView().onSuccess("");
+    }
+
+    @Override
+    public void getDistance(String origins, String destination) {
+        serviceManager.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc", new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Log.e("distance", result.toString());
+                try {
+                    JSONObject jsonObj = new JSONObject(result.toString());
+                    Log.e("json array", jsonObj.getString("destination_addresses"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("distance", t.getLocalizedMessage());
+            }
+        });
     }
 }

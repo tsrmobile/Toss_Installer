@@ -55,4 +55,24 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
         dbHelper.updateSerialToTableProduct(id, serial);
         getView().refreshProduct();
     }
+
+    @Override
+    public boolean checkItem(Context context) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        if (dbHelper.checkItemExisting()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean checkSerial(Context context, String serial, String productcode) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        if (dbHelper.checkItemSerial(serial, productcode)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

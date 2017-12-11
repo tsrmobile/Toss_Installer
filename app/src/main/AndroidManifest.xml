@@ -15,7 +15,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+
+    <permission
+        android:name="th.co.thiensurat.toss_installer.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="th.co.thiensurat.toss_installer.googlemapsv2.permission.MAPS_RECEIVE" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -30,8 +35,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon,android:theme">
-        <activity android:name=".MainActivity" />
-        <activity android:name=".auth.AuthActivity">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".auth.AuthActivity"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,8 +58,10 @@
             </intent-filter>
         </receiver>
         <!-- [END] -->
-        <activity android:name=".detail.DetailActivity" />
-        <activity android:name=".printer.DeviceList" />
+
+        <activity
+            android:name=".detail.DetailActivity"
+            android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".installation.InstallationActivity"
             android:screenOrientation="sensorPortrait" />
@@ -75,7 +86,8 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" /><!--android:name="com.google.android.maps.v2.API_KEY"-->
+            android:value="@string/google_maps_key" /> <!-- android:name="com.google.android.maps.v2.API_KEY" -->
+
 
         <!-- zxing -->
         <activity
@@ -95,8 +107,28 @@
             android:name=".mapcheckin.MapCheckinActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name=".map.MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:name=".mapcheckin.result.CheckinResultActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".contract.ContractActivity"
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".printer.bluetoothDevice.BluetoothDeviceActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".contract.signaturepad.SignatureActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/PopupTheme" />
+        <activity
+            android:name=".installation.step.StepViewActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity android:name=".detail.edit.EditActivity"
+            android:screenOrientation="sensorPortrait"></activity>
     </application>
 
 </manifest>

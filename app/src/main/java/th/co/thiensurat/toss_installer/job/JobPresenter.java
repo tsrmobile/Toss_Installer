@@ -54,20 +54,20 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
     }
 
     @Override
-    public void Jobrequest(String data, String empid) {
+    public void Jobrequest(String data, String empid, String location) {
         getView().onLoad();
-        serviceManager.getJob(data, empid, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
+        serviceManager.getJob(data, empid, location, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
             @Override
             public void onSuccess(JobItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
+                    getView().onDismiss();
                     JobItemGroup itemGroup = ConvertJobList.creatJobItemGroup(result);
                     jobItemGroup = itemGroup;
                     setJobItemGroup(jobItemGroup);
-
                     jobItemList = ConvertJobList.creatJobItemList(result.getData());
-                    getView().setJobItemToAdapter(jobItemList);
-                    getView().onDismiss();
-                } else if (result.getMessage().equals("FAIL")) {
+                    getView().setNewDataToSQLite(jobItemList);
+                    //getView().setJobItemToAdapter(jobItemList);
+                } else if (result.getStatus().equals("FAIL")) {
                     getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 } else if (result.getStatus().equals("ERROR")) {
@@ -98,16 +98,46 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
         getView().setJobItemToAdapter(jobItemGroup.getData());
     }
 
-    @Override
+    /*@Override
     public void insertDataToSQLite(Context context, List<JobItem> jobItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.isTableExists(Constance.TABLE_ADDRESS) || dbHelper.isTableExists(Constance.TABLE_PRODUCT)
-                || dbHelper.isTableExists(Constance.TABLE_IMAGE)) {
+        if (dbHelper.isTableExists(Constance.TABLE_JOB) || dbHelper.isTableExists(Constance.TABLE_ADDRESS)
+                || dbHelper.isTableExists(Constance.TABLE_PRODUCT) || dbHelper.isTableExists(Constance.TABLE_IMAGE)) {
+            dbHelper.emptyTable(Constance.TABLE_JOB);
             dbHelper.emptyTable(Constance.TABLE_ADDRESS);
             dbHelper.emptyTable(Constance.TABLE_PRODUCT);
             dbHelper.emptyTable(Constance.TABLE_IMAGE);
         }
+        dbHelper.setTableJob(jobItemList);
         dbHelper.setTableAddress(jobItemList);
         dbHelper.setTableProduct(jobItemList);
+    }*/
+
+    @Override
+    public void getJobFromSqlite(Context context, String date) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        this.jobItemGroup = dbHelper.getJobList(date);
+        setJobItemGroup(jobItemGroup);
+
+        jobItemList = jobItemGroup.getData();
+        getView().setJobItemToAdapter(jobItemList);
+    }
+
+    @Override
+    public void insertNewData(Context context, List<JobItem> jobItemList) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        if (dbHelper.isTableExists(Constance.TABLE_JOB) || dbHelper.isTableExists(Constance.TABLE_ADDRESS)
+                || dbHelper.isTableExists(Constance.TABLE_PRODUCT) || dbHelper.isTableExists(Constance.TABLE_IMAGE)) {
+            dbHelper.emptyTable(Constance.TABLE_JOB);
+            dbHelper.emptyTable(Constance.TABLE_ADDRESS);
+            dbHelper.emptyTable(Constance.TABLE_PRODUCT);
+            dbHelper.emptyTable(Constance.TABLE_IMAGE);
+        }
+
+        dbHelper.setTableJob(jobItemList);
+        dbHelper.setTableAddress(jobItemList);
+        dbHelper.setTableProduct(jobItemList);
+
+        getView().onSuccess("");
     }
 }

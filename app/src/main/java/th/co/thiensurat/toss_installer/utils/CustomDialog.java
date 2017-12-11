@@ -1,14 +1,19 @@
 package th.co.thiensurat.toss_installer.utils;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.widget.EditText;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.installation.InstallationActivity;
+import th.co.thiensurat.toss_installer.mapcheckin.MapCheckinActivity;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_SETTINGS;
 
@@ -61,12 +66,12 @@ public class CustomDialog {
     }
 
     public static void dialogSuccess(String success) {
-        new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)
-                .setTitleText("Success")
-                .setContentText(success)
-                .showCancelButton(false)
-                .setConfirmText("OK")
-                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE);
+        sweetAlertDialog.setTitleText("Success");
+        sweetAlertDialog.setContentText(success);
+        sweetAlertDialog.showCancelButton(false);
+        sweetAlertDialog.setConfirmText("OK");
+        sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog dialog) {
                         dialog.dismiss();
@@ -78,28 +83,52 @@ public class CustomDialog {
     }
 
     public static void dialogNetworkError() {
-        new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
-                .setTitleText("ไม่ได้เชื่อมต่ออินเตอร์เน็ต!")
-                .setContentText("กรุณาตั้งค่าการเชื่อมต่อ")
-                .showCancelButton(true)
-                .setCancelText("ยกเลิก")
-                .setConfirmText("ตั้งค่า")
-                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE);
+        sweetAlertDialog.setTitleText("ไม่ได้เชื่อมต่ออินเตอร์เน็ต!");
+        sweetAlertDialog.setContentText("กรุณาตั้งค่าการเชื่อมต่อ");
+        sweetAlertDialog.showCancelButton(true);
+        sweetAlertDialog.setCancelText("ยกเลิก");
+        sweetAlertDialog.setConfirmText("ตั้งค่า");
+        sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog sDialog) {
                         Intent intent = new Intent(Intent.ACTION_MAIN);
                         intent.setClassName("com.android.settings", "com.android.settings.wifi.WifiSettings");
                         ((Activity) context).startActivityForResult(intent, REQUEST_SETTINGS);
+                        sDialog.dismiss();
                     }
-                })
-                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                });
+        sweetAlertDialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog sweetAlertDialog) {
                         sweetAlertDialog.dismiss();
-                        ((Activity) context).finish();
+                        //((Activity) context).finish();
                     }
-                })
-                .show();
+                });
+        sweetAlertDialog.show();
+    }
+
+    public static void dialogBluetooth() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE);
+        sweetAlertDialog.setTitleText("ไม่พบปริ้นเตอร์");
+        sweetAlertDialog.setContentText("กรุณาเปิดบลูทูธ");
+        sweetAlertDialog.showCancelButton(true);
+        sweetAlertDialog.setCancelText("ยกเลิก");
+        sweetAlertDialog.setConfirmText("ตั้งค่า");
+        sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        ((Activity) context).startActivityForResult(intent, Constance.REQUEST_BLUETOOTH_SETTINGS);
+                    }
+                });
+        sweetAlertDialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.dismiss();
+                    }
+                });
+        sweetAlertDialog.show();
     }
 
     public static void dialogChooser(final Intent intent1, final int result1, final Intent intent2, final int result2) {
@@ -137,5 +166,32 @@ public class CustomDialog {
                     }
                 })
                 .show();
+    }
+
+    public static void dialogWarning(String warning) {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE);
+        sweetAlertDialog.setTitleText("คำเตือน");
+        sweetAlertDialog.setContentText(warning);
+        sweetAlertDialog.showCancelButton(false);
+        sweetAlertDialog.setConfirmText("OK");
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog dialog) {
+                        dialog.dismiss();
+                        if (context instanceof InstallationActivity) {
+                            Intent intent = new Intent(context, MainActivity.class);
+                            ((InstallationActivity)context).startActivity(intent);
+                        }
+                    }
+                }).show();
+    }
+
+    public static boolean dialogShowing() {
+        if (sweetAlertDialog.isShowing()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

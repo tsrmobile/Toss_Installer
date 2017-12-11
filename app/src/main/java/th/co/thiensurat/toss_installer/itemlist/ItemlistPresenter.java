@@ -1,5 +1,7 @@
 package th.co.thiensurat.toss_installer.itemlist;
 
+import android.content.Context;
+
 import com.hwangjr.rxbus.RxBus;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
 import th.co.thiensurat.toss_installer.itemlist.item.ConvertInstallItem;
 import th.co.thiensurat.toss_installer.itemlist.item.InstallItem;
 import th.co.thiensurat.toss_installer.itemlist.item.InstallItemGroup;
+import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
 /**
  * Created by teerayut.k on 11/10/2017.
@@ -17,6 +21,7 @@ import th.co.thiensurat.toss_installer.itemlist.item.InstallItemGroup;
 
 public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> implements ItemlistInterface.Presenter {
 
+    private DBHelper dbHelper;
     private ServiceManager serviceManager;
     private InstallItemGroup installItemGroup;
     private List<InstallItem> installItemList;
@@ -44,9 +49,9 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
     }
 
     @Override
-    public void requestInstallItem(String data, String empid) {
+    public void requestInstallItem(String data) {
         getView().onLoad();
-        serviceManager.loadInstallItem(data, empid, new ServiceManager.ServiceManagerCallback<InstallItemResultGroup>() {
+        serviceManager.loadInstallItem(data, "load", new ServiceManager.ServiceManagerCallback<InstallItemResultGroup>() {
             @Override
             public void onSuccess(InstallItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
@@ -57,7 +62,7 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
                     installItemList = ConvertInstallItem.creatinstallItemList(result.getData());
                     getView().setInstallItemToAdapter(installItemList);
                     getView().onDismiss();
-                } else if (result.getMessage().equals("FAIL")) {
+                } else if (result.getStatus().equals("FAIL")) {
                     getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 } else if (result.getStatus().equals("ERROR")) {
@@ -86,5 +91,11 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
     @Override
     public void setInstallItemToAdapter(InstallItemGroup installGroup) {
         getView().setInstallItemToAdapter(installGroup.getData());
+    }
+
+    @Override
+    public void insertDataToSQLite(Context context, List<InstallItem> installItemList) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.setTableItem(installItemList);
     }
 }

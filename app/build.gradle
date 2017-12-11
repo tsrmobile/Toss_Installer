@@ -9,7 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        //resValue "string", "google_maps_key", (project.findProperty("AIzaSyAGnxebFBsTNCLAxaWlAt4AGQTvh6rWZ5s") ?: "")
+        resValue "string", "google_maps_key", (project.findProperty("AIzaSyD49asLb2jSRF-ngbTonvNEQZ3sIg913Tg") ?: "")
         multiDexEnabled true
     }
     buildTypes {
@@ -29,7 +29,6 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
     compile 'com.android.support:recyclerview-v7:26.0.0-alpha1'
@@ -45,10 +44,13 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.5.0'
     compile 'com.google.zxing:core:3.2.0'
     compile 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
+    compile 'org.apache.commons:commons-lang3:3.6'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
     implementation project(':sweetAlert')
     implementation 'com.google.android.gms:play-services-maps:11.6.0'
     implementation 'com.google.android.gms:play-services:11.6.0'
+    implementation files('libs/com.datecs.api.jar')
+    implementation files('libs/btsdk.jar')
 }
 
 //apply plugin: 'com.google.gms.google-services'

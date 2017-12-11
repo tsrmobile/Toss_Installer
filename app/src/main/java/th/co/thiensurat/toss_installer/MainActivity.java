@@ -27,13 +27,16 @@ import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.dashboard.DashboardFragment;
+import th.co.thiensurat.toss_installer.itembalance.ItemBalanceFragment;
 import th.co.thiensurat.toss_installer.itemlist.ItemlistFragment;
 import th.co.thiensurat.toss_installer.job.JobFragment;
+import th.co.thiensurat.toss_installer.job.all.AllJobFragment;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> implements MainInterface.View {
 
+    private String itemIntent;
     private TextView textViewName, textViewTitle;
     private ImageView imageViewProfile;
     private boolean clickBackAain;
@@ -77,7 +80,8 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
     private void loadHomePage() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.container, DashboardFragment.getInstance()).addToBackStack(null).commit();
+        //transaction.replace(R.id.container, DashboardFragment.getInstance()).addToBackStack(null).commit();
+        transaction.replace(R.id.container, JobFragment.getInstance()).addToBackStack(null).commit();
     }
 
     private void setToolbar() {
@@ -140,12 +144,19 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
 
         switch (menuItem.getItemId()){
-            case R.id.memu_home :
+            /*case R.id.memu_home :
                 if (currentFragment instanceof DashboardFragment) {
                     drawerLayout.closeDrawers();
                 } else {
                     setTitle(getResources().getString(R.string.app_name));
                     transaction.replace(R.id.container, DashboardFragment.getInstance(), "DashboardFragment").addToBackStack(null).commit();
+                }
+                break;*/
+            case R.id.menu_job_all :
+                if (currentFragment instanceof AllJobFragment) {
+                    drawerLayout.closeDrawers();
+                } else {
+                    transaction.replace(R.id.container, AllJobFragment.getInstance(), "AllJobFragment").addToBackStack(null).commit();
                 }
                 break;
             case R.id.menu_assignment :
@@ -160,6 +171,13 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
                     drawerLayout.closeDrawers();
                 } else {
                     transaction.replace(R.id.container, ItemlistFragment.getInstance(), "ItemlistFragment").addToBackStack(null).commit();
+                }
+                break;
+            case R.id.menu_item_balance :
+                if (currentFragment instanceof ItemBalanceFragment) {
+                    drawerLayout.closeDrawers();
+                } else {
+                    transaction.replace(R.id.container, ItemBalanceFragment.getInstance(), "ItemBalanceFragment").addToBackStack(null).commit();
                 }
                 break;
             case R.id.menu_logout :

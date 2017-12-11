@@ -1,8 +1,15 @@
 package th.co.thiensurat.toss_installer.auth;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -26,10 +33,12 @@ import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
+import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CurrencLocation;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
@@ -39,6 +48,7 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     private boolean clickBackAain;
     private CustomDialog customDialog;
     private ChangeTintColor changeTintColor;
+    private CurrencLocation currencLocation;
 
     @Override
     public AuthInterface.Presenter createPresenter() {
@@ -50,10 +60,15 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
         return R.layout.activity_auth;
     }
 
-    @BindView(R.id.edt_user) EditText username;
-    @BindView(R.id.edt_pwd) EditText password;
-    @BindView(R.id.button_login) Button buttonLogin;
-    @BindView(R.id.foget_password) TextView textViewForgetPassword;
+    @BindView(R.id.edt_user)
+    EditText username;
+    @BindView(R.id.edt_pwd)
+    EditText password;
+    @BindView(R.id.button_login)
+    Button buttonLogin;
+    @BindView(R.id.foget_password)
+    TextView textViewForgetPassword;
+
     @Override
     public void bindView() {
         ButterKnife.bind(this);
@@ -63,11 +78,12 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     public void setupInstance() {
         customDialog = new CustomDialog(AuthActivity.this);
         changeTintColor = new ChangeTintColor(AuthActivity.this);
+        currencLocation = new CurrencLocation(AuthActivity.this);
     }
 
     @Override
     public void setupView() {
-        buttonLogin.setOnClickListener( onLogin() );
+        buttonLogin.setOnClickListener(onLogin());
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -80,7 +96,7 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
                 return false;
             }
         });
-        textViewForgetPassword.setOnClickListener( onForget() );
+        textViewForgetPassword.setOnClickListener(onForget());
 
         changeTintColor.setEditTextDrawableColor(username, R.color.DarkGray);
         changeTintColor.setEditTextDrawableColor(password, R.color.DarkGray);
@@ -133,6 +149,19 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     @Override
     public void onSuccess() {
         nextPage();
+        //currencLocation.getCurrent();
+        //String location = currencLocation.getLocationNow();
+        ///getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), location);
+    }
+
+    @Override
+    public void insertToSqlite(List<JobItem> jobItemList) {
+        /*if (jobItemList.size() > 0) {
+            getPresenter().insetToSqlite(AuthActivity.this, jobItemList);
+            nextPage();
+        } else {
+            nextPage();
+        }*/
     }
 
     @Override

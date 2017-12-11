@@ -29,6 +29,8 @@ public class TakePictureAdapter extends RecyclerView.Adapter<TakePictureAdapter.
     private ClickListener clickListener;
     private List<ImageItem> imageItemList = new ArrayList<ImageItem>();
 
+    private int visibility = View.VISIBLE;
+
     public TakePictureAdapter(Context context) {
         this.context = context;
     }
@@ -37,6 +39,9 @@ public class TakePictureAdapter extends RecyclerView.Adapter<TakePictureAdapter.
         this.imageItemList = itemList;
     }
 
+    public void setHideRemoveButton(int visibility) {
+        this.visibility = visibility;
+    }
     @Override
     public TakePictureAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_picture_installation, parent, false);
@@ -47,6 +52,7 @@ public class TakePictureAdapter extends RecyclerView.Adapter<TakePictureAdapter.
     public void onBindViewHolder(TakePictureAdapter.ViewHolder holder, int position) {
         ImageItem item = imageItemList.get(position);
         Glide.with(context).load(item.getImageUrl()).into(holder.imageView);
+        holder.relativeLayoutRemove.setVisibility(visibility);
     }
 
     @Override

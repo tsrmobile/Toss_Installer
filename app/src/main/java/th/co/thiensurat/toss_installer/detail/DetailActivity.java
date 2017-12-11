@@ -1,9 +1,20 @@
 package th.co.thiensurat.toss_installer.detail;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.InflateException;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
+import th.co.thiensurat.toss_installer.detail.edit.EditActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
@@ -73,6 +85,27 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
     }
 
+    /*@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.edit_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }*/
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        /*MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.edit_menu, menu);
+        return super.onCreateOptionsMenu(menu);*/
+        getMenuInflater().inflate(R.menu.edit_menu, menu);
+        for(int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            SpannableString spanString = new SpannableString(menu.getItem(i).getTitle().toString());
+            spanString.setSpan(new ForegroundColorSpan(Color.WHITE), 0, spanString.length(), 0);
+            item.setTitle(spanString);
+        }
+        return true;
+    }
+
     private void setToolbar() {
         toolbar.setTitle("");
         textViewTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -81,27 +114,15 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void setDetail() {
-        /*sb = new StringBuilder();
-        sb.append(addressItem.getAddrDetail());
-        sb.append((addressItem.getSubdistrict().equals("")) ? "" : " ต." + addressItem.getSubdistrict());
-        sb.append("\n");
-        sb.append((addressItem.getDistrict().equals("")) ? "" : "อ." + addressItem.getDistrict());
-        sb.append((addressItem.getProvince().equals("")) ? "" : " จ." + addressItem.getProvince());
-        sb.append((addressItem.getZipcode().equals("")) ? "" : " " + addressItem.getZipcode());
-        textViewAddress.setText(sb.toString());
-
-        textViewPhone.setText((addressItem.getPhone().equals("")) ? "-" : addressItem.getPhone());
-        textViewWork.setText((addressItem.getOffice().equals("")) ? "-" : addressItem.getOffice());
-        textViewMobile.setText((addressItem.getMobile().equals("")) ? "-" : addressItem.getMobile());
-        textViewEmail.setText((addressItem.getEmail().equals("")) ? "-" : addressItem.getEmail());*/
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_CANCELED);
             finish();
+        } else if (item.getItemId() == R.id.menu_edit) {
+            Intent intent = new Intent(DetailActivity.this, EditActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            startActivityForResult(intent, Constance.REQUEST_EDIT_DETAIL);
         }
         return super.onOptionsItemSelected(item);
     }

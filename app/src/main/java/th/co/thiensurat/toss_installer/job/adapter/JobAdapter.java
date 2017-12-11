@@ -37,6 +37,8 @@ import th.co.thiensurat.toss_installer.utils.helper.ItemTouchHelperViewHolder;
 import th.co.thiensurat.toss_installer.utils.helper.OnCustomerListChangedListener;
 import th.co.thiensurat.toss_installer.utils.helper.OnStartDragListener;
 
+import static th.co.thiensurat.toss_installer.utils.Utils.ConvertDateFormat;
+
 /**
  * Created by teerayut.k on 11/9/2017.
  */
@@ -92,18 +94,19 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
         holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
-        holder.textViewTime.setText(timeFormat.format(date));
+        holder.textViewTime.setText(timeFormat.format(date) + " น.");
         holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
-        holder.textViewEndTime.setText(timeFormat.format(endDate));
+        holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
 
         for (AddressItem addressItem : item.getAddress()) {
             if (addressItem.getAddressType().equals("AddressInstall")) {
                 int pos = position;
                 sb.append(addressItem.getAddrDetail());
-                sb.append((addressItem.getSubdistrict().equals("")) ? "" : " ต." + item.getAddress().get(pos).getSubdistrict());
                 sb.append("\n");
-                sb.append((addressItem.getDistrict().equals("")) ? "" : "อ." + addressItem.getDistrict());
-                sb.append((addressItem.getProvince().equals("")) ? "" : " จ." + addressItem.getProvince());
+                sb.append((addressItem.getSubdistrict().equals("")) ? "" : "" + item.getAddress().get(pos).getSubdistrict());
+                sb.append((addressItem.getDistrict().equals("")) ? "" : " " + addressItem.getDistrict());
+                sb.append("\n");
+                sb.append((addressItem.getProvince().equals("")) ? "" : "" + addressItem.getProvince());
                 sb.append((addressItem.getZipcode().equals("")) ? "" : " " + addressItem.getZipcode());
 
                 holder.textViewAddress.setText(sb.toString());
@@ -116,6 +119,8 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (MotionEventCompat.getActionMasked(motionEvent) == MotionEvent.ACTION_DOWN) {
                     dragListener.onStartDrag(holder);
+                } else {
+                    return false;
                 }
                 return false;
             }
@@ -215,7 +220,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
         void callMobile(View view, int position);
     }
 
-    private String ConvertDateFormat(String strdate) {
+    /*private String ConvertDateFormat(String strdate) {
         SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
         int year = 0, month = 0, day = 0;
         String d, m;
@@ -242,5 +247,5 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
             e.printStackTrace();
         }
         return null;
-    }
+    }*/
 }

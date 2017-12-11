@@ -46,7 +46,12 @@ public class InstallationAdapter extends RecyclerView.Adapter<InstallationAdapte
     public void onBindViewHolder(InstallationAdapter.ViewHolder holder, int position) {
         ProductItem item = productItemList.get(position);
         holder.textViewName.setText((item.getProductItemCode().equals("")) ? item.getProductName() : item.getProductItemName());
-        holder.textViewQTY.setText((item.getProductItemQty().equals("")) ? item.getProductQty() : item.getProductItemQty());
+        if (item.getProductItemQty().equals("") || item.getProductItemQty().equals("0")) {
+            holder.textViewQTY.setText(item.getProductQty());
+        } else {
+            holder.textViewQTY.setText(item.getProductItemQty());
+        }
+        //holder.textViewQTY.setText((item.getProductItemQty().equals("")) ? item.getProductQty() : item.getProductItemQty());
         holder.textViewSerial.setText((item.getProductSerial().equals("")) ? "" : item.getProductSerial());
         holder.textViewStatus.setText(item.getProductStatus());
 

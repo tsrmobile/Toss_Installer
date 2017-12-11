@@ -27,5 +27,7 @@ public class InstallationInterface {
         void setProductItemToAdapter(ProductItemGroup productItemGroup);
 
         void updateProduct(Context context, String id, String serial);
+        boolean checkItem(Context context);
+        boolean checkSerial(Context context, String serial, String productcode);
     }
 }

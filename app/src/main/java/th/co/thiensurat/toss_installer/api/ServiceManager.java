@@ -105,17 +105,17 @@ public class ServiceManager {
     /*************************************************End********************************************************/
 
     /*************************************************Load Job list**********************************************/
-    public Call<JobItemResultGroup> joblist(String data, String id) {
+    public Call<JobItemResultGroup> joblist(String data, String id, String location) {
         return Service.newInstance( BASE_URL )
                 .getApi( api )
-                .getJobList(data, id);
+                .getJobList(data, id, location);
     }
 
-    public void getJob(String data, String id, final ServiceManagerCallback<JobItemResultGroup> callback) {
-        joblist(data, id).enqueue(new Callback<JobItemResultGroup>() {
+    public void getJob(String data, String id, String location, final ServiceManagerCallback<JobItemResultGroup> callback) {
+        joblist(data, id, location).enqueue(new Callback<JobItemResultGroup>() {
             @Override
             public void onResponse(Call<JobItemResultGroup> call, Response<JobItemResultGroup> response) {
-                Log.e("request Job list", response + "");
+                Log.e("request Job list", response + ", " + response.body().getStatus());
                 if( callback != null ){
                     callback.onSuccess( response.body() );
                 }
@@ -132,14 +132,14 @@ public class ServiceManager {
     /*************************************************End********************************************************/
 
     /********************************************Load Install item************************************************/
-    public Call<InstallItemResultGroup> installItem(String data, String empid) {
+    public Call<InstallItemResultGroup> installItem(String data, String action) {
         return Service.newInstance( BASE_URL )
                 .getApi( api )
-                .getInstallItem(data, empid);
+                .getInstallItem(data, action);
     }
 
-    public void loadInstallItem(String data, String empid, final ServiceManagerCallback<InstallItemResultGroup> callback) {
-        installItem(data, empid).enqueue(new Callback<InstallItemResultGroup>() {
+    public void loadInstallItem(String data, String action, final ServiceManagerCallback<InstallItemResultGroup> callback) {
+        installItem(data, action).enqueue(new Callback<InstallItemResultGroup>() {
             @Override
             public void onResponse(Call<InstallItemResultGroup> call, Response<InstallItemResultGroup> response) {
                 Log.e("request Install item", response + "");

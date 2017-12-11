@@ -31,14 +31,11 @@ import th.co.thiensurat.toss_installer.R;
 
 public class SignatureActivity extends AppCompatActivity {
 
-    Signature signature;
-    //Button mClear, mGetSign, mCancel;
-    public static String tempDir;
-    public int count = 1;
-    public String current = null;
+    private Signature signature;
     private Bitmap bitmap;
-    View view;
-    File filePath;
+
+    private View view;
+    private File filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +67,6 @@ public class SignatureActivity extends AppCompatActivity {
     @BindView(R.id.linearLayout) LinearLayout linearLayoutPad;
     private void setUpView() {
         ButterKnife.bind(this);
-
         signature = new Signature(this, null);
         signature.setBackgroundColor(Color.WHITE);
         linearLayoutPad.addView(signature, LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
@@ -121,8 +117,6 @@ public class SignatureActivity extends AppCompatActivity {
             }
         };
     }
-
-
 
     public class Signature extends View {
 

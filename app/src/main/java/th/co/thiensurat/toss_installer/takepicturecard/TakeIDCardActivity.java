@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -53,7 +55,7 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
     private PermissionUtil permissionUtil;
     private ImageConfiguration imageConfiguration;
 
-    private String id;
+    private String id = "";
     private JobItem jobItem;
     private TakePictureAdapter adapter;
     private List<ImageItem> imageItemList;
@@ -71,7 +73,7 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
-    @BindView(R.id.floating_camera) FloatingActionButton floatingActionButton;
+    @BindView(R.id.floating_camera) Button floatingActionButton;
     @BindView(R.id.layout_bottom) RelativeLayout relativeLayoutBottom;
     @BindView(R.id.button_next) Button buttonNext;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
@@ -99,6 +101,7 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                floatingActionButton.startAnimation(new AnimateButton().animbutton());
                 id = "";
                 try {
                     imageChooser();
@@ -134,10 +137,20 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.gallery_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_CANCELED);
             finish();
+        } else if (item.getItemId() == R.id.menu_gallery) {
+            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            this.startActivityForResult(pickPhoto, Constance.REQUEST_GALLERY);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -190,12 +203,12 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
 
     private void imageChooser() throws IOException {
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImageFile();
+        file = imageConfiguration.createImageFile(jobItem.getOrderid());
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
-
-        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        customDialog.dialogChooser(pickPhoto, Constance.REQUEST_GALLERY, takePicture, REQUEST_CAMERA);
+        startActivityForResult(takePicture, REQUEST_CAMERA);
+        //Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        //customDialog.dialogChooser(pickPhoto, Constance.REQUEST_GALLERY, takePicture, REQUEST_CAMERA);
     }
 
     @Override
@@ -204,8 +217,7 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
         if (requestCode == Constance.REQUEST_GALLERY) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImage = data.getData();
-                file = new File(selectedImage.getPath());
-                setImage(file);
+                setImage(new File(imageConfiguration.getRealPathFromURI(selectedImage)));
             }
         } else if (requestCode == REQUEST_CAMERA) {
             if (resultCode == RESULT_OK) {
@@ -219,7 +231,7 @@ public class TakeIDCardActivity extends BaseMvpActivity<TakeIDCardInterface.Pres
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImageFile();
+        file = imageConfiguration.createImageFile(jobItem.getOrderid());
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);

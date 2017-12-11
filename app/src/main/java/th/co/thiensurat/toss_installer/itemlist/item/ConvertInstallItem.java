@@ -24,11 +24,12 @@ public class ConvertInstallItem {
         List<InstallItem> items = new ArrayList<>();
         for(InstallItemResult itemResult : InstallItemResults) {
             InstallItem jobItem = new InstallItem()
-                    .setOrderid(itemResult.getOrderid())
-                    .setProductCode(itemResult.getProductCode())
-                    .setProductRef(itemResult.getProductRef())
-                    .setProductName(itemResult.getProductName())
-                    .setProductQty(itemResult.getProductQty());
+                    .setPrintTakeStockID(itemResult.getPrintTakeStockID())
+                    .setProduct_SerialNum(itemResult.getProduct_SerialNum())
+                    .setRef_Date(itemResult.getRef_Date())
+                    .setProduct_Code(itemResult.getProduct_Code())
+                    .setProduct_Name(itemResult.getProduct_Name())
+                    .setAStockStatus(itemResult.getAStockStatus());
             items.add(jobItem);
         }
         return items;

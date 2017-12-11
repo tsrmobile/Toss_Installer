@@ -1,6 +1,9 @@
 package th.co.thiensurat.toss_installer.takepicture;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
@@ -11,6 +14,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -51,7 +56,8 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private PermissionUtil permissionUtil;
     private ImageConfiguration imageConfiguration;
 
-    private String id;
+    private String id = "-1";
+    private String serial;
     private JobItem jobItem;
     private TakePictureAdapter adapter;
     private List<ImageItem> imageItemList;
@@ -69,7 +75,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.recycler_view) RecyclerView recyclerView;
-    @BindView(R.id.floating_camera) FloatingActionButton floatingActionButton;
+    @BindView(R.id.floating_camera) Button floatingActionButton;
     @BindView(R.id.layout_bottom) RelativeLayout relativeLayoutBottom;
     @BindView(R.id.button_next) Button buttonNext;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
@@ -97,6 +103,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                floatingActionButton.startAnimation(new AnimateButton().animbutton());
                 id = "";
                 try {
                     imageChooser();
@@ -110,11 +117,12 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     public void initialize() {
         getDataFromIntent();
-        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_INSTALL);
+        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
     }
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
     }
 
     private void setRecyclerView() {
@@ -154,7 +162,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void refresh() {
-        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_INSTALL);
+        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
     }
 
     private void setToolbar() {
@@ -167,10 +175,20 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.gallery_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_CANCELED);
             finish();
+        } else if (item.getItemId() == R.id.menu_gallery) {
+            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            this.startActivityForResult(pickPhoto, Constance.REQUEST_GALLERY);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -189,12 +207,13 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     private void imageChooser() throws IOException {
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImageFile();
+        //file = imageConfiguration.createImageFile();
+        file = imageConfiguration.createImage(jobItem.getOrderid(), serial);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
-
-        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        customDialog.dialogChooser(pickPhoto, Constance.REQUEST_GALLERY, takePicture, REQUEST_CAMERA);
+        startActivityForResult(takePicture, REQUEST_CAMERA);
+        //Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        //customDialog.dialogChooser(pickPhoto, Constance.REQUEST_GALLERY, takePicture, REQUEST_CAMERA);
     }
 
     @Override
@@ -203,8 +222,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
         if (requestCode == Constance.REQUEST_GALLERY) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImage = data.getData();
-                file = new File(selectedImage.getPath());
-                setImage(file);
+                setImage(new File(imageConfiguration.getRealPathFromURI(selectedImage)));
             }
         } else if (requestCode == REQUEST_CAMERA) {
             if (resultCode == RESULT_OK) {
@@ -218,7 +236,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImageFile();
+        file = imageConfiguration.createImage(jobItem.getOrderid(), serial);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);
@@ -234,8 +252,8 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     private void setImage(File file) {
         String url = file.getPath().toString();
-        if (id.equals("")) {
-            getPresenter().saveImageUrl(TakePictureActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_INSTALL, url);
+        if (id.equals("-1")) {
+            getPresenter().saveImageUrl(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL, url);
         } else {
             getPresenter().editImageUrl(TakePictureActivity.this, id, url);
         }

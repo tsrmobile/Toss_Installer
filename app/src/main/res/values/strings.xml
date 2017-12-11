@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TOSS Installer</string>
+    <string name="app_name">TOSS Installer&amp;Payment</string>
 
     <string name="openDrawer"></string>
     <string name="closeDrawer"></string>

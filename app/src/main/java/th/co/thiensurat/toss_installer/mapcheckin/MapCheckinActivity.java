@@ -1,13 +1,26 @@
 package th.co.thiensurat.toss_installer.mapcheckin;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -16,14 +29,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -33,12 +55,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.mapcheckin.result.CheckinResultActivity;
+import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CustomDialog;
+import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
 
 public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Presenter>
         implements MapCheckinInterface.View, OnMapReadyCallback,
@@ -49,8 +84,9 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
         GoogleMap.OnMarkerClickListener,
         LocationListener {
 
+    private LatLng latLng;
     private JobItem jobItem;
-
+    private Uri pictureUri;
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
     private double longitude;
@@ -59,6 +95,8 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
     private Location currentLocation;
 
     private TextView textViewTitle;
+    private CustomDialog customDialog;
+    private ImageConfiguration imageConfiguration;
 
     @Override
     public MapCheckinInterface.Presenter createPresenter() {
@@ -71,14 +109,19 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
     }
 
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.floating_camera) Button floatingActionButtonCamera;
+    @BindView(R.id.map_layout) LinearLayout linearLayoutMap;
+
     @Override
     public void bindView() {
         ButterKnife.bind(this);
+        floatingActionButtonCamera.setOnClickListener(onCapture());
     }
 
     @Override
     public void setupInstance() {
-
+        customDialog = new CustomDialog(MapCheckinActivity.this);
+        imageConfiguration = new ImageConfiguration(MapCheckinActivity.this);
     }
 
     @Override
@@ -86,11 +129,18 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
         setToolbar();
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        if (checkGPSEnable()) {
+            buildGoogleApiClient();
+        } else {
+            displayLocationSettingsRequest();
+        }
+        googleApiClient.connect();
     }
 
     @Override
     public void initialize() {
         getDataFromIntent();
+        getPresenter().checkImage(MapCheckinActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_CHECKIN);
     }
 
     private void setToolbar() {
@@ -119,15 +169,41 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
             setResult(RESULT_CANCELED);
             finish();
         } else if (item.getItemId() == R.id.menu_gps) {
-            if (checkLocationPermission())
-                getCurrentLocation();
+            if (checkLocationPermission() && checkGPSEnable()) {
+                if (googleApiClient.isConnected()) {
+                    getCurrentLocation();
+                } else {
+                    if (googleApiClient == null) {
+                        buildGoogleApiClient();
+                        googleApiClient.connect();
+                    }
+                    getCurrentLocation();
+                }
+            } else {
+                displayLocationSettingsRequest();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        getCurrentLocation();
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(3000);
+        locationRequest.setFastestInterval(3000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override
@@ -141,7 +217,9 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
     }
 
     private void moveMap() {
-        mMap.clear();
+        if (mMap != null) {
+            mMap.clear();
+        }
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.addMarker(new MarkerOptions().position(latLng).title("").draggable(true));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -187,24 +265,26 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
         LatLng latLng = new LatLng(13.881021, 100.405851);
         mMap.addMarker(new MarkerOptions().position(latLng).title("").draggable(true));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        /*if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(MapCheckinActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
             }
-        }
-        else {
+        } else {
             buildGoogleApiClient();
+            //getCurrentLocation();
         }
+        googleApiClient.connect();*/
+        //getCurrentLocation();
     }
 
     @Override
     public void onLocationChanged(Location location) {
         currentLocation = location;
-        mMap.clear();
+        if (mMap != null)
+            mMap.clear();
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         moveMap();
@@ -215,18 +295,26 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
 
     private void getCurrentLocation() {
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setInterval(3000);
+        locationRequest.setFastestInterval(3000);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        if (ContextCompat.checkSelfPermission(MapCheckinActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        //LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
+    public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(MapCheckinActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -248,32 +336,159 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(MapCheckinActivity.this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        if (googleApiClient == null) {
-                            buildGoogleApiClient();
-                        }
-                        mMap.setMyLocationEnabled(true);
+        if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(MapCheckinActivity.this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    if (googleApiClient == null) {
+                        buildGoogleApiClient();
                     }
-                } else {
-                    Toast.makeText(MapCheckinActivity.this, "permission denied", Toast.LENGTH_LONG).show();
+                    googleApiClient.connect();
+                    mMap.setMyLocationEnabled(true);
                 }
-                return;
+            } else {
+                customDialog.dialogFail("Permission denied");
+            }
+        } else if (requestCode == Constance.REQUEST_EXTERNAL_STORAGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1] == PackageManager.PERMISSION_DENIED) {
+                customDialog.dialogFail("กรุณาเลือก \"อนุญาต\" หรือ Allow\\nเพื่อให้แอพฯ สามารถบันทึกภาพได้");
+            } else {
+                captureScreen();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constance.REQUEST_CHECKIN_RESULT) {
+            if (resultCode == RESULT_CANCELED) {
+                buildGoogleApiClient();
+                googleApiClient.connect();
             }
         }
     }
 
     protected synchronized void buildGoogleApiClient() {
-        googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+        googleApiClient = new GoogleApiClient.Builder(MapCheckinActivity.this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-        googleApiClient.connect();
+        //googleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        googleApiClient.disconnect();
+        super.onStop();
+    }
+
+
+    private View.OnClickListener onCapture() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                floatingActionButtonCamera.startAnimation(new AnimateButton().animbutton());
+                verifyStoragePermissions(MapCheckinActivity.this);
+            }
+        };
+    }
+
+    public void verifyStoragePermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, Constance.PERMISSIONS_STORAGE,
+                    Constance.REQUEST_EXTERNAL_STORAGE
+            );
+        } else {
+            captureScreen();
+        }
+    }
+
+    private boolean checkGPSEnable() {
+        LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled && !network_enabled) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void resultCheckin() {
+        Intent intent = new Intent(MapCheckinActivity.this, CheckinResultActivity.class);
+        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        startActivityForResult(intent, Constance.REQUEST_CHECKIN_RESULT);
+    }
+
+    private void displayLocationSettingsRequest() {
+        buildGoogleApiClient();
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        buildGoogleApiClient();
+                        googleApiClient.connect();
+                        //getCurrentLocation();
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            status.startResolutionForResult(MapCheckinActivity.this, Constance.REQUEST_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        break;
+                }
+            }
+        });
+    }
+
+    public void captureScreen() {
+        GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+
+            @Override
+            public void onSnapshotReady(Bitmap snapshot) {
+                Bitmap bitmap = snapshot;
+                try {
+                    File imageFile = imageConfiguration.createImageFile(jobItem.getOrderid());
+                    FileOutputStream outputStream = new FileOutputStream(imageFile);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                    outputStream.flush();
+                    outputStream.close();
+                    pictureUri = Uri.fromFile( imageFile );
+                } catch (FileNotFoundException e) {
+
+                } catch (IOException e) {
+                }
+
+                getPresenter().saveImageUrl(MapCheckinActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_CHECKIN, pictureUri.getPath().toString());
+            }
+        };
+        mMap.snapshot(callback);
     }
 }

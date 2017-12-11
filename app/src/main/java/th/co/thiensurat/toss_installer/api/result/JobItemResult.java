@@ -18,12 +18,10 @@ public class JobItemResult {
     private String firstName;
     private String lastName;
     private String contactphone;
-    /*private String productCode;
-    private String productName;
-    private String productQty;*/
     private String installStartDate;
     private String installEndDate;
-    //private AddressItem address;
+    private String paytype;
+    private String status;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -75,30 +73,6 @@ public class JobItemResult {
         this.contactphone = contactphone;
     }
 
-    /*public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public String getProductQty() {
-        return productQty;
-    }
-
-    public void setProductQty(String productQty) {
-        this.productQty = productQty;
-    }*/
-
     public String getInstallStartDate() {
         return installStartDate;
     }
@@ -115,13 +89,21 @@ public class JobItemResult {
         this.installEndDate = installEndDate;
     }
 
-    /*public AddressItem getAddress() {
-        return address;
+    public String getPaytype() {
+        return paytype;
     }
 
-    public void setAddress(AddressItem address) {
-        this.address = address;
-    }*/
+    public void setPaytype(String paytype) {
+        this.paytype = paytype;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public List<ProductItem> getProduct() {
         return product;

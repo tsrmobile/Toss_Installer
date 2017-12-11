@@ -27,7 +27,7 @@ public class TakeHomePresenter extends BaseMvpPresenter<TakeHomeInterface.View> 
     @Override
     public void saveImageUrl(Context context, String orderid, String type, String url) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        dbHelper.addImage(orderid, type, url);
+        dbHelper.addImage(orderid, "", type, url);
         getView().refresh();
     }
 

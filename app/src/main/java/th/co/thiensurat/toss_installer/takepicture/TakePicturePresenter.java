@@ -22,17 +22,17 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
     }
 
     @Override
-    public void saveImageUrl(Context context, String orderid, String type, String url) {
+    public void saveImageUrl(Context context, String orderid, String serial, String type, String url) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        dbHelper.addImage(orderid, type, url);
+        dbHelper.addImage(orderid, serial, type, url);
         getView().refresh();
     }
 
     @Override
-    public void getImage(Context context, String orderid, String type) {
+    public void getImage(Context context, String orderid, String serial, String type) {
         getView().onLoading();
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        this.imageItemList = dbHelper.getImage(orderid, type);
+        this.imageItemList = dbHelper.getImageWithserial(orderid, serial, type);
         getView().setImageToAdapter(imageItemList);
     }
 

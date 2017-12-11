@@ -6,53 +6,62 @@ package th.co.thiensurat.toss_installer.api.result;
 
 public class InstallItemResult {
 
-    private String orderid;
-    private String productCode;
-    private String productRef;
-    private String productName;
-    private String productQty;
+    private String PrintTakeStockID;
+    private String Product_SerialNum;
+    private String Ref_Date;
+    private String Product_Code;
+    private String Product_Name;
+    private String AStockStatus;
 
     public InstallItemResult() {
 
     }
 
-    public String getOrderid() {
-        return orderid;
+    public String getPrintTakeStockID() {
+        return PrintTakeStockID;
     }
 
-    public void setOrderid(String orderid) {
-        this.orderid = orderid;
+    public void setPrintTakeStockID(String printTakeStockID) {
+        PrintTakeStockID = printTakeStockID;
     }
 
-    public String getProductCode() {
-        return productCode;
+    public String getProduct_SerialNum() {
+        return Product_SerialNum;
     }
 
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
+    public void setProduct_SerialNum(String product_SerialNum) {
+        Product_SerialNum = product_SerialNum;
     }
 
-    public String getProductRef() {
-        return productRef;
+    public String getRef_Date() {
+        return Ref_Date;
     }
 
-    public void setProductRef(String productRef) {
-        this.productRef = productRef;
+    public void setRef_Date(String ref_Date) {
+        Ref_Date = ref_Date;
     }
 
-    public String getProductName() {
-        return productName;
+    public String getProduct_Code() {
+        return Product_Code;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setProduct_Code(String product_Code) {
+        Product_Code = product_Code;
     }
 
-    public String getProductQty() {
-        return productQty;
+    public String getProduct_Name() {
+        return Product_Name;
     }
 
-    public void setProductQty(String productQty) {
-        this.productQty = productQty;
+    public void setProduct_Name(String product_Name) {
+        Product_Name = product_Name;
+    }
+
+    public String getAStockStatus() {
+        return AStockStatus;
+    }
+
+    public void setAStockStatus(String AStockStatus) {
+        this.AStockStatus = AStockStatus;
     }
 }

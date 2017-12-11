@@ -23,14 +23,18 @@ public class JobInterface {
         void onFail(String fail);
         void onSuccess(String success);
         void setJobItemToAdapter(List<JobItem> itemList);
+        void setNewDataToSQLite(List<JobItem> itemList);
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<JobInterface.View> {
-        void Jobrequest(String data, String empid);
+        void Jobrequest(String data, String empid, String location);
         void setJobItemGroup(JobItemGroup itemGroup);
         JobItemGroup getJobItemGroup();
         void setJobItemToAdapter(JobItemGroup jobItemGroup);
 
-        void insertDataToSQLite(Context context, List<JobItem> jobItemList);
+        //void insertDataToSQLite(Context context, List<JobItem> jobItemList);
+        void getJobFromSqlite(Context context, String date);
+
+        void insertNewData(Context context, List<JobItem> jobItemList);
     }
 }

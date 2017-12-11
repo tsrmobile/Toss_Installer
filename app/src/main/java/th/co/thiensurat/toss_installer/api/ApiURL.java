@@ -12,4 +12,5 @@ public class ApiURL {
     public static final String SUMMARY_URL = "/android/api/v1.0/installer/summary/";
     public static final String JOB_URL = "/android/api/v1.0/installer/job/";
     public static final String INSTALL_ITEM_URL = "/android/api/v1.0/installer/installitem/";
+    public static final String ITEM_URL = "/android/api/v1.0/toss/assigmentstock/";
 }

@@ -1,5 +1,7 @@
 package th.co.thiensurat.toss_installer.itemlist;
 
+import android.content.Context;
+
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
@@ -21,9 +23,11 @@ public class ItemlistInterface {
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<ItemlistInterface.View> {
-        void requestInstallItem(String data, String empid);
+        void requestInstallItem(String data);
         void setInstallItemGroup(InstallItemGroup itemGroup);
         InstallItemGroup getInstallItemGroup();
         void setInstallItemToAdapter(InstallItemGroup installGroup);
+
+        void insertDataToSQLite(Context context, List<InstallItem> installItemList);
     }
 }

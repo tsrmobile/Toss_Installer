@@ -13,6 +13,7 @@ import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 
 import static th.co.thiensurat.toss_installer.api.ApiURL.AUTH_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.INSTALL_ITEM_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.ITEM_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.SUMMARY_URL;
 
@@ -29,8 +30,8 @@ public interface ApiService {
     Call<DashboardItemResultGroup> getSummary(@Query("data") String data, @Query("empid") String empid);
 
     @GET( JOB_URL )
-    Call<JobItemResultGroup> getJobList(@Query("data") String data, @Query("empid") String id);
+    Call<JobItemResultGroup> getJobList(@Query("data") String data, @Query("empid") String id, @Query("location") String location);
 
-    @GET( INSTALL_ITEM_URL )
-    Call<InstallItemResultGroup> getInstallItem(@Query("data") String data, @Query("empid") String id);
+    @GET( ITEM_URL )
+    Call<InstallItemResultGroup> getInstallItem(@Query("data") String data, @Query("action") String action);
 }

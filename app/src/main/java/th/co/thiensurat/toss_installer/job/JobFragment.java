@@ -15,29 +15,40 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
+import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
 import th.co.thiensurat.toss_installer.detail.DetailActivity;
+import th.co.thiensurat.toss_installer.installation.step.StepViewActivity;
 import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
+import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CurrencLocation;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
@@ -56,7 +67,10 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     private CustomDialog customDialog;
     private ItemTouchHelper itemTouchHelper;
     private LinearLayoutManager layoutManager;
+    private CurrencLocation currencLocation;
     private List<JobItem> jobItemList;
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public JobFragment() {
         // Required empty public constructor
@@ -77,6 +91,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     }
 
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
+    @BindView(R.id.textview_fail) TextView textViewFail;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
     @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
     @Override
@@ -90,17 +105,40 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         adapter = new JobAdapter(getActivity(), JobFragment.this, JobFragment.this);
         customDialog = new CustomDialog(getActivity());
         layoutManager = new LinearLayoutManager(getActivity());
+        currencLocation = new CurrencLocation(getActivity());
     }
 
     @Override
     public void setupView() {
         ((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง");
         setRecyclerView();
+        setHasOptionsMenu(true);
     }
 
     @Override
     public void initialize() {
-        getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.sync_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_sync) {
+            boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+            if (!isNetworkAvailable) {
+                customDialog.dialogNetworkError();
+            } else {
+                currencLocation.getCurrent();
+                String addLocation = currencLocation.getLocationNow();
+                getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), addLocation);
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setRecyclerView() {
@@ -115,7 +153,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
 
     @Override
     public void onRefresh() {
-        getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
     }
 
     @Override
@@ -130,14 +168,14 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
 
     @Override
     public void onFail(String fail) {
-        //customDialog.dialogFail(fail);
+        textViewFail.setText(fail);
         relativeLayoutFail.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
     }
 
     @Override
     public void onSuccess(String success) {
-
+        getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
     }
 
     @Override
@@ -165,18 +203,30 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
 
     @Override
     public void setJobItemToAdapter(List<JobItem> itemList) {
+        relativeLayoutFail.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+
         this.jobItemList = getOrderItem(itemList);
+
         swipeRefreshLayout.setRefreshing(false);
         adapter.setJobList(jobItemList);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         adapter.setItemClick(this);
 
-        getPresenter().insertDataToSQLite(getActivity(), jobItemList);
+        if (jobItemList.size() == 0) {
+            relativeLayoutFail.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public void setNewDataToSQLite(List<JobItem> itemList) {
+        getPresenter().insertNewData(getActivity(), itemList);
     }
 
     @Override
@@ -197,14 +247,13 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             }
         }
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            //request permission from user if the app hasn't got the required permission
             ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CALL_PHONE},   //request specific permission from user
+                    new String[]{Manifest.permission.CALL_PHONE},
                     10);
             return;
-        }else {     //have got permission
-            try{
-                startActivity(callIntent);  //call activity and make phone call
+        }else {
+            try {
+                startActivity(callIntent);
             }
             catch (android.content.ActivityNotFoundException ex){
                Log.e("call phone", ex.getLocalizedMessage());
@@ -223,14 +272,13 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             }
         }
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            //request permission from user if the app hasn't got the required permission
             ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CALL_PHONE},   //request specific permission from user
+                    new String[]{Manifest.permission.CALL_PHONE},
                     10);
             return;
-        }else {     //have got permission
-            try{
-                startActivity(callIntent);  //call activity and make phone call
+        }else {
+            try {
+                startActivity(callIntent);
             }
             catch (android.content.ActivityNotFoundException ex){
                 Log.e("call mobile", ex.getLocalizedMessage());

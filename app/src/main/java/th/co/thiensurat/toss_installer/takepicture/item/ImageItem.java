@@ -13,6 +13,7 @@ public class ImageItem extends BaseItem implements Parcelable {
 
     private String imageId;
     private String imageOrderId;
+    private String imageSerial;
     private String imageType;
     private String imageUrl;
 
@@ -24,6 +25,7 @@ public class ImageItem extends BaseItem implements Parcelable {
         super(in);
         imageId         = in.readString();
         imageOrderId    = in.readString();
+        imageSerial     = in.readString();
         imageType       = in.readString();
         imageUrl        = in.readString();
     }
@@ -43,6 +45,15 @@ public class ImageItem extends BaseItem implements Parcelable {
 
     public ImageItem setImageOrderId(String imageOrderId) {
         this.imageOrderId = imageOrderId;
+        return this;
+    }
+
+    public String getImageSerial() {
+        return imageSerial;
+    }
+
+    public ImageItem setImageSerial(String imageSerial) {
+        this.imageSerial = imageSerial;
         return this;
     }
 
@@ -74,6 +85,7 @@ public class ImageItem extends BaseItem implements Parcelable {
         super.writeToParcel(dest, flags);
         dest.writeString(imageId);
         dest.writeString(imageOrderId);
+        dest.writeString(imageSerial);
         dest.writeString(imageType);
         dest.writeString(imageUrl);
     }
@@ -95,6 +107,7 @@ public class ImageItem extends BaseItem implements Parcelable {
         ImageItem imageItem = new ImageItem()
                 .setImageId(imageId)
                 .setImageOrderId(imageOrderId)
+                .setImageSerial(imageSerial)
                 .setImageType(imageType)
                 .setImageUrl(imageUrl);
         return imageItem;

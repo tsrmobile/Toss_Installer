@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -31,14 +32,18 @@ import th.co.thiensurat.toss_installer.job.item.ProductItem;
 import th.co.thiensurat.toss_installer.takepicture.TakePictureActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 public class InstallationActivity extends BaseMvpActivity<InstallationInterface.Presenter>
         implements InstallationInterface.View, InstallationAdapter.ClickListener  {
 
     private String id;
+    private String serial;
     private JobItem jobItem;
+    private String productcode;
     private TextView textViewTitle;
+    private CustomDialog customDialog;
     private InstallationAdapter adapter;
     private LinearLayoutManager layoutManager;
     private List<ProductItem> productItemList;
@@ -65,6 +70,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
 
     @Override
     public void setupInstance() {
+        customDialog = new CustomDialog(InstallationActivity.this);
         adapter = new InstallationAdapter(InstallationActivity.this);
         layoutManager = new LinearLayoutManager(InstallationActivity.this);
     }
@@ -78,7 +84,11 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     @Override
     public void initialize() {
         getDataFromIntent();
-        getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
+        if (getPresenter().checkItem(InstallationActivity.this)) {
+            getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
+        } else {
+            customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
+        }
     }
 
     private void setRecyclerView() {
@@ -93,11 +103,25 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         adapter.setClickListener(this);
+
+        for (ProductItem item : productItemList) {
+            if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
+                serial = item.getProductSerial();
+                relativeLayoutNext.setVisibility(View.VISIBLE);
+            } else {
+                relativeLayoutNext.setVisibility(View.GONE);
+                return;
+            }
+        }
     }
 
     @Override
     public void refreshProduct() {
-        getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
+        if (getPresenter().checkItem(InstallationActivity.this)) {
+            getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
+        } else {
+            customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
+        }
     }
 
     private void setToolbar() {
@@ -120,14 +144,21 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
             if(result.getContents() == null) {
                 relativeLayoutNext.setVisibility(View.GONE);
             } else {
-                getPresenter().updateProduct(InstallationActivity.this, id, result.getContents());
-                for(ProductItem item : productItemList) {
-                    if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
-                        relativeLayoutNext.setVisibility(View.VISIBLE);
-                    } else {
-                        relativeLayoutNext.setVisibility(View.GONE);
-                        return;
+                if (getPresenter().checkSerial(InstallationActivity.this, result.getContents(), productcode)) {
+                    serial = result.getContents();
+                    getPresenter().updateProduct(InstallationActivity.this, id, result.getContents());
+                    for (ProductItem item : productItemList) {
+                        if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
+                            relativeLayoutNext.setVisibility(View.VISIBLE);
+                        } else {
+                            relativeLayoutNext.setVisibility(View.GONE);
+                            return;
+                        }
                     }
+                    //Log.e("Check serial", String.valueOf(getPresenter().checkSerial(InstallationActivity.this, result.getContents(), productcode)));
+                } else {
+                    serial = "000";
+                    customDialog.dialogFail("serial สินค้าไม่ถูกต้อง!");
                 }
             }
         } else {
@@ -151,6 +182,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
                 buttonNext.startAnimation(new AnimateButton().animbutton());
                 Intent intent = new Intent(getApplicationContext(), TakePictureActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+                intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
                 startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
             }
         };
@@ -160,9 +192,18 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     public void ClickedListener(View view, int position) {
         ProductItem item = productItemList.get(position);
         id = item.getProductID();
+        productcode = item.getProductCode();
         IntentIntegrator integrator = new IntentIntegrator(InstallationActivity.this);
         integrator.setOrientationLocked(true);
         integrator.setCaptureActivity(CaptureActivityPortrait.class);
         integrator.initiateScan();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            return false;
+        }
+        return super.dispatchKeyEvent(event);
     }
 }

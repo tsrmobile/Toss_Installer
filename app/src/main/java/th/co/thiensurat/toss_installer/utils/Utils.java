@@ -57,11 +57,6 @@ public class Utils {
             // Generic catch. Do what you want.
         }
 
-        /*if (MyApplication.getInstance().getPrefManager().getApplicationLanguage().equals("TH")) {
-            dateFormat = new SimpleDateFormat("dd MMM");
-        } else {
-            dateFormat = new SimpleDateFormat("dd MMM", Locale.US);
-        }*/
         dateFormat = new SimpleDateFormat("dd MMM", new Locale("th", "TH"));
 
         String returnDate = dateFormat.format(date) + " " + subStringforYear(str);
@@ -94,12 +89,6 @@ public class Utils {
         } catch(Exception exception) {
             // Generic catch. Do what you want.
         }
-
-        /*if (MyApplication.getInstance().getPrefManager().getApplicationLanguage().equals("TH")) {
-            monthFormat = new SimpleDateFormat("MMM");
-        } else {
-            monthFormat = new SimpleDateFormat("MMM", Locale.US);
-        }*/
         monthFormat = new SimpleDateFormat("MMM", new Locale("th", "TH"));
 
         String monthYear = monthFormat.format(date) + " " + subStringforYear(str);
@@ -124,24 +113,32 @@ public class Utils {
         }
 
         yearFormat = new SimpleDateFormat("yy");
-        /*int fullyear = Integer.parseInt(yearFormat.format(date)) + 543;
-
-
-        int year = Integer.parseInt(yearFormat.format(date)) + 543;
-
-        String y = "" + year;*/
         Log.e("format year: ", str + ", "+ fullyear);
         return yearFormat.format(date);
     }
 
-    public static List<DataItem> initProvince() {
-        List<DataItem> dataItemList = new ArrayList<DataItem>();
-        dataItem = new DataItem()
-                .setDataid("")
-                .setDatacode("")
-                .setDataname("");
-        dataItemList.add(dataItem);
+    public static String ConvertMItoKM(String distance) {
+        String[] dis = distance.split(" ");
+        double dist = Double.parseDouble(dis[0]) * 1.609;
+        return String.valueOf(formatDecimal((float) dist)) + " กม.";
+    }
 
-        return dataItemList;
+    public static String ConvertDurationToThai(String duration) {
+        String[] dur = duration.split(" ");
+        if (dur.length > 2) {
+            return String.valueOf(dur[0]) + " ชม. " + String.valueOf(dur[2]) + " น.";
+        } else {
+
+            return String.valueOf(dur[0]) + " น.";
+        }
+    }
+
+    public static String formatDecimal(float number) {
+        float point = 0.004f;
+        if (Math.abs(Math.round(number) - number) < point) {
+            return String.format("%,.2f", number);
+        } else {
+            return String.format("%,.2f", number);
+        }
     }
 }

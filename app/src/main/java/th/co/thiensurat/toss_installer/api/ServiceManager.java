@@ -15,6 +15,7 @@ import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 
 import static th.co.thiensurat.toss_installer.api.ApiURL.BASE_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_BASE_URL;
 
 /**
  * Created by teerayut.k on 7/17/2017.
@@ -157,4 +158,31 @@ public class ServiceManager {
         });
     }
     /*************************************************End********************************************************/
+
+    /********************************************Get distance************************************************/
+    public Call distance(String units, String origins, String destination, String key) {
+        return Service.newInstance( GOOGLE_BASE_URL )
+                .getApi( api )
+                .getDistance(units, origins, destination, key);
+    }
+    
+    public void getDistance(String units, String origins, String destination, String key, final ServiceManagerCallback callback) {
+        distance(units, origins, destination, key).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.e("request Distance", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /************************************************End*****************************************************/
 }

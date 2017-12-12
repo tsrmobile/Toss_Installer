@@ -12,6 +12,7 @@ import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 
 import static th.co.thiensurat.toss_installer.api.ApiURL.AUTH_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_MAP_API_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.INSTALL_ITEM_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.ITEM_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_URL;
@@ -34,4 +35,7 @@ public interface ApiService {
 
     @GET( ITEM_URL )
     Call<InstallItemResultGroup> getInstallItem(@Query("data") String data, @Query("action") String action);
+
+    @GET( GOOGLE_MAP_API_URL )
+    Call<Object> getDistance(@Query("units") String imperial, @Query("origins") String origins, @Query("destinations") String destinations, @Query("key") String key);
 }

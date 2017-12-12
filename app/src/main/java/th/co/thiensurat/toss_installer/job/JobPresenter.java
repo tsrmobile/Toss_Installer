@@ -4,11 +4,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.hwangjr.rxbus.RxBus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ import th.co.thiensurat.toss_installer.job.item.ConvertJobList;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.Utils;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
 /**
@@ -112,23 +115,9 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
         getView().setJobItemToAdapter(jobItemGroup.getData());
     }
 
-    /*@Override
-    public void insertDataToSQLite(Context context, List<JobItem> jobItemList) {
-        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.isTableExists(Constance.TABLE_JOB) || dbHelper.isTableExists(Constance.TABLE_ADDRESS)
-                || dbHelper.isTableExists(Constance.TABLE_PRODUCT) || dbHelper.isTableExists(Constance.TABLE_IMAGE)) {
-            dbHelper.emptyTable(Constance.TABLE_JOB);
-            dbHelper.emptyTable(Constance.TABLE_ADDRESS);
-            dbHelper.emptyTable(Constance.TABLE_PRODUCT);
-            dbHelper.emptyTable(Constance.TABLE_IMAGE);
-        }
-        dbHelper.setTableJob(jobItemList);
-        dbHelper.setTableAddress(jobItemList);
-        dbHelper.setTableProduct(jobItemList);
-    }*/
-
     @Override
     public void getJobFromSqlite(Context context, String date) {
+        getView().onLoad();
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.jobItemGroup = dbHelper.getJobList(date);
         setJobItemGroup(jobItemGroup);
@@ -155,17 +144,22 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
         getView().onSuccess("");
     }
 
-    @Override
+    /*@Override
     public void getDistance(String origins, String destination) {
         serviceManager.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc", new ServiceManager.ServiceManagerCallback() {
             @Override
             public void onSuccess(Object result) {
                 Log.e("distance", result.toString());
                 try {
-                    JSONObject jsonObj = new JSONObject(result.toString());
-                    Log.e("json array", jsonObj.getString("destination_addresses"));
+                    Gson gson = new Gson();
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    JSONArray jsonArray = jsonObject.getJSONArray("rows");
+                    JSONArray jsonArr = jsonArray.getJSONObject(0).getJSONArray("elements");
+                    JSONObject jsonObjDis = jsonArr.getJSONObject(0).getJSONObject("distance");
+                    JSONObject jsonObjDur = jsonArr.getJSONObject(0).getJSONObject("duration");
+                    getView().setDistance(Utils.ConvertMItoKM(jsonObjDis.getString("text")), Utils.ConvertDurationToThai(jsonObjDur.getString("text")));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.e("jsonexception", e.getLocalizedMessage());
                 }
             }
 
@@ -174,5 +168,5 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
                 Log.e("distance", t.getLocalizedMessage());
             }
         });
-    }
+    }*/
 }

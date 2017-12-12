@@ -1,5 +1,6 @@
 package th.co.thiensurat.toss_installer.job.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -17,6 +18,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,16 +34,26 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.api.ApiService;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
+import th.co.thiensurat.toss_installer.job.item.DistanceItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.ProductItem;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
+import th.co.thiensurat.toss_installer.utils.GPSTracker;
+import th.co.thiensurat.toss_installer.utils.Utils;
 import th.co.thiensurat.toss_installer.utils.helper.ItemTouchHelperAdapter;
 import th.co.thiensurat.toss_installer.utils.helper.ItemTouchHelperViewHolder;
 import th.co.thiensurat.toss_installer.utils.helper.OnCustomerListChangedListener;
 import th.co.thiensurat.toss_installer.utils.helper.OnStartDragListener;
 
+import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_BASE_URL;
 import static th.co.thiensurat.toss_installer.utils.Utils.ConvertDateFormat;
 
 /**
@@ -45,13 +62,19 @@ import static th.co.thiensurat.toss_installer.utils.Utils.ConvertDateFormat;
 
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
+    private String origins;
     private Context context;
+    private String distance;
     private StringBuilder sb;
+    private GPSTracker gpsTracker;
     private ClickListener clickListener;
+    private ChangeTintColor changeTintColor;
     private final OnStartDragListener dragListener;
     private final List<String> item = new ArrayList<>();
     private OnCustomerListChangedListener onCustomerListChangedListener;
 
+    private String destination;
+    private ApiService service;
     private List<JobItem> jobItemList = new ArrayList<JobItem>();
 
     public JobAdapter(FragmentActivity activity, OnStartDragListener dragStartListener,
@@ -59,6 +82,9 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
         this.context = activity;
         this.dragListener = dragStartListener;
         this.onCustomerListChangedListener= listChangedListener;
+
+        gpsTracker = new GPSTracker(context);
+        changeTintColor = new ChangeTintColor(context);
     }
 
     public void setJobList(List<JobItem> jobItemList) {
@@ -112,6 +138,8 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
                 holder.textViewAddress.setText(sb.toString());
                 holder.textViewPhone.setText((addressItem.getPhone().equals("")) ? "-" : addressItem.getPhone());
                 holder.textViewMobile.setText((addressItem.getMobile().equals("")) ? "-" : addressItem.getMobile());
+
+                destination = addressItem.getSubdistrict() + "+" + addressItem.getDistrict() + "+" + addressItem.getProvince();
             }
         }
         holder.imageViewDrag.setOnTouchListener(new View.OnTouchListener() {
@@ -123,6 +151,44 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
                     return false;
                 }
                 return false;
+            }
+        });
+
+        changeTintColor.setTextViewDrawableColor(holder.textViewDistanceTitle, R.color.colorPrimaryDark);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(GOOGLE_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        origins = String.valueOf(gpsTracker.getLatitude()) + "," + String.valueOf(gpsTracker.getLongitude());
+
+        service = retrofit.create(ApiService.class);
+        Call call = service.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc");
+        call.enqueue(new Callback() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.e("in adapter", response.body().toString());
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(response.body()));
+                    JSONArray jsonArray = jsonObject.getJSONArray("rows");
+                    JSONArray jsonArr = jsonArray.getJSONObject(0).getJSONArray("elements");
+                    JSONObject jsonObjDis = jsonArr.getJSONObject(0).getJSONObject("distance");
+                    JSONObject jsonObjDur = jsonArr.getJSONObject(0).getJSONObject("duration");
+                    holder.textViewDistance.setText("\t" + Utils.ConvertMItoKM(jsonObjDis.getString("text")) + " "
+                            + Utils.ConvertDurationToThai(jsonObjDur.getString("text")));
+                    notifyDataSetChanged();
+                } catch (JSONException e) {
+                    Log.e("exception in adapter", e.getLocalizedMessage());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+
             }
         });
     }
@@ -153,6 +219,8 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
     public class ViewHolder extends RecyclerView.ViewHolder implements
             ItemTouchHelperViewHolder {
 
+        @BindView(R.id.textview_distance_title) TextView textViewDistanceTitle;
+        @BindView(R.id.textview_distance) TextView textViewDistance;
         @BindView(R.id.textview_number) TextView textViewNumber;
         @BindView(R.id.textview_name) TextView textViewName;
         @BindView(R.id.textview_product) TextView textViewProduct;
@@ -219,33 +287,4 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
         void callLocal(View view, int position);
         void callMobile(View view, int position);
     }
-
-    /*private String ConvertDateFormat(String strdate) {
-        SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
-        int year = 0, month = 0, day = 0;
-        String d, m;
-        try {
-            Date date = dbFormat.parse(strdate);
-            Calendar c = Calendar.getInstance();
-            c.setTime(date);
-            year = c.get(Calendar.YEAR);
-            month = c.get(Calendar.MONTH) + 1;
-            day = c.get(Calendar.DATE);
-            if (day < 10) {
-                d = "0" + day;
-            } else {
-                d = "" + day;
-            }
-
-            if (month < 10) {
-                m = "0" + month;
-            } else {
-                m = "" + month;
-            }
-            return String.format("%s/%s/%s", d, m, year+543);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }*/
 }

@@ -27,12 +27,20 @@
             android:layout_weight="0.9"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/drag_handle"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_drag_handle_black_24dp"
-                android:background="@color/table_data_row_odd"/>
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/drag_handle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_drag_handle_black_24dp"
+                    android:background="@color/table_data_row_odd"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textview_name"
@@ -60,6 +68,33 @@
                     android:layout_weight="1"
                     android:gravity="center|left"
                     android:textSize="16sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="4dp">
+
+                <TextView
+                    android:id="@+id/textview_distance_title"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:gravity="center|left"
+                    android:text="ระยะทาง"
+                    android:drawableRight="@drawable/ic_directions_car_white_18dp"/>
+
+                <TextView
+                    android:id="@+id/textview_distance"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center|left"
+                    android:text=" 0.00 กม. 0 น."
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimaryDark"/>
 
             </LinearLayout>
 

@@ -66,8 +66,6 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     EditText password;
     @BindView(R.id.button_login)
     Button buttonLogin;
-    @BindView(R.id.foget_password)
-    TextView textViewForgetPassword;
 
     @Override
     public void bindView() {
@@ -96,7 +94,6 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
                 return false;
             }
         });
-        textViewForgetPassword.setOnClickListener(onForget());
 
         changeTintColor.setEditTextDrawableColor(username, R.color.DarkGray);
         changeTintColor.setEditTextDrawableColor(password, R.color.DarkGray);
@@ -207,14 +204,5 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
         if (requestCode == Constance.REQUEST_SETTINGS) {
             initialize();
         }
-    }
-
-    private View.OnClickListener onForget() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                textViewForgetPassword.startAnimation(new AnimateButton().animbutton());
-            }
-        };
     }
 }

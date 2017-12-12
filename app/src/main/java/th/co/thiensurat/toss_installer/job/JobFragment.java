@@ -2,9 +2,13 @@ package th.co.thiensurat.toss_installer.job;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -27,6 +31,10 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,6 +45,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
@@ -44,30 +53,40 @@ import th.co.thiensurat.toss_installer.detail.DetailActivity;
 import th.co.thiensurat.toss_installer.installation.step.StepViewActivity;
 import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
+import th.co.thiensurat.toss_installer.job.item.DistanceItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CurrencLocation;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
+import th.co.thiensurat.toss_installer.utils.GPSTracker;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
+import th.co.thiensurat.toss_installer.utils.Utils;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 import th.co.thiensurat.toss_installer.utils.helper.OnCustomerListChangedListener;
 import th.co.thiensurat.toss_installer.utils.helper.OnStartDragListener;
 import th.co.thiensurat.toss_installer.utils.helper.SimpleItemTouchHelperCallback;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         implements JobInterface.View, OnStartDragListener, SwipeRefreshLayout.OnRefreshListener,
-        JobAdapter.ClickListener, OnCustomerListChangedListener {
+        JobAdapter.ClickListener, OnCustomerListChangedListener{
 
+    private double latitude;
+    private double longitude;
+
+    private GPSTracker gps;
     private JobAdapter adapter;
     private CustomDialog customDialog;
     private ItemTouchHelper itemTouchHelper;
     private LinearLayoutManager layoutManager;
     private CurrencLocation currencLocation;
+
     private List<JobItem> jobItemList;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -94,6 +113,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     @BindView(R.id.textview_fail) TextView textViewFail;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
     @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     public void bindView(View view) {
         ButterKnife.bind(this, view);
@@ -102,6 +122,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
 
     @Override
     public void setupInstance() {
+        gps = new GPSTracker(getActivity());
         adapter = new JobAdapter(getActivity(), JobFragment.this, JobFragment.this);
         customDialog = new CustomDialog(getActivity());
         layoutManager = new LinearLayoutManager(getActivity());
@@ -113,6 +134,12 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         ((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง");
         setRecyclerView();
         setHasOptionsMenu(true);
+        if (gps.canGetLocation()) {
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+        } else {
+            gps.showSettingsAlert();
+        }
     }
 
     @Override
@@ -219,6 +246,8 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             recyclerView.setVisibility(View.GONE);
         }
 
+        onDismiss();
+
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -251,12 +280,11 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
                     new String[]{Manifest.permission.CALL_PHONE},
                     10);
             return;
-        }else {
+        } else {
             try {
                 startActivity(callIntent);
-            }
-            catch (android.content.ActivityNotFoundException ex){
-               Log.e("call phone", ex.getLocalizedMessage());
+            } catch (android.content.ActivityNotFoundException ex) {
+                Log.e("call phone", ex.getLocalizedMessage());
             }
         }
         getActivity().startActivityForResult(callIntent, Constance.REQUEST_CALL_PHONE);
@@ -276,11 +304,10 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
                     new String[]{Manifest.permission.CALL_PHONE},
                     10);
             return;
-        }else {
+        } else {
             try {
                 startActivity(callIntent);
-            }
-            catch (android.content.ActivityNotFoundException ex){
+            } catch (android.content.ActivityNotFoundException ex) {
                 Log.e("call mobile", ex.getLocalizedMessage());
             }
         }
@@ -290,7 +317,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     @Override
     public void onNoteListChanged(List<JobItem> jobItemList) {
         List<String> listOfSortedCustomerId = new ArrayList<String>();
-        for (JobItem jobItem: jobItemList){
+        for (JobItem jobItem : jobItemList) {
             listOfSortedCustomerId.add(jobItem.getOrderid());
         }
 
@@ -300,7 +327,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_SORT_ID, jsonListOfSortedCustomerIds);
     }
 
-    private List<JobItem> getOrderItem(List<JobItem> jobItemList){
+    private List<JobItem> getOrderItem(List<JobItem> jobItemList) {
 
         List<JobItem> jobItems = jobItemList;
         List<JobItem> sortedJob = new ArrayList<JobItem>();
@@ -311,7 +338,8 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             if (!jsonListOfSortedJobItem.isEmpty()) {
                 Gson gson = new Gson();
                 List<String> listOfSortedJobID = gson.fromJson(jsonListOfSortedJobItem,
-                        new TypeToken<List<String>>() {}.getType());
+                        new TypeToken<List<String>>() {
+                        }.getType());
 
                 if (listOfSortedJobID != null && listOfSortedJobID.size() > 0) {
                     for (String id : listOfSortedJobID) {

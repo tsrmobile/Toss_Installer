@@ -106,14 +106,14 @@ public class ServiceManager {
     /*************************************************End********************************************************/
 
     /*************************************************Load Job list**********************************************/
-    public Call<JobItemResultGroup> joblist(String data, String id, String location) {
+    public Call<JobItemResultGroup> joblist(String data, String id) {
         return Service.newInstance( BASE_URL )
                 .getApi( api )
-                .getJobList(data, id, location);
+                .getJobList(data, id);
     }
 
-    public void getJob(String data, String id, String location, final ServiceManagerCallback<JobItemResultGroup> callback) {
-        joblist(data, id, location).enqueue(new Callback<JobItemResultGroup>() {
+    public void getJob(String data, String id, final ServiceManagerCallback<JobItemResultGroup> callback) {
+        joblist(data, id).enqueue(new Callback<JobItemResultGroup>() {
             @Override
             public void onResponse(Call<JobItemResultGroup> call, Response<JobItemResultGroup> response) {
                 Log.e("request Job list", response + ", " + response.body().getStatus());
@@ -185,4 +185,32 @@ public class ServiceManager {
         });
     }
     /************************************************End*****************************************************/
+
+    /********************************************Cancel order***********************************************/
+    public Call cancel(String action, String note, String status, String empid, String orderid) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .requestUpdate(action, note, status, empid, orderid);
+    }
+
+    public void requestCancel(String note, String status, String empid, String orderid, final ServiceManagerCallback callback) {
+        cancel("cancel", note, status, empid, orderid).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.e("request Cancel", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+
+    /*************************************************End***************************************************/
 }

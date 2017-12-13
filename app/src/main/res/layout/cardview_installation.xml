@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="1dp"
         android:padding="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground">
 
         <LinearLayout
             android:layout_width="0dp"

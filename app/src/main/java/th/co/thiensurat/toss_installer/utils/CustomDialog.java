@@ -102,7 +102,7 @@ public class CustomDialog {
                     @Override
                     public void onClick(SweetAlertDialog sweetAlertDialog) {
                         sweetAlertDialog.dismiss();
-                        //((Activity) context).finish();
+                        ((Activity) context).finish();
                     }
                 });
         sweetAlertDialog.show();

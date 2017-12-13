@@ -63,9 +63,9 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
             @Override
             public void onSuccess(AuthItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
-                    getView().onDismiss();
                     AuthenItemGroup authenItemGroup = ConvertAuthItem.createAuthItemGroupFromResult(result);
                     MyApplication.getInstance().getPrefManager().setProfile(authenItemGroup);
+                    getView().onDismiss();
                     getView().onSuccess();
                 } else if (result.getStatus().equals("FAIL")) {
                     getView().onDismiss();
@@ -84,8 +84,8 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
     }
 
     @Override
-    public void Jobrequest(String data, String empid, String location) {
-        serviceManager.getJob(data, empid, location, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
+    public void Jobrequest(String data, String empid) {
+        serviceManager.getJob(data, empid, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
             @Override
             public void onSuccess(JobItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {

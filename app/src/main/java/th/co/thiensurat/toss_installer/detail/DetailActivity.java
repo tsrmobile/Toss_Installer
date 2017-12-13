@@ -1,9 +1,11 @@
 package th.co.thiensurat.toss_installer.detail;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -18,8 +20,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -34,6 +39,7 @@ import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> implements DetailInterface.View {
@@ -44,6 +50,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     private StringBuilder sb;
     private TextView textViewTitle;
     private AddressItem addressItem;
+    private CustomDialog customDialog;
 
     @Override
     public DetailInterface.Presenter createPresenter() {
@@ -62,6 +69,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     @BindView(R.id.textview_mobile) TextView textViewMobile;
     @BindView(R.id.textview_email) TextView textViewEmail;
     @BindView(R.id.button_next) Button buttonNext;
+    @BindView(R.id.button_cancel) Button buttonCancel;
     @Override
     public void bindView() {
         ButterKnife.bind(this);
@@ -69,13 +77,14 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     @Override
     public void setupInstance() {
-
+        customDialog = new CustomDialog(DetailActivity.this);
     }
 
     @Override
     public void setupView() {
         setToolbar();
         buttonNext.setOnClickListener( onNext() );
+        buttonCancel.setOnClickListener( onCancel() );
     }
 
     @Override
@@ -85,25 +94,10 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
     }
 
-    /*@Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.edit_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }*/
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        /*MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.edit_menu, menu);
-        return super.onCreateOptionsMenu(menu);*/
         getMenuInflater().inflate(R.menu.edit_menu, menu);
-        for(int i = 0; i < menu.size(); i++) {
-            MenuItem item = menu.getItem(i);
-            SpannableString spanString = new SpannableString(menu.getItem(i).getTitle().toString());
-            spanString.setSpan(new ForegroundColorSpan(Color.WHITE), 0, spanString.length(), 0);
-            item.setTitle(spanString);
-        }
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void setToolbar() {
@@ -127,6 +121,27 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void setCancelSuccess() {
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    @Override
+    public void onFail(String fail) {
+        customDialog.dialogFail(fail);
+    }
+
+    @Override
+    public void onLoad() {
+        customDialog.dialogLoading();
+    }
+
+    @Override
+    public void onDismiss() {
+        customDialog.dialogDimiss();
+    }
+
     private void getItemFromIntent() {
         JobItem jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
         setJobItem(jobItem);
@@ -144,6 +159,53 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                 Intent intent = new Intent(getApplicationContext(), InstallationActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
                 startActivityForResult(intent, Constance.REQUEST_INSTALLATION);
+            }
+        };
+    }
+
+    private View.OnClickListener onCancel() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonCancel.startAnimation(new AnimateButton().animbutton());
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(DetailActivity.this);
+                alertDialog.setTitle("ยกเลิก");
+                alertDialog.setMessage("กรุณาระบุเหตุผลที่ยกเลิก");
+
+                final EditText input = new EditText(DetailActivity.this);
+                input.setBackground(getResources().getDrawable(R.drawable.border_rounded_colorprimarydark));
+                input.setPadding(12, 4, 0, 4);
+                input.setMaxLines(3);
+                input.setHint("ระบุเหตุผล");
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.setMargins(4, 0, 4, 0);
+
+                input.setLayoutParams(lp);
+                alertDialog.setView(input);
+                alertDialog.setIcon(R.drawable.ic_custom_cancel);
+
+                alertDialog.setPositiveButton("ยืนยัน",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (!input.getText().toString().isEmpty()) {
+                                    getPresenter().setCancelJob(DetailActivity.this, jobItem.getOrderid(), input.getText().toString());
+                                } else {
+                                    dialog.dismiss();
+                                    customDialog.dialogFail("การยกเลิกไม่สำเร็จ กรุณาระบุเหตุผลการยกเเลิก");
+                                }
+                            }
+                        });
+
+                alertDialog.setNegativeButton("ปิด",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                alertDialog.show();
             }
         };
     }

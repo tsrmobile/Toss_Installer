@@ -27,7 +27,7 @@ public class JobInterface {
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<JobInterface.View> {
-        void Jobrequest(String data, String empid, String location);
+        void Jobrequest(String data, String empid);
         void setJobItemGroup(JobItemGroup itemGroup);
         JobItemGroup getJobItemGroup();
         void setJobItemToAdapter(JobItemGroup jobItemGroup);

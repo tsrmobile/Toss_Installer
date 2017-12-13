@@ -95,6 +95,20 @@ public class Utils {
         return monthYear;
     }
 
+    public static String ConvertMonthThaiCharacter(String str) {
+        DateFormat monthFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = null;
+        try {
+            date = monthFormat.parse(str);
+        } catch (ParseException parseException) {
+            // Date is invalid. Do what you want.
+        } catch(Exception exception) {
+            // Generic catch. Do what you want.
+        }
+        monthFormat = new SimpleDateFormat("MMM", new Locale("th", "TH"));
+        return monthFormat.format(date);
+    }
+
     private static String subStringforYear(String str){
         DateFormat yearFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
@@ -113,7 +127,6 @@ public class Utils {
         }
 
         yearFormat = new SimpleDateFormat("yy");
-        Log.e("format year: ", str + ", "+ fullyear);
         return yearFormat.format(date);
     }
 

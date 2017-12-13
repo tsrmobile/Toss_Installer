@@ -2,13 +2,8 @@ package th.co.thiensurat.toss_installer.job;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -18,24 +13,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.otto.Subscribe;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,30 +33,22 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.api.ServiceManager;
-import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
-import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
 import th.co.thiensurat.toss_installer.detail.DetailActivity;
-import th.co.thiensurat.toss_installer.installation.step.StepViewActivity;
 import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.DistanceItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
+import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
+import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
 import th.co.thiensurat.toss_installer.utils.Constance;
-import th.co.thiensurat.toss_installer.utils.CurrencLocation;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.GPSTracker;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
-import th.co.thiensurat.toss_installer.utils.Utils;
-import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 import th.co.thiensurat.toss_installer.utils.helper.OnCustomerListChangedListener;
 import th.co.thiensurat.toss_installer.utils.helper.OnStartDragListener;
 import th.co.thiensurat.toss_installer.utils.helper.SimpleItemTouchHelperCallback;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,7 +65,6 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     private CustomDialog customDialog;
     private ItemTouchHelper itemTouchHelper;
     private LinearLayoutManager layoutManager;
-    private CurrencLocation currencLocation;
 
     private List<JobItem> jobItemList;
 
@@ -126,7 +105,6 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         adapter = new JobAdapter(getActivity(), JobFragment.this, JobFragment.this);
         customDialog = new CustomDialog(getActivity());
         layoutManager = new LinearLayoutManager(getActivity());
-        currencLocation = new CurrencLocation(getActivity());
     }
 
     @Override
@@ -160,9 +138,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             if (!isNetworkAvailable) {
                 customDialog.dialogNetworkError();
             } else {
-                currencLocation.getCurrent();
-                String addLocation = currencLocation.getLocationNow();
-                getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), addLocation);
+                getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
             }
         }
         return super.onOptionsItemSelected(item);
@@ -254,7 +230,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     }
 
     @Override
-    public void setNewDataToSQLite(List<JobItem> itemList) {
+    public void setNewDataToSQLite(final List<JobItem> itemList) {
         getPresenter().insertNewData(getActivity(), itemList);
     }
 
@@ -276,9 +252,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             }
         }
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CALL_PHONE},
-                    10);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 10);
             return;
         } else {
             try {
@@ -300,9 +274,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             }
         }
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CALL_PHONE},
-                    10);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 10);
             return;
         } else {
             try {
@@ -361,6 +333,38 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             }
         } catch (Exception ex) {
             return jobItems;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ActivityResultBus.getInstance().register(mActivityResultSubscriber);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ActivityResultBus.getInstance().unregister(mActivityResultSubscriber);
+    }
+
+    private Object mActivityResultSubscriber = new Object() {
+        @Subscribe
+        public void onActivityResultReceived(ActivityResultEvent event) {
+            int requestCode = event.getRequestCode();
+            int resultCode = event.getResultCode();
+            Intent data = event.getData();
+            onActivityResult(requestCode, resultCode, data);
+        }
+    };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constance.REQUEST_JOB_DETAIL) {
+            if (resultCode == getActivity().RESULT_OK) {
+                getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
+            }
         }
     }
 }

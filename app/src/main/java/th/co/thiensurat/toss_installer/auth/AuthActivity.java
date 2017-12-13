@@ -146,19 +146,25 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     @Override
     public void onSuccess() {
         nextPage();
-        //currencLocation.getCurrent();
-        //String location = currencLocation.getLocationNow();
-        ///getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), location);
+        //getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
     }
 
     @Override
-    public void insertToSqlite(List<JobItem> jobItemList) {
-        /*if (jobItemList.size() > 0) {
-            getPresenter().insetToSqlite(AuthActivity.this, jobItemList);
-            nextPage();
+    public void insertToSqlite(final List<JobItem> jobItemList) {
+        if (jobItemList.size() > 0) {
+            synchronized (AuthActivity.this) {
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        getPresenter().insetToSqlite(AuthActivity.this, jobItemList);
+                        nextPage();
+                    }
+                };
+                thread.start();
+            }
         } else {
             nextPage();
-        }*/
+        }
     }
 
     @Override

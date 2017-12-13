@@ -17,6 +17,7 @@ import static th.co.thiensurat.toss_installer.api.ApiURL.INSTALL_ITEM_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.ITEM_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.SUMMARY_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.UPDATE_URL;
 
 /**
  * Created by teerayut.k on 7/17/2017.
@@ -31,10 +32,13 @@ public interface ApiService {
     Call<DashboardItemResultGroup> getSummary(@Query("data") String data, @Query("empid") String empid);
 
     @GET( JOB_URL )
-    Call<JobItemResultGroup> getJobList(@Query("data") String data, @Query("empid") String id, @Query("location") String location);
+    Call<JobItemResultGroup> getJobList(@Query("data") String data, @Query("empid") String id);
 
     @GET( ITEM_URL )
     Call<InstallItemResultGroup> getInstallItem(@Query("data") String data, @Query("action") String action);
+
+    @GET( UPDATE_URL )
+    Call<Object> requestUpdate(@Query("action") String action, @Query("cancelnote") String note, @Query("statusid") String status, @Query("empid") String empid, @Query("orderid") String orderid);
 
     @GET( GOOGLE_MAP_API_URL )
     Call<Object> getDistance(@Query("units") String imperial, @Query("origins") String origins, @Query("destinations") String destinations, @Query("key") String key);

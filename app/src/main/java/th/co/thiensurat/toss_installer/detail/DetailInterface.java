@@ -15,9 +15,14 @@ public class DetailInterface {
 
     public interface View extends BaseMvpInterface.View {
         void setAddressDetail(List<AddressItem> addressDetail);
+        void setCancelSuccess();
+        void onFail(String fail);
+        void onLoad();
+        void onDismiss();
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<DetailInterface.View> {
         void getAddressDetail(Context context, String orderid);
+        void setCancelJob(Context context, String orderid, String cancelnote);
     }
 }

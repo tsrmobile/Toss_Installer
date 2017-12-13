@@ -34,4 +34,13 @@ public class AllJobPresenter extends BaseMvpPresenter<AllJobInterface.View> impl
         jobItemList = jobItemGroup.getData();
         getView().setJobToCalendar(jobItemList);
     }
+
+    @Override
+    public void getJobByDate(Context context, String date) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        this.jobItemGroup = dbHelper.getAllJobByDate(date);
+
+        jobItemList = jobItemGroup.getData();
+        getView().setJobToCalendar(jobItemList);
+    }
 }

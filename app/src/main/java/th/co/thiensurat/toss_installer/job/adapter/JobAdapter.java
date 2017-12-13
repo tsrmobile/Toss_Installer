@@ -2,10 +2,6 @@ package th.co.thiensurat.toss_installer.job.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -15,7 +11,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -24,10 +19,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +35,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.ApiService;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.DistanceItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.ProductItem;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
@@ -156,41 +148,46 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
 
         changeTintColor.setTextViewDrawableColor(holder.textViewDistanceTitle, R.color.colorPrimaryDark);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(GOOGLE_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        synchronized (context) {
+            new Thread(new Runnable() {
+                public void run(){
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(GOOGLE_BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
 
-        origins = String.valueOf(gpsTracker.getLatitude()) + "," + String.valueOf(gpsTracker.getLongitude());
+                    origins = String.valueOf(gpsTracker.getLatitude()) + "," + String.valueOf(gpsTracker.getLongitude());
 
-        service = retrofit.create(ApiService.class);
-        Call call = service.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc");
-        call.enqueue(new Callback() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onResponse(Call call, Response response) {
-                Log.e("in adapter", response.body().toString());
-                Gson gson = new Gson();
-                try {
-                    JSONObject jsonObject = new JSONObject(gson.toJson(response.body()));
-                    JSONArray jsonArray = jsonObject.getJSONArray("rows");
-                    JSONArray jsonArr = jsonArray.getJSONObject(0).getJSONArray("elements");
-                    JSONObject jsonObjDis = jsonArr.getJSONObject(0).getJSONObject("distance");
-                    JSONObject jsonObjDur = jsonArr.getJSONObject(0).getJSONObject("duration");
-                    holder.textViewDistance.setText("\t" + Utils.ConvertMItoKM(jsonObjDis.getString("text")) + " "
-                            + Utils.ConvertDurationToThai(jsonObjDur.getString("text")));
-                    notifyDataSetChanged();
-                } catch (JSONException e) {
-                    Log.e("exception in adapter", e.getLocalizedMessage());
+                    service = retrofit.create(ApiService.class);
+                    Call call = service.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc");
+                    call.enqueue(new Callback() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void onResponse(Call call, Response response) {
+                            Gson gson = new Gson();
+                            try {
+                                JSONObject jsonObject = new JSONObject(gson.toJson(response.body()));
+                                JSONArray jsonArray = jsonObject.getJSONArray("rows");
+                                JSONArray jsonArr = jsonArray.getJSONObject(0).getJSONArray("elements");
+                                JSONObject jsonObjDis = jsonArr.getJSONObject(0).getJSONObject("distance");
+                                JSONObject jsonObjDur = jsonArr.getJSONObject(0).getJSONObject("duration");
+                                holder.textViewDistance.setText(" \t\t" + Utils.ConvertMItoKM(jsonObjDis.getString("text")) + "\t"
+                                        + Utils.ConvertDurationToThai(jsonObjDur.getString("text")));
+                                notifyDataSetChanged();
+                            } catch (JSONException e) {
+                                Log.e("exception in adapter", e.getLocalizedMessage());
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call call, Throwable t) {
+
+                        }
+                    });
                 }
-
-            }
-
-            @Override
-            public void onFailure(Call call, Throwable t) {
-
-            }
-        });
+            }).start();
+        }
     }
 
     @Override

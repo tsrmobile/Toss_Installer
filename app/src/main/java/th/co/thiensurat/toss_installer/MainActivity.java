@@ -31,6 +31,8 @@ import th.co.thiensurat.toss_installer.itembalance.ItemBalanceFragment;
 import th.co.thiensurat.toss_installer.itemlist.ItemlistFragment;
 import th.co.thiensurat.toss_installer.job.JobFragment;
 import th.co.thiensurat.toss_installer.job.all.AllJobFragment;
+import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
+import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
@@ -209,6 +211,12 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ActivityResultBus.getInstance().postQueue(new ActivityResultEvent(requestCode, resultCode, data));
     }
 
     public void setTitle(String title) {

@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground"
         android:padding="4dp">
 
         <TextView
@@ -92,7 +93,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center|left"
-                    android:text=" 0.00 กม. 0 น."
+                    android:text=""
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimaryDark"/>
 

@@ -19,5 +19,6 @@ public class AllJobInterface {
 
     public interface Presenter extends BaseMvpInterface.Presenter<AllJobInterface.View> {
         void getJobFromSqlite(Context context);
+        void getJobByDate(Context context, String date);
     }
 }

@@ -285,7 +285,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public JobItemGroup getAllJob() {
         sqlite = this.getReadableDatabase();
         Cursor cursor = sqlite.query
-                (Constance.TABLE_JOB, null, null, null, null, null, null);
+                (Constance.TABLE_JOB, null, null, null, null, null, INSTALLSTARTDATE + " DESC");
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -329,33 +329,73 @@ public class DBHelper extends SQLiteOpenHelper {
         return jobItemGroup;
     }
 
-    /*public void updateJob(String orderid, List<JobItem> jobItemList) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    public JobItemGroup getAllJobByDate(String date) {
+        sqlite = this.getReadableDatabase();
+        date = date + "%";
+        Cursor cursor = sqlite.query
+                (Constance.TABLE_JOB, null, INSTALLSTARTDATE + " LIKE ?",
+                        new String[] { date }, null, null, INSTALLSTARTDATE + " DESC");
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        JobItemGroup jobItemGroup = new JobItemGroup();
+        jobItemGroup.setStatus("SUCCESS");
+        jobItemGroup.setMessage("SUCCESS");
+        List<JobItem> jobItemList = new ArrayList<JobItem>();
+        List<AddressItem> addressItemList = null;
+        List<ProductItem> productItemList = null;
+
+        while(!cursor.isAfterLast()) {
+            JobItem jobItem = new JobItem();
+            jobItem.setOrderid(cursor.getString(1).trim());
+            jobItem.setIDCard(cursor.getString(2).trim());
+            jobItem.setTitle(cursor.getString(3).trim());
+            jobItem.setFirstName(cursor.getString(4).trim());
+            jobItem.setLastName(cursor.getString(5).trim());
+            jobItem.setInstallStartDate(cursor.getString(7).trim());
+            jobItem.setInstallEndDate(cursor.getString(8).trim());
+            jobItem.setPaytype(cursor.getString(14).trim());
+            jobItem.setStatus(cursor.getString(19));
+
+            addressItemList = new ArrayList<AddressItem>();
+            addressItemList = getAllAddress(cursor.getString(1).trim());
+            jobItem.setAddress(addressItemList);
+
+            productItemList = new ArrayList<ProductItem>();
+            ProductItem productItem = new ProductItem();
+            productItem.setProductCode(cursor.getString(9).trim());
+            productItem.setProductName(cursor.getString(10).trim());
+            productItem.setProductQty(cursor.getString(11).trim());
+            productItemList.add(productItem);
+            jobItem.setProduct(productItemList);
+
+            jobItemList.add(jobItem);
+            cursor.moveToNext();
+        }
+
+        jobItemGroup.setData(jobItemList);
+        return jobItemGroup;
+    }
+
+    public boolean setCancelJob(String orderid, String cancelnote) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
         String currentDate = sdf.format(new Date());
         sqlite = this.getWritableDatabase();
-        for (int i = 0; i < jobItemList.size(); i++) {
-            ContentValues values = new ContentValues();
-            values.put(JOBORDERID, jobItemList.get(i).getOrderid());
-            values.put(IDCARD, jobItemList.get(i).getIDCard());
-            values.put(TITLE, jobItemList.get(i).getTitle());
-            values.put(FIRSTNAME, jobItemList.get(i).getFirstName());
-            values.put(LASTNAME, jobItemList.get(i).getLastName());
-            values.put(CONTACTPHONE, jobItemList.get(i).getContactphone());
-            values.put(INSTALLSTARTDATE, jobItemList.get(i).getInstallStartDate());
-            values.put(INSTALLENDDATE, jobItemList.get(i).getInstallEndDate());
-            values.put(JOB_PAY_TYPE, jobItemList.get(i).getPaytype());
-
-            for (int j = 0; j < jobItemList.get(i).getProduct().size(); j++) {
-                ProductItem item = jobItemList.get(i).getProduct().get(j);
-                values.put(JOB_PROUCT_CODE, item.getProductCode());
-                values.put(JOB_PRODUCT_NAME, item.getProductName());
-                values.put(JOB_PRODUCT_QTY, item.getProductQty());
-            }
-            values.put(JOB_UPDATED, currentDate);
-            sqlite.update(Constance.TABLE_JOB, values, JOBORDERID + " = ?", new String[]{orderid});
+        ContentValues values = new ContentValues();
+        values.put(CANCELNOTE, cancelnote);
+        values.put(CANCELDATE, currentDate);
+        values.put(JOB_UPDATED, currentDate);
+        values.put(STATUS, "91");
+        long success = sqlite.update(Constance.TABLE_JOB, values, JOBORDERID + " = ?", new String[]{ orderid });
+        if (success > 0) {
+            sqlite.close();
+            return true;
+        } else {
+            sqlite.close();
+            return false;
         }
-        sqlite.close();
-    }*/
+    }
 
     public void setTableProduct(List<JobItem> jobItemList) {
         sqlite = this.getWritableDatabase();
@@ -372,6 +412,20 @@ public class DBHelper extends SQLiteOpenHelper {
                         values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
                         values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
                         values.put(PRODUCT_ITEM_QTY, String.valueOf(1));
+                        values.put(PRODUCT_SERIAL, "");
+                        values.put(PRODUCT_STATUS, Constance.PRODUCT_STATUS_WAIT);
+                        sqlite.insert(Constance.TABLE_PRODUCT, null, values);
+                    }
+                } else if (Integer.parseInt(productItem.getProductQty()) > 1){
+                    for (int k = 0; k < Integer.parseInt(productItem.getProductQty()); k++) {
+                        ContentValues values = new ContentValues();
+                        values.put(PRODUCT_ORDER_ID, jobItemList.get(i).getOrderid());
+                        values.put(PRODUCT_CODE, productItem.getProductCode());
+                        values.put(PRODUCT_NAME, productItem.getProductName());
+                        values.put(PRODUCT_QTY, String.valueOf(1));
+                        values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
+                        values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
+                        values.put(PRODUCT_ITEM_QTY, productItem.getProductItemQty());
                         values.put(PRODUCT_SERIAL, "");
                         values.put(PRODUCT_STATUS, Constance.PRODUCT_STATUS_WAIT);
                         sqlite.insert(Constance.TABLE_PRODUCT, null, values);
@@ -393,39 +447,6 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         sqlite.close();
     }
-
-    /*public void updateProduct(String orderid, List<JobItem> jobItemList) {
-        sqlite = this.getWritableDatabase();
-        for (int i = 0; i < jobItemList.size(); i++) {
-            for (ProductItem productItem : jobItemList.get(i).getProduct()) {
-                if (!productItem.getProductItemQty().equals("0")) {
-                    int itemQty = Integer.parseInt(productItem.getProductItemQty());
-                    for (int j = 0; j < itemQty; j++) {
-                        ContentValues values = new ContentValues();
-                        values.put(PRODUCT_ORDER_ID, jobItemList.get(i).getOrderid());
-                        values.put(PRODUCT_CODE, productItem.getProductCode());
-                        values.put(PRODUCT_NAME, productItem.getProductName());
-                        values.put(PRODUCT_QTY, productItem.getProductQty());
-                        values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
-                        values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
-                        values.put(PRODUCT_ITEM_QTY, String.valueOf(1));
-                        sqlite.update(Constance.TABLE_PRODUCT, values, PRODUCT_ORDER_ID + " = ?", new String[]{orderid});
-                    }
-                } else {
-                    ContentValues values = new ContentValues();
-                    values.put(PRODUCT_ORDER_ID, jobItemList.get(i).getOrderid());
-                    values.put(PRODUCT_CODE, productItem.getProductCode());
-                    values.put(PRODUCT_NAME, productItem.getProductName());
-                    values.put(PRODUCT_QTY, productItem.getProductQty());
-                    values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
-                    values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
-                    values.put(PRODUCT_ITEM_QTY, productItem.getProductItemQty());
-                    sqlite.update(Constance.TABLE_PRODUCT, values, PRODUCT_ORDER_ID + " = ?", new String[]{orderid});
-                }
-            }
-        }
-        sqlite.close();
-    }*/
 
     public ProductItemGroup getProductByID(String orderid) {
         sqlite = this.getReadableDatabase();
@@ -491,28 +512,6 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         sqlite.close();
     }
-
-    /*public void updateAddress(String orderid, List<JobItem> jobItemList) {
-        sqlite = this.getWritableDatabase();
-        for (int i = 0; i < jobItemList.size(); i++) {
-            for (AddressItem addressItem : jobItemList.get(i).getAddress()) {
-                ContentValues values = new ContentValues();
-                values.put(ORDERID, jobItemList.get(i).getOrderid());
-                values.put(ADDRESTYPECODE, addressItem.getAddressType());
-                values.put(ADDRESSDETAIL, addressItem.getAddrDetail());
-                values.put(PROVINCENAME, addressItem.getProvince());
-                values.put(DISTRICTNAME, addressItem.getDistrict());
-                values.put(SUBDISTRICT, addressItem.getSubdistrict());
-                values.put(ZIPCODE, addressItem.getZipcode());
-                values.put(PHONE, addressItem.getPhone());
-                values.put(MOBILE, addressItem.getMobile());
-                values.put(WORK, addressItem.getOffice());
-                values.put(EMAIL, addressItem.getEmail());
-                sqlite.update(Constance.TABLE_ADDRESS, values, PRODUCT_ORDER_ID + " = ?", new String[]{orderid});
-            }
-        }
-        sqlite.close();
-    }*/
 
     public List<AddressItem> getAllAddress(String orderid) {
         sqlite = this.getReadableDatabase();

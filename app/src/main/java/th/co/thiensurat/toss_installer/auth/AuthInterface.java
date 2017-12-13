@@ -26,7 +26,7 @@ public class AuthInterface {
     public interface Presenter extends BaseMvpInterface.Presenter<View> {
         void auth(List<RequestAuth.authenBody> itemAuths);
 
-        void Jobrequest(String data, String empid, String location);
+        void Jobrequest(String data, String empid);
         void insetToSqlite(Context context, List<JobItem> jobItemList);
 
     }

@@ -71,9 +71,9 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
     }
 
     @Override
-    public void Jobrequest(String data, String empid, String location) {
+    public void Jobrequest(String data, String empid) {
         getView().onLoad();
-        serviceManager.getJob(data, empid, location, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
+        serviceManager.getJob(data, empid, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
             @Override
             public void onSuccess(JobItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
@@ -83,7 +83,6 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
                     setJobItemGroup(jobItemGroup);
                     jobItemList = ConvertJobList.creatJobItemList(result.getData());
                     getView().setNewDataToSQLite(jobItemList);
-                    //getView().setJobItemToAdapter(jobItemList);
                 } else if (result.getStatus().equals("FAIL")) {
                     getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
@@ -143,30 +142,4 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
 
         getView().onSuccess("");
     }
-
-    /*@Override
-    public void getDistance(String origins, String destination) {
-        serviceManager.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc", new ServiceManager.ServiceManagerCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                Log.e("distance", result.toString());
-                try {
-                    Gson gson = new Gson();
-                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
-                    JSONArray jsonArray = jsonObject.getJSONArray("rows");
-                    JSONArray jsonArr = jsonArray.getJSONObject(0).getJSONArray("elements");
-                    JSONObject jsonObjDis = jsonArr.getJSONObject(0).getJSONObject("distance");
-                    JSONObject jsonObjDur = jsonArr.getJSONObject(0).getJSONObject("duration");
-                    getView().setDistance(Utils.ConvertMItoKM(jsonObjDis.getString("text")), Utils.ConvertDurationToThai(jsonObjDur.getString("text")));
-                } catch (JSONException e) {
-                    Log.e("jsonexception", e.getLocalizedMessage());
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e("distance", t.getLocalizedMessage());
-            }
-        });
-    }*/
 }

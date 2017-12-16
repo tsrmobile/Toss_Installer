@@ -12,7 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -27,6 +29,8 @@ import th.co.thiensurat.toss_installer.api.result.AuthItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.DashboardItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
+import th.co.thiensurat.toss_installer.api.result.data.ConvertData;
+import th.co.thiensurat.toss_installer.api.result.data.DataResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
@@ -34,6 +38,7 @@ import th.co.thiensurat.toss_installer.job.item.ConvertJobList;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.Utils;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
@@ -116,7 +121,7 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
 
     @Override
     public void getJobFromSqlite(Context context, String date) {
-        getView().onLoad();
+        //getView().onLoad();
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.jobItemGroup = dbHelper.getJobList(date);
         setJobItemGroup(jobItemGroup);
@@ -128,18 +133,61 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
     @Override
     public void insertNewData(Context context, List<JobItem> jobItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.isTableExists(Constance.TABLE_JOB) || dbHelper.isTableExists(Constance.TABLE_ADDRESS)
-                || dbHelper.isTableExists(Constance.TABLE_PRODUCT) || dbHelper.isTableExists(Constance.TABLE_IMAGE)) {
-            dbHelper.emptyTable(Constance.TABLE_JOB);
-            dbHelper.emptyTable(Constance.TABLE_ADDRESS);
-            dbHelper.emptyTable(Constance.TABLE_PRODUCT);
-            dbHelper.emptyTable(Constance.TABLE_IMAGE);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date jobdate = null;
+        Date nowDate = new Date();
+        try {
+            for (JobItem item : jobItemList) {
+                jobdate = timeFormat.parse(item.getInstallStartDate());
+                if (nowDate.after(jobdate)) {
+                    //Log.e("if compare date", nowDate + ", " + jobdate);
+                    //Log.e("check orderid", dbHelper.getOrderid(item.getOrderid()) + "");
+                    if (!dbHelper.getOrderid(item.getOrderid())) {
+                        dbHelper.setTableJob(jobItemList);
+                        dbHelper.setTableAddress(jobItemList);
+                        dbHelper.setTableProduct(jobItemList);
+                    }
+                }
+            }
+        }catch(Exception ex){
+            ex.printStackTrace();
+            Log.e("insertNewData", ex.getMessage());
         }
 
-        dbHelper.setTableJob(jobItemList);
-        dbHelper.setTableAddress(jobItemList);
-        dbHelper.setTableProduct(jobItemList);
-
         getView().onSuccess("");
+    }
+
+    @Override
+    public void getData() {
+        serviceManager.requestAllData("all", new ServiceManager.ServiceManagerCallback<DataResultGroup>() {
+            @Override
+            public void onSuccess(DataResultGroup result) {
+                if (result.getStatus().equals("SUCCESS")) {
+                    //getView().onDismiss();
+                    getView().setDataTable(result);
+                } else if (result.getStatus().equals("FAIL")) {
+                    //getView().onDismiss();
+                    getView().onFail(result.getMessage().toString());
+                } else if (result.getStatus().equals("ERROR")) {
+                    //getView().onDismiss();
+                    getView().onFail(result.getMessage().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                //getView().onDismiss();
+            }
+        });
+    }
+
+    @Override
+    public void insertDataToSqlite(Context context, DataResultGroup dataResultGroup) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.setTableProvince(ConvertData.creatObjectList(dataResultGroup.getData(), "province"));
+        dbHelper.setTableDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "district"));
+        dbHelper.setTableSubDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "subdistrict"));
+        MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_FIRST_OPEN, "opened");
     }
 }

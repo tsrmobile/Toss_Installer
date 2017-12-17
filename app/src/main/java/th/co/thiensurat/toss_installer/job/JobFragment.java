@@ -33,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.api.result.data.DataResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.detail.DetailActivity;
 import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
@@ -123,6 +124,12 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     @Override
     public void initialize() {
         getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
+        try {
+            if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRST_OPEN).equals("first_open")) {
+                getPresenter().getData();
+            }
+        } catch (Exception ex) {
+        }
     }
 
     @Override
@@ -138,7 +145,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             if (!isNetworkAvailable) {
                 customDialog.dialogNetworkError();
             } else {
-                getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+                getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
             }
         }
         return super.onOptionsItemSelected(item);
@@ -157,6 +164,21 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     @Override
     public void onRefresh() {
         getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
+    }
+
+    @Override
+    public void setDataTable(DataResultGroup dataResultGroup) {
+        createData(dataResultGroup);
+        //getPresenter().insertDataToSqlite(getActivity(), dataResultGroup);
+    }
+
+    private synchronized void createData(final DataResultGroup dataResultGroup) {
+        new Thread() {
+            @Override
+            public void run() {
+                getPresenter().insertDataToSqlite(getActivity(), dataResultGroup);
+            }
+        }.start();
     }
 
     @Override
@@ -222,7 +244,7 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             recyclerView.setVisibility(View.GONE);
         }
 
-        onDismiss();
+        //onDismiss();
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);

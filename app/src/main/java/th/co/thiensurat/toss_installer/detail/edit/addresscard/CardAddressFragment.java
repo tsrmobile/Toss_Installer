@@ -7,8 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +18,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.api.result.data.DataItem;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.detail.edit.EditActivity;
+import th.co.thiensurat.toss_installer.detail.edit.adapter.SpinnerCustomAdapter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 
@@ -27,6 +31,8 @@ import th.co.thiensurat.toss_installer.job.item.JobItem;
 public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Presenter> implements CardAddressInterface.View {
 
     private JobItem jobItem;
+    private String province, district, subdistrict;
+    private SpinnerCustomAdapter spinnerCustomAdapter;
     private List<AddressItem> addressItems = new ArrayList<AddressItem>();
 
     public CardAddressFragment() {
@@ -84,6 +90,10 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
             if ("AddressIDCard".equals(item.getAddressType())) {
                 editTextDetial.setText(item.getAddrDetail());
 
+                province = item.getProvince();
+                district = item.getDistrict();
+                subdistrict = item.getSubdistrict();
+
                 editTextZipcode.setText(item.getZipcode());
                 editTextPhone.setText((item.getPhone().equals("")) ? "-" : item.getPhone());
                 editTextWork.setText((item.getOffice().equals("")) ? "-" : item.getOffice());
@@ -91,5 +101,105 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                 editTextEmail.setText((item.getEmail().equals("")) ? "-" : item.getEmail());
             }
         }
+        getPresenter().getInfo(getActivity(), "province", "");
+    }
+
+    @Override
+    public void setInfoToAdapter(String infoType, List<DataItem> dataItemList) {
+        switch (infoType) {
+            case "province":
+                setSpinnerProvince(dataItemList);
+                break;
+            case "district" :
+                setSpinnerDistrict(dataItemList);
+                break;
+            case "subdistrict" :
+                setSpinnerSubDistrict(dataItemList);
+                break;
+        }
+    }
+
+    private void setSpinnerProvince(final List<DataItem> dataItems) {
+        spinnerCustomAdapter = new SpinnerCustomAdapter(
+                getActivity(), R.layout.spinner_item, dataItems, getActivity().getResources(), "province");
+        spinnerProvince.setAdapter(spinnerCustomAdapter);
+        for (int i = 0; i < dataItems.size(); i++) {
+            DataItem item = dataItems.get(i);
+            if (province.equals(item.getDataName())) {
+                spinnerProvince.setSelection(i);
+                getPresenter().getInfo(getActivity(), "district", dataItems.get(i).getDataId());
+            }
+        }
+
+        spinnerProvince.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                if (position > 0) {
+                    //((TextView) view.findViewById(R.id.row_item)).setTextColor(getResources().getColor(R.color.Black));
+                    DataItem item = dataItems.get(position);
+                    getPresenter().getInfo(getActivity(), "district", item.getDataId());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void setSpinnerDistrict(final List<DataItem> dataItems) {
+        spinnerCustomAdapter = new SpinnerCustomAdapter(
+                getActivity(), R.layout.spinner_item, dataItems, getActivity().getResources(), "district");
+        spinnerDistrict.setAdapter(spinnerCustomAdapter);
+        for (int i = 0; i < dataItems.size(); i++) {
+            if (district.equals(dataItems.get(i).getDataName())) {
+                spinnerDistrict.setSelection(i);
+                getPresenter().getInfo(getActivity(), "subdistrict", dataItems.get(i).getDataId());
+            }
+        }
+
+        spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                if (position > 0) {
+                    //((TextView) view.findViewById(R.id.row_item)).setTextColor(getResources().getColor(R.color.Black));
+                    DataItem item = dataItems.get(position);
+                    getPresenter().getInfo(getActivity(), "subdistrict", item.getDataId());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void setSpinnerSubDistrict(final List<DataItem> dataItems) {
+        spinnerCustomAdapter = new SpinnerCustomAdapter(
+                getActivity(), R.layout.spinner_item, dataItems, getActivity().getResources(), "subdistrict");
+        spinnerSubDistrict.setAdapter(spinnerCustomAdapter);
+        for (int i = 0; i < dataItems.size(); i++) {
+            if (subdistrict.equals(dataItems.get(i).getDataName())) {
+                spinnerSubDistrict.setSelection(i);
+            }
+        }
+
+        spinnerSubDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                if (position > 0) {
+                    //((TextView) view.findViewById(R.id.row_item)).setTextColor(getResources().getColor(R.color.Black));
+                    DataItem item = dataItems.get(position);
+                    editTextZipcode.setText(item.getDataCode());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 }

@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 
 import com.datecs.api.printer.Printer;
+import com.zj.btsdk.PrintPic;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -97,7 +98,10 @@ public class ThemalPrintController {
         this.mPrinter = Printer;
     }
 
-
+    public void setPrinterController(Printer Printer, String printerAddress) {
+        this.mPrinter = Printer;
+        this.mPrinterAddress = printerAddress;
+    }
 
     private void sendCommand(byte[] cmd) throws IOException {
         this.mPrinter.write(cmd);
@@ -110,47 +114,47 @@ public class ThemalPrintController {
     }
 
     public void selectPageMode() throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             mPrinter.selectPageMode();
-        //}
+        }
     }
 
     public void selectStandardMode() throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             mPrinter.selectStandardMode();
-        //}
+        }
     }
 
     public void setContractPageRegion() throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             mPrinter.setPageRegion(0, 0, 570, 1700, Printer.PAGE_LEFT);
             mPrinter.setPageXY(0, 4);
-        //}
+        }
     }
 
     public void printContractPageTitle() throws  IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             mPrinter.drawPageRectangle(0, 0, 570, 64, Printer.FILL_INVERTED);
-        //}
+        }
     }
 
     public  void beginContractPage()  throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             mPrinter.setPageXY(0, 66);
             mPrinter.drawPageFrame(0, 0, 570, 1700, Printer.FILL_BLACK, 1);
-        //}
+        }
     }
 
     public  void endContractPage()  throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             printPage();
-        //}
+        }
     }
 
     public void printPage() throws  IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             mPrinter.printPage();
-        //}
+        }
     }
 
     private int getPageDirection(String pagedirection) {
@@ -168,7 +172,7 @@ public class ThemalPrintController {
     }
 
     public void setPageRegion(String pageRegion) throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             pageRegion = pageRegion.replace("setPageRegion(","").replace(")", "");
             String[] region = pageRegion.split(",");
             mPrinter.setPageRegion( Integer.parseInt(region[0].trim()),
@@ -177,25 +181,25 @@ public class ThemalPrintController {
                     Integer.parseInt(region[3].trim()),
                     getPageDirection(region[4].trim()));
             mPrinter.setPageXY(0, 4);
-        //}
+        }
     }
 
-    public  void beginPage(String pageXY)  throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+    public void beginPage(String pageXY) throws IOException {
+        if(mPrinterAddress.startsWith("00:01")) {
             pageXY = pageXY.replace("beginPage(","").replace(")", "");
             String[] XY = pageXY.split(",");
             mPrinter.setPageXY(Integer.parseInt(XY[0].trim()), Integer.parseInt(XY[1].trim()));
-        //}
+        }
     }
 
-    public  void endPage()  throws IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+    public void endPage() throws IOException {
+        if(mPrinterAddress.startsWith("00:01")) {
             printPage();
-        //}
+        }
     }
 
-    public void printHeader() throws  IOException {
-        /*if(mPrinterAddress.startsWith("00:01")) {
+    public void printHeader() throws IOException {
+        if(mPrinterAddress.startsWith("00:01")) {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
 
@@ -214,16 +218,16 @@ public class ThemalPrintController {
             sendThaiMessage("อ.ปากเกร็ด จ.นนทบุรี 11120");
             sendThaiMessage("โทร. 0 2819 8888  แฟกซ์ 0 2962 6951-3");
             sendThaiMessage("อีเมล์. thiensurat@thiensurat.co.th");
-        }*/
-        sendThaiMessage("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)");
+        }
+        /*sendThaiMessage("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)");
         sendThaiMessage("43/9 หมู่ 7 ซ.ชูชาติอนุสรณ์ 4 ต.บางตลาด");
         sendThaiMessage("อ.ปากเกร็ด จ.นนทบุรี 11120");
         sendThaiMessage("โทร. 0 2819 8888  แฟกซ์ 0 2962 6951-3");
-        sendThaiMessage("อีเมล์. thiensurat@thiensurat.co.th");
+        sendThaiMessage("อีเมล์. thiensurat@thiensurat.co.th");*/
     }
 
     public void printShortHeader() throws  IOException {
-        /*if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
 
@@ -239,14 +243,14 @@ public class ThemalPrintController {
             sendThaiMessage("           บริษัท เธียรสุรัตน์ จำกัด (มหาชน)");
             sendThaiMessage("        เลขประจำตัวผู้เสียภาษี 0107556000213");
             sendThaiMessage("                    โทร. 1210");
-        }*/
-        sendThaiMessage("           บริษัท เธียรสุรัตน์ จำกัด (มหาชน)");
+        }
+        /*sendThaiMessage("           บริษัท เธียรสุรัตน์ จำกัด (มหาชน)");
         sendThaiMessage("        เลขประจำตัวผู้เสียภาษี 0107556000213");
-        sendThaiMessage("                    โทร. 1210");
+        sendThaiMessage("                    โทร. 1210");*/
     }
 
     public void printTitleBackground(String Region) throws  IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             Region = Region.replace("printTitleBackground(","").replace(")", "");
             String[] region = Region.split(",");
             mPrinter.drawPageRectangle(Integer.parseInt(region[0].trim()),
@@ -254,11 +258,11 @@ public class ThemalPrintController {
                     Integer.parseInt(region[2].trim()),
                     Integer.parseInt(region[3].trim()),
                     Printer.FILL_INVERTED);
-        //}
+        }
     }
 
     public void printFrame(String Region) throws  IOException {
-        //if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             Region = Region.replace("printFrame(","").replace(")", "");
             String[] region = Region.split(",");
             mPrinter.drawPageFrame(Integer.parseInt(region[0].trim()),
@@ -267,7 +271,7 @@ public class ThemalPrintController {
                     Integer.parseInt(region[3].trim()),
                     Printer.FILL_BLACK,
                     1);
-        //}
+        }
     }
 
     public void sendEnglishMessage(String message)  throws IOException{
@@ -420,7 +424,6 @@ public class ThemalPrintController {
             }
         }
 
-
         // ค้นหาสระด้านล่าง
         for(int i=0; i<message.length(); i++) {
             for(int j=0; j< lowerChar.length; j++) {
@@ -450,10 +453,7 @@ public class ThemalPrintController {
             }
         }
 
-
         byte[] send;
-
-
         try {
             send = msg1.getBytes("TIS-620");
         } catch (UnsupportedEncodingException var5) {
@@ -505,25 +505,20 @@ public class ThemalPrintController {
         sendCommand(cmd);
     }
 
-
     public void printSignature(String EmployeeID) throws IOException {
         printSignatureImage(GenerateSignature(EmployeeID));
     }
 
     public static Bitmap scaleBitmapByHeight(Bitmap bm, int height) {
         int width = (int) (1f * height / bm.getHeight() * bm.getWidth());
-
         return Bitmap.createScaledBitmap(bm, width, height, true);
     }
-
 
     public  Bitmap GenerateSignature(String EmployeeID){
         Bitmap img = Bitmap.createBitmap(374, 50, Bitmap.Config.ARGB_8888);
         img.setHasAlpha(true);
         Canvas cv = new Canvas(img);
-
-        Bitmap signature = BitmapFactory.decodeResource(context.getResources(), R.drawable.sample_signature);
-
+        Bitmap signature = BitmapFactory.decodeResource(context.getResources(), R.drawable.k_viruch);
         cv.drawBitmap(scaleBitmapByHeight(signature, 50), 0, 2, null);
 
         if (img != null) {
@@ -546,25 +541,12 @@ public class ThemalPrintController {
 
     @SuppressLint("SdCardPath")
     private void printSignatureImage(Bitmap signatureBigmap) throws IOException {
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-
-        final AssetManager assetManager = context.getAssets();
-        final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch.png"),
-                null, options);
-        final int width = bitmap.getWidth();
-        final int height = bitmap.getHeight();
-        final int[] argb = new int[width * height];
-        bitmap.getPixels(argb, 0, width, 0, 0, width, height);
-        bitmap.recycle();
-        mPrinter.printCompressedImage(argb, width, height, Printer.ALIGN_LEFT, true);
-        /*if(mPrinterAddress.startsWith("00:01")) {
-
+        if(mPrinterAddress.startsWith("00:01")) {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
 
             final AssetManager assetManager = context.getAssets();
-            final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("sample_signature.png"),
+            final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch.png"),
                     null, options);
             final int width = bitmap.getWidth();
             final int height = bitmap.getHeight();
@@ -581,7 +563,7 @@ public class ThemalPrintController {
             sendData = pg.printDraw();
             sendCommand(sendData);
             commitPrint();
-        }*/
+        }
     }
 
     public void printBankBarcode(String ref1, String ref2, String Amount) throws IOException {
@@ -590,7 +572,7 @@ public class ThemalPrintController {
 
     @SuppressLint("SdCardPath")
     private void printPaymentBarcodeImage(Bitmap barcodeBitmap) throws IOException {
-        /*if(mPrinterAddress.startsWith("00:01")) {
+        if(mPrinterAddress.startsWith("00:01")) {
             // print to Datecs Printer
             final int width = barcodeBitmap.getWidth();
             final int height = barcodeBitmap.getHeight();
@@ -608,7 +590,7 @@ public class ThemalPrintController {
             sendData = pg.printDraw();
             sendCommand(sendData);
             commitPrint();
-        }*/
+        }
     }
 
 
@@ -727,8 +709,6 @@ public class ThemalPrintController {
         CODE_C.put("99", "10111011110");
 
         Map<String,String> CODE_A = new HashMap<String, String>();
-
-
         CODE_A.put("0","11011001100");
         CODE_A.put("1","11001101100");
         CODE_A.put("2","11001100110");
@@ -838,7 +818,6 @@ public class ThemalPrintController {
         CODE_A.put("",  "11000111010" );
 
         // Add ref1
-
         for(int i=0; i<Ref1.length(); i+=2) {
             String key = String.format("%s%s", Ref1.charAt(i), Ref1.charAt(i+1));
             barcodeString = String.format("%s%s", barcodeString, CODE_C.get(key));
@@ -907,9 +886,7 @@ public class ThemalPrintController {
                 barcodeString = String.format("%s%s", barcodeString, CODE_A.get(key));
                 CheckSumSummary = CheckSumSummary + (Integer.parseInt(key) *  CurrentPosition);
                 CurrentPosition++;
-
             }
-
         } else {
             barcodeString = String.format("%s%s", barcodeString, "10011101100");
             CheckSumSummary = CheckSumSummary + (16 * CurrentPosition);
@@ -968,30 +945,24 @@ public class ThemalPrintController {
         } else {
             setBarCodeWidth();
             setAligns(1);
-
             byte[] cmd = new byte[4 + text.length()];
             cmd[0] = 0x1D; //GS
             cmd[1] = 0x6B; //k
             cmd[2] = 0x49; //m
             cmd[3] = (byte) text.length(); //n
             int i = 4;
-
             byte[] bytes;
             try {
                 bytes = text.getBytes("UTF-8");
             } catch (UnsupportedEncodingException var5) {
                 bytes = text.getBytes();
             }
-
             for (byte b : bytes){
                 cmd[i] = b;
                 i++;
             }
-
             sendCommand(cmd);
-
             //sendThaiMessage(text);
-
             setAligns(0);
         }
     }
@@ -1016,9 +987,7 @@ public class ThemalPrintController {
         sendCommand(cmd);
     }
 
-
-    public static String getAlphabetOnly(String message)
-    {
+    public static String getAlphabetOnly(String message) {
         //  ค้นหาตัวอักษร
         String result="";
         boolean _found = false;
@@ -1032,8 +1001,7 @@ public class ThemalPrintController {
                     _found = true;
                     break;
                 } else {
-                    for(int k=0; k<lowerChar.length; k++)
-                    {
+                    for(int k=0; k<lowerChar.length; k++) {
                         ch = message.substring(i,i+1);
                         if(ch.equals(lowerChar[k])) {
                             _found = true;
@@ -1171,9 +1139,7 @@ public class ThemalPrintController {
 
     public static Bitmap combineImages(Bitmap c, Bitmap s) { // can add a 3rd parameter 'String loc' if you want to save the new image - left some code to do that at the bottom
         Bitmap cs = null;
-
         int width, height = 0;
-
         if(c.getHeight() > s.getHeight()) {
             width = c.getWidth();
             height = c.getHeight()+ s.getHeight();
@@ -1181,15 +1147,10 @@ public class ThemalPrintController {
             width = s.getWidth();
             height = c.getHeight()+ c.getHeight();
         }
-
         cs = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
         Canvas comboImage = new Canvas(cs);
-
         comboImage.drawBitmap(c, 0f, 0f, null);
         comboImage.drawBitmap(s, 0f, (c.getHeight()), null);
-
-
         return cs;
     }
 
@@ -1210,39 +1171,30 @@ public class ThemalPrintController {
 
     public static String readText(String path) {
         File file = new File(path);
-
         String line="";
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(file));
-
-
             String resultLine="";
             while ((resultLine = br.readLine()) != null) {
                 // do something with the line you just read, e.g.
                 line+= resultLine+"\n";
             }
             br.close();
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return (line);
-
     }
 
     public static List<String> readTextList(String path) {
         File file = new File(path);
-
         List<String> line=new ArrayList<>();
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(file));
-
-
             String resultLine="";
             while ((resultLine = br.readLine()) != null) {
                 // do something with the line you just read, e.g.
@@ -1255,31 +1207,22 @@ public class ThemalPrintController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return (line);
-
     }
 
-    public static void addLongText(List<String> stringList,String msg)
-    {
+    public static void addLongText(List<String> stringList,String msg) {
         //ถ้า มี String ที่ยาว กว่า 48 ตัว ฟังชั่นนี้จัดตัดขึ้นบรรทัดใหม่ให้
         int maxLenght = 48;
         String resultLength = getAlphabetOnly(msg);
-
         String resultMsg = msg;
         int checkLoop = (resultMsg.length()/maxLenght);
-        for (int i=0;i<=checkLoop;i++)
-        {
-
-            if (resultMsg.equals(""))
-            {
+        for (int i=0;i<=checkLoop;i++) {
+            if (resultMsg.equals("")) {
                 break;
             }
             String _step = (resultMsg.length()<maxLenght) ? resultMsg :  resultMsg.substring(0, maxLenght);
-
             String _stepAlphabet = getAlphabetOnly(_step);
-            if (_stepAlphabet.length()<maxLenght && !resultMsg.equals(_step))
-            {
+            if (_stepAlphabet.length()<maxLenght && !resultMsg.equals(_step)) {
                 int _defference = maxLenght - _stepAlphabet.length();       //จำนวนตัวอักษร ที่ต้องเพิ่ม
 
 //                String _step2 = (resultMsg.length()<(_step.length()+_defference)) ? resultMsg.substring(_step.length(),resultMsg.length()) : resultMsg.substring(_step.length(),(_step.length()+_defference));
@@ -1290,48 +1233,33 @@ public class ThemalPrintController {
 //                    int _defference2 = maxLenght - _stepAlphabet.length();       //จำนวนตัวอักษร ที่ต้องเพิ่ม
 //                }
 
-                while (getAlphabetOnly(_step).length()!=maxLenght)
-                {
+                while (getAlphabetOnly(_step).length()!=maxLenght) {
                     String _step2 = (resultMsg.length()<(_step.length()+_defference)) ? resultMsg.substring(_step.length(),resultMsg.length()) : resultMsg.substring(_step.length(),(_step.length()+_defference));
                     String _stepAlphabet2 = getAlphabetOnly(_step+_step2);
 
-                    for (int j=1;j<=3;j++)
-                    {
+                    for (int j=1;j<=3;j++) {
                         String _step2Growing = (resultMsg.length()<(_step.length()+_defference+j)) ? resultMsg.substring(_step.length(),resultMsg.length()) : resultMsg.substring(_step.length(),(_step.length()+_defference+j));
                         String _stepAlphabet2Growing = getAlphabetOnly(_step+_step2Growing);
-                        if (_stepAlphabet2.length()==_stepAlphabet2Growing.length())
-                        {
+                        if (_stepAlphabet2.length()==_stepAlphabet2Growing.length()) {
                             _step2 = _step2Growing;
                         }
                     }
 
-
-                    if (_step2.equals(""))
-                    {
+                    if (_step2.equals("")) {
                         break;
                     }
 
-                    if (_stepAlphabet2.length()>48)
-                    {
+                    if (_stepAlphabet2.length()>48) {
                         _defference--;
-                    }
-                    else if (_stepAlphabet2.length()<48)
-                    {
+                    } else if (_stepAlphabet2.length()<48) {
                         _defference = maxLenght - _stepAlphabet2.length();       //จำนวนตัวอักษร ที่ต้องเพิ่ม
                         _step += _step2;
-                    }
-                    else
-                    {
+                    } else {
                         _step += _step2;
                         break;
                     }
-
                 }
-
-
-
             }
-
 
             int memoryIncrement = 0;
 //            if (getAlphabetOnly(_step).length()<maxLenght && msg.length() > maxLenght)
@@ -1367,32 +1295,24 @@ public class ThemalPrintController {
 
 
             //resultMsg = (resultMsg.length()<maxLenght+memoryIncrement) ? resultMsg.substring(resultMsg.length()) : resultMsg.substring(maxLenght+memoryIncrement);
-
             resultMsg = resultMsg.substring(_step.length());
             resultLength = getAlphabetOnly(resultMsg);
-
-
             stringList.add(_step);
         }
-
     }
 
-    public static String getBetweenSpace(String left,String right)
-    {
+    public static String getBetweenSpace(String left,String right) {
         int totalSpace=20;
         String result=left;
         int _aplabetOnly = getAlphabetOnly(left).length();
-        for (int i=_aplabetOnly;i<totalSpace;i++)
-        {
+        for (int i=_aplabetOnly;i<totalSpace;i++) {
             result += " ";
         }
         result += right;
-
         return result;
     }
 
-    public static String calculateLeght(String left,String right)
-    {
+    public static String calculateLeght(String left,String right) {
         /*int maxLength = 48 - left.length();
         int resultLegth = maxLength - right.length();
         String result = left;
@@ -1402,25 +1322,21 @@ public class ThemalPrintController {
         }
         result += right;
         return  result;*/
-
         int maxLength = 48 - getAlphabetOnly(left).length();
         int resultLegth = maxLength - getAlphabetOnly(right).length();
         String result = left;
-        for (int i=0;i<resultLegth;i++)
-        {
+        for (int i=0;i<resultLegth;i++) {
             result += " ";
         }
         result += right;
         return  result;
     }
 
-    public static String calculateCenter(String center)
-    {
+    public static String calculateCenter(String center) {
         int maxLength = maxTextLength - getAlphabetOnly(center).length();
         String result = center;
-        for (int i=0;i<maxLength;i++)
-        {
-            if((maxLength/2) < i){
+        for (int i=0;i<maxLength;i++) {
+            if((maxLength/2) < i) {
                 result = " " + result;
             } else {
                 result += " ";
@@ -1429,12 +1345,10 @@ public class ThemalPrintController {
         return  result;
     }
 
-    public static String calculateCenterByLength(String center, int length)
-    {
+    public static String calculateCenterByLength(String center, int length) {
         int maxLength = length - getAlphabetOnly(center).length();
         String result = center;
-        for (int i=0;i<maxLength;i++)
-        {
+        for (int i=0;i<maxLength;i++) {
             if((maxLength/2) < i){
                 result = " " + result;
             } else {
@@ -1444,27 +1358,22 @@ public class ThemalPrintController {
         return  result;
     }
 
-    public static String calculateOffSetLeft(String left, String right, int offSetLeft)
-    {
+    public static String calculateOffSetLeft(String left, String right, int offSetLeft) {
         int totalSpace = offSetLeft;
         String result = left;
         int _aplabetOnly = getAlphabetOnly(left).length();
-        for (int i=_aplabetOnly;i<totalSpace;i++)
-        {
+        for (int i=_aplabetOnly;i<totalSpace;i++) {
             result += " ";
         }
         result += right;
-
         return result;
     }
 
-    public static String calculateLeghtRight(String left, String right)
-    {
+    public static String calculateLeghtRight(String left, String right) {
         int maxLength = maxTextLength - getAlphabetOnly(left).length();
         int resultLegth = maxLength - getAlphabetOnly(right).length();
         String result = left;
-        for (int i=0;i<resultLegth;i++)
-        {
+        for (int i=0;i<resultLegth;i++) {
             result += " ";
         }
         result += right;

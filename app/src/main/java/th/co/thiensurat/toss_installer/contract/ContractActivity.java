@@ -7,6 +7,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,6 +26,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.StreamEncoder;
+import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
+import com.caverock.androidsvg.SVG;
 import com.datecs.api.emsr.EMSR;
 import com.datecs.api.printer.Printer;
 import com.datecs.api.printer.ProtocolAdapter;
@@ -32,6 +42,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,6 +68,9 @@ import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.Utils;
+import th.co.thiensurat.toss_installer.utils.svg.SvgDecoder;
+import th.co.thiensurat.toss_installer.utils.svg.SvgDrawableTranscoder;
+import th.co.thiensurat.toss_installer.utils.svg.SvgSoftwareLayerSetter;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_CONNECT_DEVICE;
 
@@ -68,6 +82,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     private List<AddressItem> addressItemList = new ArrayList<AddressItem>();
 
     private String name;
+    private String printType;
     private String printerAddr;
     private StringBuilder sbAdd;
     private StringBuilder sbInAdd;
@@ -93,6 +108,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     private ProtocolAdapter mProtocolAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private ProtocolAdapter.Channel mPrinterChannel;
+    private DecimalFormat df = new DecimalFormat("#,###.00");
+    private GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
 
     public static ContractActivity getInstance() {
         return new ContractActivity();
@@ -110,7 +127,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.printer_status) TextView textViewPrintStatus;
-    @BindView(R.id.floating_print) Button floatingActionButtonPrint;
+    @BindView(R.id.floating_print) Button buttonPrintContact;
+    @BindView(R.id.floating_print_install_receipt) Button buttonPrintInstallReceipt;
     @BindView(R.id.contract_date) TextView textViewDate;
     @BindView(R.id.contract_number) TextView textViewNumber;
     @BindView(R.id.order_id) TextView textViewOrder;
@@ -121,6 +139,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @BindView(R.id.contract_phone) TextView textViewPhone;
     @BindView(R.id.contract_product_name) TextView textViewProductName;
     @BindView(R.id.contract_product_model) TextView textViewProductModel;
+    @BindView(R.id.contract_product_serial) TextView textViewProductSerial;
     @BindView(R.id.contract_product_price) TextView textViewPrice;
     @BindView(R.id.contract_product_discount) TextView textViewDiscount;
     @BindView(R.id.contract_product_net_price) TextView textViewNetPrice;
@@ -140,13 +159,15 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @BindView(R.id.title_discount) TextView textViewTitleDiscount;
     @BindView(R.id.title_net_price) TextView textViewTitleNetPrice;
     @BindView(R.id.title_per_month) TextView textViewTitlePerMonth;
+    @BindView(R.id.hint_signature) TextView textViewHintSignature;
     @BindView(R.id.customer_signature) ImageView imageViewCustomerSignature;
     @Override
     public void bindView() {
         ButterKnife.bind(this);
         textViewPrintStatus.setVisibility(View.GONE);
-        floatingActionButtonPrint.setOnClickListener( onPrint() );
+        buttonPrintContact.setOnClickListener( onPrint() );
         imageViewCustomerSignature.setOnClickListener( onSign() );
+        buttonPrintInstallReceipt.setOnClickListener( onPrintInstallationReceipt() );
     }
 
     @Override
@@ -226,7 +247,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         toolbar.setTitle("");
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
         textViewTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        textViewTitle.setText("สัญญาเช่าซื้อ");
+        textViewTitle.setText("สัญญาเช่าซื้อ/ซื้อขาย");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -252,6 +273,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         textViewID.setText(jobItem.getIDCard());
 
         getPresenter().getAddressFromSQLite(ContractActivity.this, jobItem.getOrderid());
+        getPresenter().getProductFromSQLite(ContractActivity.this, jobItem.getOrderid());
     }
 
     @Override
@@ -308,11 +330,82 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         textViewPhone.setText(phone);
     }
 
+    @Override
+    public void setProductFromSQLite(List<ProductItem> productItemList) {
+        this.productItemList = productItemList;
+
+        String temp = "";
+        String temp2 = "";
+        String productname = "";
+        String prodcutmodel = "";
+        StringBuilder sb3 = new StringBuilder();
+
+        for (ProductItem item : productItemList) {
+            if (temp.isEmpty()) {
+                temp = item.getProductName();
+            } else {
+                temp2 = temp;
+                temp = item.getProductName();
+            }
+
+            if (!temp2.equals(temp) || temp2.isEmpty()) {
+                productname = item.getProductName();
+                prodcutmodel = item.getProductModel();
+                sb3.append(item.getProductSerial());
+                sb3.append("\n");
+            }
+
+            textViewProductName.setText(productname);
+            textViewProductModel.setText(prodcutmodel);
+            textViewProductSerial.setText(sb3.toString());
+
+        }
+
+        float qty = 0;
+        float normalPrice = 0;
+        float discountPrice = 0;
+        float grandTotalPrice = 0;
+        for (int i = 0; i < productItemList.size(); i++) {
+            ProductItem item = productItemList.get(i);
+            qty += Float.parseFloat(item.getProductQty());
+            normalPrice = Float.parseFloat(item.getProductPrice());
+            discountPrice = Float.parseFloat(item.getProductDiscount());
+        }
+        grandTotalPrice = (qty * normalPrice) - (qty * discountPrice);
+
+        textViewPrice.setText(df.format((qty * normalPrice)) + " บาท");
+        textViewDiscount.setText(df.format((qty * discountPrice)));
+        textViewNetPrice.setText(df.format(grandTotalPrice));
+
+        if (jobItem.getPaytype().equals("2")) {
+
+        } else {
+            textViewMonth.setVisibility(View.GONE);
+            textViewPerMonth.setVisibility(View.GONE);
+        }
+    }
+
     private View.OnClickListener onPrint() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                floatingActionButtonPrint.startAnimation(new AnimateButton().animbutton());
+                buttonPrintContact.startAnimation(new AnimateButton().animbutton());
+                printType = "contract";
+                try {
+                    printText(inputStream, outputStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private View.OnClickListener onPrintInstallationReceipt() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonPrintInstallReceipt.startAnimation(new AnimateButton().animbutton());
+                printType = "install";
                 try {
                     printText(inputStream, outputStream);
                 } catch (IOException e) {
@@ -327,6 +420,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ContractActivity.this, SignatureActivity.class);
+                intent.putExtra(Constance.KEY_ORDER_ID, jobItem.getOrderid());
+                intent.putExtra(Constance.KEY_CUSTOMER_NAME, String.valueOf(jobItem.getFirstName() + "_" + jobItem.getLastName()));
                 startActivityForResult(intent, Constance.REQUEST_SIGNATURE);
             }
         };
@@ -384,15 +479,44 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                     Bundle bundle = data.getExtras();
                     String status  = bundle.getString("status");
                     if(status.equalsIgnoreCase("done")){
+                        String path = bundle.getString("path");
+                        //String pathsvg = bundle.getString("pathsvg");
+                        setSignToImageView(path, "");
+                        /*Glide.with(this).load(path).into(imageViewCustomerSignature);
+                        textViewHintSignature.setVisibility(View.GONE);
+                        Log.e("signature path", path);
                         Toast toast = Toast.makeText(this, "Signature capture successful!", Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.TOP, 105, 50);
-                        toast.show();
+                        toast.show();*/
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void setSignToImageView(String pathBMP, String pathSVG) {
+        textViewHintSignature.setVisibility(View.GONE);
+        Glide.clear(imageViewCustomerSignature);
+        Glide.with(this).load(pathBMP).into(imageViewCustomerSignature);
+
+        /*GenericRequestBuilder<Uri,InputStream,SVG,PictureDrawable>
+                requestBuilder = Glide.with(this)
+                .using(Glide.buildStreamModelLoader(Uri.class, this), InputStream.class)
+                .from(Uri.class)
+                .as(SVG.class)
+                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+                .sourceEncoder(new StreamEncoder())
+                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+                .decoder(new SvgDecoder())
+                .listener(new SvgSoftwareLayerSetter<Uri>());
+
+        Uri uri = Uri.parse(pathSVG);
+        requestBuilder
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .load(uri)
+                .into(imageViewCustomerSignature);*/
     }
 
     private void connectBluetoothPaired() {
@@ -426,7 +550,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                                     try {
                                         bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
                                         bluetoothSocket.connect();
-
+                                        printerAddr = device.getAddress();
                                         inputStream = bluetoothSocket.getInputStream();
                                         outputStream = bluetoothSocket.getOutputStream();
                                     } catch (IOException ie) {
@@ -465,7 +589,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                     try {
                         bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
                         bluetoothSocket.connect();
-
+                        printerAddr = address;
                         inputStream = bluetoothSocket.getInputStream();
                         outputStream = bluetoothSocket.getOutputStream();
                     } catch (IOException ie) {
@@ -535,11 +659,18 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             if (mProtocolAdapter.isProtocolEnabled()) {
                 mPrinterChannel = mProtocolAdapter.getChannel(ProtocolAdapter.CHANNEL_PRINTER);
                 mPrinter = new Printer(mPrinterChannel.getInputStream(), mPrinterChannel.getOutputStream());
-
-                printContract();
+                if (printType.equals("contract")) {
+                    printContract();
+                } else {
+                    printInstallationReceipt();
+                }
             } else {
                 mPrinter = new Printer(mProtocolAdapter.getRawInputStream(), mProtocolAdapter.getRawOutputStream());
-                printContract();
+                if (printType.equals("contract")) {
+                    printContract();
+                } else {
+                    printInstallationReceipt();
+                }
             }
         } catch (Exception ex) {
 
@@ -548,7 +679,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     private void printContract() throws IOException {
         if (bluetoothService != null) {
-            themalPrintController.setPrinterAddress(mPrinter);
+            //themalPrintController.setPrinterAddress(mPrinter);
+            themalPrintController.setPrinterController(mPrinter, printerAddr);
             mPrinter.reset();
             themalPrintController.setFontNormal();
 
@@ -611,6 +743,76 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             ContractActivity.this.runOnUiThread(new Runnable() {
                 public void run() {
                     Toast.makeText(getApplicationContext(), "พิมพ์สัญญาแล้ว", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void printInstallationReceipt() throws IOException {
+        if (bluetoothService != null) {
+            themalPrintController.setPrinterAddress(mPrinter);
+            mPrinter.reset();
+            themalPrintController.setFontNormal();
+
+            List<List<PrintTextInfo>> documents = new ArrayList<>();
+            List<PrintTextInfo> document = documentController.getTextInstallation(jobItem, addressItemList, productItemList);
+            documents.add(document);
+
+            for (List<PrintTextInfo> listInfo : documents) {
+                for (PrintTextInfo info : listInfo) {
+                    if (info.text.equals("printShortHeader")) {
+                        themalPrintController.printShortHeader();
+                    } else if (info.text.equals("printHeader")) {
+                        themalPrintController.printHeader();
+                    } else if (info.text.equals("selectPageMode")) {
+                        themalPrintController.selectPageMode();
+                    } else if (info.text.equals("setContractPageRegion")) {
+                        themalPrintController.setContractPageRegion();
+                    } else if (info.text.equals("printContractPageTitle")) {
+                        themalPrintController.printContractPageTitle();
+                    } else if (info.text.equals("beginContractPage")) {
+                        themalPrintController.beginContractPage();
+                    } else if (info.text.equals("endContractPage")) {
+                        themalPrintController.endContractPage();
+                    } else if (info.text.equals("selectStandardMode")) {
+                        themalPrintController.selectStandardMode();
+                    } else if (info.text.contains("setPageRegion")) {
+                        themalPrintController.setPageRegion(info.text);
+                    } else if (info.text.contains("beginPage")) {
+                        themalPrintController.beginPage(info.text);
+                    } else if (info.text.contains("endPage")) {
+                        themalPrintController.endPage();
+                    } else if (info.text.contains("printTitleBackground")) {
+                        themalPrintController.printTitleBackground(info.text);
+                    } else if (info.text.contains("printFrame")) {
+                        themalPrintController.printFrame(info.text);
+                    } else if (info.text.equals("signature")) {
+                        themalPrintController.printSignature("");
+                    } else if (info.isBarcode) {
+                        if (info.isBankBarcode) {
+                            String[] parts = info.text.split("\\|");
+                            themalPrintController.printBankBarcode(parts[0], parts[1], parts[2]);
+
+                        } else {
+                            themalPrintController.printBarCode128(info.text);
+                        }
+                    } else {
+                        if (info.language.equals("TH")) {
+                            themalPrintController.sendThaiMessage(info.text);
+                        } else {
+                            themalPrintController.sendEnglishMessage(info.text);
+                        }
+                    }
+                }
+            }
+
+            themalPrintController.sendThaiMessage("");
+            mPrinter.feedPaper(100);
+            mPrinter.flush();
+
+            ContractActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "พิมพ์ใบรับการติดตั้งแล้ว", Toast.LENGTH_SHORT).show();
                 }
             });
         }

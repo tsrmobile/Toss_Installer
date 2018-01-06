@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.util.Log;
 
 import com.datecs.api.printer.Printer;
 import com.zj.btsdk.PrintPic;
@@ -518,7 +520,7 @@ public class ThemalPrintController {
         Bitmap img = Bitmap.createBitmap(374, 50, Bitmap.Config.ARGB_8888);
         img.setHasAlpha(true);
         Canvas cv = new Canvas(img);
-        Bitmap signature = BitmapFactory.decodeResource(context.getResources(), R.drawable.k_viruch);
+        Bitmap signature = BitmapFactory.decodeResource(context.getResources(), R.drawable.sample_signature);
         cv.drawBitmap(scaleBitmapByHeight(signature, 50), 0, 2, null);
 
         if (img != null) {
@@ -543,11 +545,9 @@ public class ThemalPrintController {
     private void printSignatureImage(Bitmap signatureBigmap) throws IOException {
         if(mPrinterAddress.startsWith("00:01")) {
             final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inScaled = false;
-
+            options.inScaled = true;
             final AssetManager assetManager = context.getAssets();
-            final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch.png"),
-                    null, options);
+            final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch.png"), null, options);
             final int width = bitmap.getWidth();
             final int height = bitmap.getHeight();
             final int[] argb = new int[width * height];
@@ -564,6 +564,105 @@ public class ThemalPrintController {
             sendCommand(sendData);
             commitPrint();
         }
+    }
+
+    public void printSignatureCustomer(String imageurl) {
+        try {
+            if(mPrinterAddress.startsWith("00:01")) {
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = true;
+                final Bitmap bitmap = getResizedBitmap(BitmapFactory.decodeFile(imageurl, options), 250, 50);
+                final int width = bitmap.getWidth();
+                final int height = bitmap.getHeight();
+                final int[] argb = new int[width * height];
+                bitmap.getPixels(argb, 0, width, 0, 0, width, height);
+                bitmap.recycle();
+                mPrinter.printCompressedImage(argb, width, height, Printer.ALIGN_RIGHT, true);
+            } else {
+                byte[] sendData = null;
+                PrintPic pg = new PrintPic();
+                pg.initCanvas(800);
+                pg.initPaint();
+                pg.drawImage(0, 0, "/mnt/sdcard/signature.png");
+                sendData = pg.printDraw();
+                sendCommand(sendData);
+                commitPrint();
+            }
+        } catch (IOException e) {
+            Log.e("customer signature", e.getMessage());
+        }
+    }
+
+    public void printSignatureWithCustomer(String imageurl) {
+        try {
+            if(mPrinterAddress.startsWith("00:01")) {
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = false;
+
+                final AssetManager assetManager = context.getAssets();
+                final Bitmap bitmap1 = BitmapFactory.decodeStream(assetManager.open("k_viruch.png"), null, options);
+                final int width1 = bitmap1.getWidth();
+                final int height1 = bitmap1.getHeight();
+                final int[] argb1 = new int[width1 * height1];
+                bitmap1.getPixels(argb1, 0, width1, 0, 0, width1, height1);
+                bitmap1.recycle();
+
+                final Bitmap bitmap2 = getResizedBitmap(BitmapFactory.decodeFile(imageurl, options), 250, 50);
+                final int width2 = bitmap2.getWidth();
+                final int height2 = bitmap2.getHeight();
+                final int[] argb2 = new int[width2 * height2];
+                bitmap2.getPixels(argb2, 0, width2, 0, 0, width2, height2);
+                bitmap2.recycle();
+
+                Bitmap bitmap = BitmapFactory.decodeFile(createSingleImageFromMultipleImages(bitmap1, bitmap2, new File(imageurl)), options);
+                final int width = bitmap.getWidth();
+                final int height = bitmap.getHeight();
+                final int[] argb = new int[width * height];
+                bitmap.getPixels(argb, 0, width, 0, 0, width, height);
+                bitmap.recycle();
+
+                mPrinter.printCompressedImage(argb, width, height, Printer.ALIGN_RIGHT, true);
+            } else {
+                byte[] sendData = null;
+                PrintPic pg = new PrintPic();
+                pg.initCanvas(800);
+                pg.initPaint();
+                pg.drawImage(0, 0, "/mnt/sdcard/signature.png");
+                sendData = pg.printDraw();
+                sendCommand(sendData);
+                commitPrint();
+            }
+        } catch (IOException e) {
+            Log.e("customer signature", e.getMessage());
+        }
+    }
+
+    private String createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage, File photo) throws IOException {
+        Bitmap result = Bitmap.createBitmap(firstImage.getWidth() + secondImage.getWidth(), firstImage.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(firstImage, 0, 0, null);
+        canvas.drawBitmap(secondImage, firstImage.getWidth(), 0, null);
+        OutputStream stream = new FileOutputStream(photo);
+        result.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        stream.close();
+        return photo.getAbsolutePath();
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
     }
 
     public void printBankBarcode(String ref1, String ref2, String Amount) throws IOException {

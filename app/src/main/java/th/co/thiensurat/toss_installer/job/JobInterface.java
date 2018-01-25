@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
+import th.co.thiensurat.toss_installer.api.result.data.DataResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
@@ -24,6 +25,7 @@ public class JobInterface {
         void onSuccess(String success);
         void setJobItemToAdapter(List<JobItem> itemList);
         void setNewDataToSQLite(List<JobItem> itemList);
+        //void setDataTable(DataResultGroup dataResultGroup);
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<JobInterface.View> {
@@ -36,5 +38,8 @@ public class JobInterface {
         void getJobFromSqlite(Context context, String date);
 
         void insertNewData(Context context, List<JobItem> jobItemList);
+
+        //void getData();
+        //void insertDataToSqlite(Context context, DataResultGroup dataResultGroup);
     }
 }

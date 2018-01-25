@@ -21,8 +21,11 @@ public class JobItem extends BaseItem implements Parcelable {
     private String contactphone;
     private String installStartDate;
     private String installEndDate;
-    private String paytype;
+    private String installStart;
+    private String installEnd;
     private String status;
+    private String presale;
+    private String contno;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -39,8 +42,8 @@ public class JobItem extends BaseItem implements Parcelable {
         contactphone        = in.readString();
         installStartDate    = in.readString();
         installEndDate      = in.readString();
-        paytype             = in.readString();
         status              = in.readString();
+        presale             = in.readString();
     }
 
     public String getOrderid() {
@@ -115,12 +118,21 @@ public class JobItem extends BaseItem implements Parcelable {
         return this;
     }
 
-    public String getPaytype() {
-        return paytype;
+    public String getInstallStart() {
+        return installStart;
     }
 
-    public JobItem setPaytype(String paytype) {
-        this.paytype = paytype;
+    public JobItem setInstallStart(String installStart) {
+        this.installStart = installStart;
+        return this;
+    }
+
+    public String getInstallEnd() {
+        return installEnd;
+    }
+
+    public JobItem setInstallEnd(String installEnd) {
+        this.installEnd = installEnd;
         return this;
     }
 
@@ -130,6 +142,24 @@ public class JobItem extends BaseItem implements Parcelable {
 
     public JobItem setStatus(String status) {
         this.status = status;
+        return this;
+    }
+
+    public String getPresale() {
+        return presale;
+    }
+
+    public JobItem setPresale(String presale) {
+        this.presale = presale;
+        return this;
+    }
+
+    public String getContno() {
+        return contno;
+    }
+
+    public JobItem setContno(String contno) {
+        this.contno = contno;
         return this;
     }
 
@@ -167,8 +197,11 @@ public class JobItem extends BaseItem implements Parcelable {
         dest.writeString(contactphone);
         dest.writeString(installStartDate);
         dest.writeString(installEndDate);
-        dest.writeString(paytype);
+        dest.writeString(installStart);
+        dest.writeString(installEnd);
         dest.writeString(status);
+        dest.writeString(presale);
+        dest.writeString(contno);
     }
 
     public static final Creator<JobItem> CREATOR = new Creator<JobItem>() {
@@ -194,8 +227,11 @@ public class JobItem extends BaseItem implements Parcelable {
                 .setContactphone(contactphone)
                 .setInstallStartDate(installStartDate)
                 .setInstallEndDate(installEndDate)
-                .setPaytype(paytype)
-                .setStatus(status);
+                .setInstallStart(installStart)
+                .setInstallEnd(installEnd)
+                .setStatus(status)
+                .setPresale(presale)
+                .setContno(contno);
         return jobItem;
     }
 }

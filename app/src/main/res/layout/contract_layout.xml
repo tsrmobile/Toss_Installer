@@ -2,6 +2,7 @@
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
@@ -298,6 +299,35 @@
         </LinearLayout>
 
         <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_product_serial"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="หมายเลขเครื่อง"/>
+
+            <TextView
+                android:id="@+id/contract_product_serial"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="อัลคาไลน์มินิ"/>
+
+        </LinearLayout>
+
+        <View
         android:layout_width="match_parent"
         android:layout_height="10dp"/>
 
@@ -383,6 +413,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layout_periods"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_even"
@@ -410,6 +441,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layout_permonth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_even"
@@ -440,98 +472,122 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"/>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:id="@+id/signature_show"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="2dp"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/k_viruch"/>
-
-                <TextView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:ellipsize="none"
-                    android:text="........................................................................"/>
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:text="(คุณวิรัช)"/>
+                    <ImageView
+                        android:id="@+id/signature_k_viruch"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/k_viruch"/>
 
-                <TextView
-                    android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:ellipsize="none"
+                        android:text="........................................................................"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="(นายวิรัช วงศ์นิรันดร์)"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="ผู้ให้เช่าซื้อ"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="match_parent"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:text="ผู้ให้เช่าซื้อ"/>
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/customer_signature"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitXY"/>
+
+                        <TextView
+                            android:id="@+id/hint_signature"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            android:text="เซ็นที่นี่"
+                            android:background="@color/table_data_row_odd"/>
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:ellipsize="none"
+                        android:text="........................................................................"/>
+
+                    <TextView
+                        android:id="@+id/customer_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="(คุณลูกค้า)"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="ผู้เช่าซื้อ"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <View
-                android:layout_width="8dp"
-                android:layout_height="match_parent"/>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="2dp"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/customer_signature"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:background="?attr/selectableItemBackground"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:ellipsize="none"
-                    android:text="........................................................................"/>
-
-                <TextView
-                    android:id="@+id/customer_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:text="(คุณลูกค้า)"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:text="ผู้เช่าซื้อ"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
+        </RelativeLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="10dp"/>
 
         <LinearLayout
+            android:id="@+id/layout_sign_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">

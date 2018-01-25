@@ -2,6 +2,8 @@ package th.co.thiensurat.toss_installer.job.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -45,6 +47,7 @@ import th.co.thiensurat.toss_installer.utils.helper.ItemTouchHelperViewHolder;
 import th.co.thiensurat.toss_installer.utils.helper.OnCustomerListChangedListener;
 import th.co.thiensurat.toss_installer.utils.helper.OnStartDragListener;
 
+import static com.google.android.gms.internal.zzagr.runOnUiThread;
 import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_BASE_URL;
 import static th.co.thiensurat.toss_installer.utils.Utils.ConvertDateFormat;
 
@@ -56,15 +59,15 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
 
     private String origins;
     private Context context;
-    private String distance;
     private StringBuilder sb;
-    private GPSTracker gpsTracker;
     private ClickListener clickListener;
     private ChangeTintColor changeTintColor;
     private final OnStartDragListener dragListener;
     private final List<String> item = new ArrayList<>();
     private OnCustomerListChangedListener onCustomerListChangedListener;
 
+    private Thread thread;
+    private String distance;
     private String destination;
     private ApiService service;
     private List<JobItem> jobItemList = new ArrayList<JobItem>();
@@ -74,13 +77,12 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
         this.context = activity;
         this.dragListener = dragStartListener;
         this.onCustomerListChangedListener= listChangedListener;
-
-        gpsTracker = new GPSTracker(context);
         changeTintColor = new ChangeTintColor(context);
     }
 
-    public void setJobList(List<JobItem> jobItemList) {
+    public void setJobList(List<JobItem> jobItemList, String origins) {
         this.jobItemList = jobItemList;
+        this.origins = origins;
     }
 
     @Override
@@ -113,6 +115,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
 
         holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
         holder.textViewTime.setText(timeFormat.format(date) + " น.");
+
         holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
         holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
 
@@ -149,15 +152,12 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
         changeTintColor.setTextViewDrawableColor(holder.textViewDistanceTitle, R.color.colorPrimaryDark);
 
         synchronized (context) {
-            new Thread(new Runnable() {
+            thread = new Thread(new Runnable() {
                 public void run(){
                     Retrofit retrofit = new Retrofit.Builder()
                             .baseUrl(GOOGLE_BASE_URL)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();
-
-                    origins = String.valueOf(gpsTracker.getLatitude()) + "," + String.valueOf(gpsTracker.getLongitude());
-
                     service = retrofit.create(ApiService.class);
                     Call call = service.getDistance("imperial", origins, destination, "AIzaSyDubyVjVoTC31vIbKIk7ggi2-vFZC3nFkc");
                     call.enqueue(new Callback() {
@@ -171,13 +171,18 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
                                 JSONArray jsonArr = jsonArray.getJSONObject(0).getJSONArray("elements");
                                 JSONObject jsonObjDis = jsonArr.getJSONObject(0).getJSONObject("distance");
                                 JSONObject jsonObjDur = jsonArr.getJSONObject(0).getJSONObject("duration");
-                                holder.textViewDistance.setText(" \t\t" + Utils.ConvertMItoKM(jsonObjDis.getString("text")) + "\t"
-                                        + Utils.ConvertDurationToThai(jsonObjDur.getString("text")));
+                                distance = " \t\t" + Utils.ConvertMItoKM(jsonObjDis.getString("text")) + "\t"
+                                        + Utils.ConvertDurationToThai(jsonObjDur.getString("text"));
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        holder.textViewDistance.setText(distance);
+                                    }
+                                });
                                 notifyDataSetChanged();
                             } catch (JSONException e) {
                                 Log.e("exception in adapter", e.getLocalizedMessage());
                             }
-
                         }
 
                         @Override
@@ -186,7 +191,18 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> impl
                         }
                     });
                 }
-            }).start();
+            });
+            thread.start();
+        }
+
+        /*if ((position + 1) == jobItemList.size()) {
+            stopThread(thread);
+        }*/
+    }
+
+    public synchronized void stopThread() {
+        if (thread != null) {
+            thread.interrupt();
         }
     }
 

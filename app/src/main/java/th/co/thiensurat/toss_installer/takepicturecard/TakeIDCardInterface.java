@@ -21,7 +21,7 @@ public class TakeIDCardInterface {
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<TakeIDCardInterface.View> {
-        void saveImageUrl(Context context, String orderid, String type, String url);
+        void saveImageUrl(Context context, String orderid, String type, String url, String productcode);
         void getImage(Context context, String orderid, String type);
         void editImageUrl(Context context, String id, String url);
         void delImage(Context context, String id);

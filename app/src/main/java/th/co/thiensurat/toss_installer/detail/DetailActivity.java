@@ -92,6 +92,10 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         getItemFromIntent();
         textViewTitle.setText(jobItem.getTitle() + "" + jobItem.getFirstName() + " " + jobItem.getLastName());
         getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
+
+        if (jobItem.getStatus().equals("01")) {
+            buttonCancel.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -140,6 +144,16 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     @Override
     public void onDismiss() {
         customDialog.dialogDimiss();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constance.REQUEST_EDIT_DETAIL) {
+            if (resultCode == RESULT_CANCELED) {
+                getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
+            }
+        }
     }
 
     private void getItemFromIntent() {

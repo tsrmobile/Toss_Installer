@@ -5,6 +5,8 @@ import android.content.Context;
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
+import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
@@ -17,14 +19,15 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
 
     private DBHelper dbHelper;
     private List<ImageItem> imageItemList;
+    private ProductItemGroup productItemGroup;
     public static TakePictureInterface.Presenter create() {
         return new TakePicturePresenter();
     }
 
     @Override
-    public void saveImageUrl(Context context, String orderid, String serial, String type, String url) {
+    public void saveImageUrl(Context context, String orderid, String serial, String type, String url, String productcode) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        dbHelper.addImage(orderid, serial, type, url);
+        dbHelper.addImage(orderid, serial, type, url, productcode);
         getView().refresh();
     }
 
@@ -32,7 +35,7 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
     public void getImage(Context context, String orderid, String serial, String type) {
         getView().onLoading();
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        this.imageItemList = dbHelper.getImageWithserial(orderid, serial, type);
+        this.imageItemList = dbHelper.getImage(orderid, type);
         getView().setImageToAdapter(imageItemList);
     }
 
@@ -48,5 +51,18 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.deleteImage(id);
         getView().refresh();
+    }
+
+    @Override
+    public boolean getItemInstalled(Context context, String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        return dbHelper.getProductNotInstall(orderid);
+    }
+
+    @Override
+    public List<ProductItem> getAllItem(Context context, String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        productItemGroup = dbHelper.getProductByID(orderid);
+        return productItemGroup.getProduct();
     }
 }

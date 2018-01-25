@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.job;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -133,7 +134,7 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
     @Override
     public void insertNewData(Context context, List<JobItem> jobItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
         SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date jobdate = null;
         Date nowDate = new Date();
@@ -153,31 +154,35 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
         }catch(Exception ex){
             ex.printStackTrace();
             Log.e("insertNewData", ex.getMessage());
-        }
+        }*/
+        dbHelper.setTableJob(jobItemList);
+        dbHelper.setTableAddress(jobItemList);
+        dbHelper.setTableProduct(jobItemList);
 
         getView().onSuccess("");
     }
 
-    @Override
+    /*@Override
     public void getData() {
+        getView().onLoad();
         serviceManager.requestAllData("all", new ServiceManager.ServiceManagerCallback<DataResultGroup>() {
             @Override
             public void onSuccess(DataResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
-                    //getView().onDismiss();
+                    getView().onDismiss();
                     getView().setDataTable(result);
                 } else if (result.getStatus().equals("FAIL")) {
-                    //getView().onDismiss();
+                    getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 } else if (result.getStatus().equals("ERROR")) {
-                    //getView().onDismiss();
+                    getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
-                //getView().onDismiss();
+                getView().onDismiss();
             }
         });
     }
@@ -185,9 +190,56 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
     @Override
     public void insertDataToSqlite(Context context, DataResultGroup dataResultGroup) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        dbHelper.setTableProvince(ConvertData.creatObjectList(dataResultGroup.getData(), "province"));
-        dbHelper.setTableDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "district"));
-        dbHelper.setTableSubDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "subdistrict"));
-        MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_FIRST_OPEN, "opened");
+
+        //new createProvinceTable(dbHelper, dataResultGroup).execute();
+        //dbHelper.setTableProvince(ConvertData.creatObjectList(dataResultGroup.getData(), "province"));
+        //dbHelper.setTableDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "district"));
+        //dbHelper.setTableSubDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "subdistrict"));
+        //MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_FIRST_OPEN, "opened");
     }
+
+    class createProvinceTable extends AsyncTask<Void, Void, Void> {
+        private DBHelper dbHelper;
+        private DataResultGroup dataResultGroup;
+
+        public createProvinceTable(DBHelper dbHelper, DataResultGroup dataResultGroup) {
+            this.dbHelper = dbHelper;
+            this.dataResultGroup = dataResultGroup;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            dbHelper.setTableProvince(ConvertData.creatObjectList(dataResultGroup.getData(), "province"));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            new createDistrictTable(dbHelper, dataResultGroup).execute();
+        }
+    }
+
+    class createDistrictTable extends AsyncTask<Void, Void, Void> {
+        private DBHelper dbHelper;
+        private DataResultGroup dataResultGroup;
+
+        public createDistrictTable(DBHelper dbHelper, DataResultGroup dataResultGroup) {
+            this.dbHelper = dbHelper;
+            this.dataResultGroup = dataResultGroup;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            dbHelper.setTableDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "district"));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            dbHelper.setTableSubDistrict(ConvertData.creatObjectList(dataResultGroup.getData(), "subdistrict"));
+            MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_FIRST_OPEN, "opened");
+        }
+    }*/
 }

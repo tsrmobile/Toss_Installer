@@ -75,7 +75,7 @@
                         android:drawableTint="@color/DarkGray"
                         android:paddingLeft="8dp"
                         android:gravity="left|center"
-                        android:inputType="textPassword"
+                        android:inputType="numberPassword"
                         android:imeOptions="actionDone"
                         android:hint="รหัสผ่าน"
                         android:backgroundTint="@android:color/transparent"/>

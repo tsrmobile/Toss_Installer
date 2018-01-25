@@ -14,6 +14,7 @@ public class ApiURL {
     public static final String INSTALL_ITEM_URL = "/android/api/v1.0/installer/installitem/";
     public static final String ITEM_URL = "/android/api/v1.0/toss/assigmentstock/";
     public static final String UPDATE_URL = "/android/api/v1.0/installer/update/";
+    public static final String CONTACT_URL = "/android/api/v1.0/installer/contact/";
 
     public static final String GOOGLE_BASE_URL = "https://maps.googleapis.com";
     public static final String GOOGLE_MAP_API_URL = "/maps/api/distancematrix/json";

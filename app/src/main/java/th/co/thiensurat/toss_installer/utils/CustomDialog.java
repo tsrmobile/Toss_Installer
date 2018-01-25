@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
 import th.co.thiensurat.toss_installer.mapcheckin.MapCheckinActivity;
 
@@ -40,7 +41,32 @@ public class CustomDialog {
         sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
         sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
         sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
-        sweetAlertDialog.setTitleText("Loading...");
+        sweetAlertDialog.setTitleText("กำลังโหลด...");
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.show();
+    }
+
+    public static void dialogLoadingWithCancel() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        sweetAlertDialog.setTitleText("กำลังโหลด...");
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.setConfirmText("หยุด");
+        sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+            @Override
+            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                sweetAlertDialog.dismiss();
+            }
+        });
+        sweetAlertDialog.show();
+    }
+
+    public static void dialogInitialData() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        sweetAlertDialog.setTitleText("กำลังเตรียมข้อมูล...");
         sweetAlertDialog.setCancelable(false);
         sweetAlertDialog.show();
     }
@@ -56,7 +82,7 @@ public class CustomDialog {
                 .setTitleText("Error")
                 .setContentText(fail)
                 .showCancelButton(false)
-                .setConfirmText("OK")
+                .setConfirmText("ตกลง")
                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog dialog) {
@@ -70,14 +96,14 @@ public class CustomDialog {
         sweetAlertDialog.setTitleText("Success");
         sweetAlertDialog.setContentText(success);
         sweetAlertDialog.showCancelButton(false);
-        sweetAlertDialog.setConfirmText("OK");
+        sweetAlertDialog.setConfirmText("ตกลง");
         sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog dialog) {
                         dialog.dismiss();
-                        /*if (context instanceof DetailActivity) {
-                            ((DetailActivity)context).clearForm();
-                        }*/
+                        if (context instanceof ContractActivity) {
+                            context.startActivity(new Intent(context, MainActivity.class));
+                        }
                     }
                 }).show();
     }
@@ -173,7 +199,7 @@ public class CustomDialog {
         sweetAlertDialog.setTitleText("คำเตือน");
         sweetAlertDialog.setContentText(warning);
         sweetAlertDialog.showCancelButton(false);
-        sweetAlertDialog.setConfirmText("OK");
+        sweetAlertDialog.setConfirmText("ตกลง");
         sweetAlertDialog.setCancelable(false);
         sweetAlertDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override

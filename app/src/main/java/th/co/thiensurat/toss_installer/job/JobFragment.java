@@ -4,10 +4,13 @@ package th.co.thiensurat.toss_installer.job;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.otto.Subscribe;
@@ -40,6 +42,7 @@ import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
+import th.co.thiensurat.toss_installer.mapcheckin.MapCheckinActivity;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
 import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
@@ -56,12 +59,14 @@ import th.co.thiensurat.toss_installer.utils.helper.SimpleItemTouchHelperCallbac
  */
 public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         implements JobInterface.View, OnStartDragListener, SwipeRefreshLayout.OnRefreshListener,
-        JobAdapter.ClickListener, OnCustomerListChangedListener{
+        JobAdapter.ClickListener, OnCustomerListChangedListener {
 
     private double latitude;
     private double longitude;
-
+    private Location location;
     private GPSTracker gps;
+
+    private String origins;
     private JobAdapter adapter;
     private CustomDialog customDialog;
     private ItemTouchHelper itemTouchHelper;
@@ -110,25 +115,32 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
 
     @Override
     public void setupView() {
-        ((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง");
         setRecyclerView();
         setHasOptionsMenu(true);
         if (gps.canGetLocation()) {
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
+            origins = String.valueOf(latitude) + "," + String.valueOf(longitude);
         } else {
-            gps.showSettingsAlert();
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},  Constance.REQUEST_LOCATION);
         }
     }
 
     @Override
     public void initialize() {
-        getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
         try {
-            if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRST_OPEN).equals("first_open")) {
-                getPresenter().getData();
+            if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_POSITION).equals("ช่างติดตั้งผลิตภัณฑ์")) {
+                ((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง");
+                getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
+            } else if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_POSITION).equals("พนักงานเก็บเงิน")) {
+                ((MainActivity) getActivity()).setTitle("รายการงานเก็บเงิน");
+            } else {
+                ((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง (Demo)");
+                getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
             }
         } catch (Exception ex) {
+
         }
     }
 
@@ -145,7 +157,17 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             if (!isNetworkAvailable) {
                 customDialog.dialogNetworkError();
             } else {
-                getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+                try {
+                    if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_POSITION).equals("ช่างติดตั้งผลิตภัณฑ์")) {
+                        getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+                    } else if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_POSITION).equals("พนักงานเก็บเงิน")) {
+
+                    } else {
+                        getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+                    }
+                } catch (Exception ex) {
+
+                }
             }
         }
         return super.onOptionsItemSelected(item);
@@ -164,21 +186,6 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     @Override
     public void onRefresh() {
         getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
-    }
-
-    @Override
-    public void setDataTable(DataResultGroup dataResultGroup) {
-        createData(dataResultGroup);
-        //getPresenter().insertDataToSqlite(getActivity(), dataResultGroup);
-    }
-
-    private synchronized void createData(final DataResultGroup dataResultGroup) {
-        new Thread() {
-            @Override
-            public void run() {
-                getPresenter().insertDataToSqlite(getActivity(), dataResultGroup);
-            }
-        }.start();
     }
 
     @Override
@@ -228,13 +235,14 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
 
     @Override
     public void setJobItemToAdapter(List<JobItem> itemList) {
+        checkLocationPermission();
         relativeLayoutFail.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
 
         this.jobItemList = getOrderItem(itemList);
 
         swipeRefreshLayout.setRefreshing(false);
-        adapter.setJobList(jobItemList);
+        adapter.setJobList(jobItemList, origins);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         adapter.setItemClick(this);
@@ -243,12 +251,11 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
             relativeLayoutFail.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         }
-
-        //onDismiss();
-
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        adapter.stopThread();
     }
 
     @Override
@@ -322,7 +329,6 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
     }
 
     private List<JobItem> getOrderItem(List<JobItem> jobItemList) {
-
         List<JobItem> jobItems = jobItemList;
         List<JobItem> sortedJob = new ArrayList<JobItem>();
 
@@ -386,6 +392,40 @@ public class JobFragment extends BaseMvpFragment<JobInterface.Presenter>
         if (requestCode == Constance.REQUEST_JOB_DETAIL) {
             if (resultCode == getActivity().RESULT_OK) {
                 getPresenter().getJobFromSqlite(getActivity(), sdf.format(new Date()));
+            }
+        }
+    }
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                }
+            } else {
+                customDialog.dialogFail("Permission denied");
             }
         }
     }

@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -28,13 +29,14 @@ import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 
-public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterface.Presenter> implements CheckinResultInterface.View {
+public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterface.Presenter> implements CheckinResultInterface.View, TakePictureAdapter.ClickListener  {
 
     private TextView textViewTitle;
 
+    private String serial;
     private JobItem jobItem;
     private TakePictureAdapter adapter;
-    private List<ImageItem> imageItemList;
+    private List<ImageItem> imageItemList = new ArrayList<ImageItem>();
     private LinearLayoutManager layoutManager;
 
     @Override
@@ -77,6 +79,7 @@ public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterfac
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
     }
 
     private void setToolbar() {
@@ -100,6 +103,7 @@ public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterfac
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         adapter.setHideRemoveButton(View.GONE);
+        adapter.setOnClickListener(this);
     }
 
     private View.OnClickListener onNext() {
@@ -109,6 +113,7 @@ public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterfac
                 buttonNext.startAnimation(new AnimateButton().animbutton());
                 Intent intent = new Intent(CheckinResultActivity.this, ContractActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+                intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
                 startActivityForResult(intent, Constance.REQUEST_PRINT_CONTRACT);
             }
         };
@@ -121,5 +126,19 @@ public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterfac
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void itemClicked(View view, int position) {
+        ImageItem item = imageItemList.get(position);
+        Intent intent = new Intent();
+        intent.putExtra("Image_ID", item.getImageId());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public void delClicked(View view, int position) {
+
     }
 }

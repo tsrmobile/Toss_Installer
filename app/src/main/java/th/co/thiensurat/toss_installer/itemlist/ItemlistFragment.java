@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.itemlist;
 
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -135,8 +136,13 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
     }
 
     @Override
+    public void onApply() {
+        getPresenter().requestInstallItem(editTextSearch.getText().toString(), "load");
+        new createDb().execute();
+    }
+
+    @Override
     public void setInstallItemToAdapter(List<InstallItem> installItem) {
-        editTextSearch.setText("");
         this.installItemList = installItem;
         adapter.setInstallItemList(installItemList);
         recyclerView.setVisibility(View.VISIBLE);
@@ -144,13 +150,12 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
         adapter.notifyDataSetChanged();
 
         relativeLayoutFail.setVisibility(View.GONE);
-        for (InstallItem item : installItemList) {
-            if (item.getAStockStatus().equals("T")) {
-                buttonConfirm.setVisibility(View.VISIBLE);
-            }
-        }
 
-        getPresenter().insertDataToSQLite(getActivity(), installItem);
+        if (installItemList.get(0).getAStockStatus().equals("T")) {
+            buttonConfirm.setVisibility(View.VISIBLE);
+        } else {
+            new createDb().execute();
+        }
     }
 
     private View.OnClickListener onConfirm() {
@@ -158,7 +163,7 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
             @Override
             public void onClick(View view) {
                 buttonConfirm.startAnimation(new AnimateButton().animbutton());
-                getPresenter().requestInstallItem(installItemList.get(0).getPrintTakeStockID());
+                getPresenter().requestApplyItem(installItemList.get(0).getPrintTakeStockID(), "insert");
             }
         };
     }
@@ -169,9 +174,32 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
             public void onClick(View view) {
                 buttonSearch.startAnimation(new AnimateButton().animbutton());
                 if (!editTextSearch.getText().toString().isEmpty()) {
-                    getPresenter().requestInstallItem(editTextSearch.getText().toString());
+                    if (!getPresenter().checkStockID(getActivity(), editTextSearch.getText().toString())) {
+                        getPresenter().requestInstallItem(editTextSearch.getText().toString(), "load");
+                    } else {
+                        customDialog.dialogFail("เบิกสินค้าแล้ว");
+                    }
                 }
             }
         };
+    }
+
+    public class createDb extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getPresenter().insertDataToSQLite(getActivity(), installItemList);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
     }
 }

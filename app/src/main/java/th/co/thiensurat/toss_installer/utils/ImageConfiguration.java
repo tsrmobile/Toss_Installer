@@ -59,11 +59,28 @@ public class ImageConfiguration {
         File image = null;
         try {
             //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String imageFileName = dirName + "_" + imgName;
+            String imageFileName = "JPEG_" + dirName + "_" + imgName;
             File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES + "/" + dirName + "/");
             image = File.createTempFile(
                     imageFileName,
                     ".jpg",
+                    storageDir
+            );
+        } catch (IOException ex) {
+
+        }
+        return image;
+    }
+
+    public File createImagePNG(String dirName, String imgName) {
+        File image = null;
+        try {
+            //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            //String imageFileName = dirName + "_" + imgName;
+            File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES + "/" + dirName + "/");
+            image = File.createTempFile(
+                    imgName,
+                    ".png",
                     storageDir
             );
         } catch (IOException ex) {
@@ -91,5 +108,13 @@ public class ImageConfiguration {
         cursor.moveToFirst();
         int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
         return cursor.getString(idx);
+    }
+
+    public File getAlbumStorageDir(String albumName) {
+        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), albumName);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        return file;
     }
 }

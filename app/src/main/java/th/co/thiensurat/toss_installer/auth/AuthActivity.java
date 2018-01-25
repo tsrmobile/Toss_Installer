@@ -32,6 +32,7 @@ import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
+import th.co.thiensurat.toss_installer.api.result.data.DataResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
@@ -145,26 +146,35 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
 
     @Override
     public void onSuccess() {
-        nextPage();
-        //getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        //getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+    }
+
+    @Override
+    public void onInstall() {
+        getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+    }
+
+    @Override
+    public void onPayment() {
+        onNextPage();
     }
 
     @Override
     public void insertToSqlite(final List<JobItem> jobItemList) {
         if (jobItemList.size() > 0) {
-            synchronized (AuthActivity.this) {
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        getPresenter().insetToSqlite(AuthActivity.this, jobItemList);
-                        nextPage();
-                    }
-                };
-                thread.start();
-            }
+            createDB(jobItemList);
         } else {
-            nextPage();
+            onNextPage();
         }
+    }
+
+    private synchronized void createDB(final List<JobItem> jobItemList) {
+        new Thread() {
+            @Override
+            public void run() {
+                getPresenter().insetToSqlite(AuthActivity.this, jobItemList);
+            }
+        }.start();
     }
 
     @Override
@@ -175,7 +185,7 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
                 return true;
             }
             this.clickBackAain = true;
-            Toast.makeText(AuthActivity.this, "คลิกอีกครั้งเพื่อออกจากแอพพลิเคชั่น", Toast.LENGTH_LONG).show();
+            Toast.makeText(AuthActivity.this, "คลิกอีกครั้งเพื่อออก", Toast.LENGTH_LONG).show();
 
             new Handler().postDelayed(new Runnable() {
 
@@ -189,10 +199,15 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
         return true;
     }
 
+    @Override
+    public void onNextPage() {
+        nextPage();
+    }
+
     private void loginSession() {
         try {
             if (!MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID).isEmpty()) {
-                nextPage();
+                onNextPage();
             }
         } catch (Exception ex) {
 

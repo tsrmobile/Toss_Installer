@@ -424,7 +424,7 @@ public class InstallReceiptActivity extends BaseMvpActivity<InstallReceiptInterf
                     } else if (info.text.contains("printFrame")) {
                         themalPrintController.printFrame(info.text);
                     } else if (info.text.equals("customerWithInstaller")) {
-                        themalPrintController.printSignatureCustomer(path);
+                        themalPrintController.printSignatureKViruchWithCustomer(path);
                     }/* else if (info.isBarcode) {
                         if (info.isBankBarcode) {
                             String[] parts = info.text.split("\\|");

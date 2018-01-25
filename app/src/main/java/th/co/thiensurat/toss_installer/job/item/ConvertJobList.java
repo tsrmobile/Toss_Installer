@@ -32,8 +32,11 @@ public class ConvertJobList {
                     .setContactphone(jobResult.getContactphone())
                     .setInstallStartDate(jobResult.getInstallStartDate())
                     .setInstallEndDate(jobResult.getInstallEndDate())
-                    .setPaytype(jobResult.getPaytype())
+                    .setInstallStart(jobResult.getInstallStart())
+                    .setInstallEnd(jobResult.getInstallEnd())
                     .setStatus(jobResult.getStatus())
+                    .setPresale(jobResult.getPresale())
+                    .setContno(jobResult.getContno())
                     .setProduct(jobResult.getProduct())
                     .setAddress(jobResult.getAddress());
             items.add(jobItem);

@@ -9,10 +9,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
+import th.co.thiensurat.toss_installer.api.request.RequestUpdateAddress;
 import th.co.thiensurat.toss_installer.api.result.AuthItemResultGroup;
+import th.co.thiensurat.toss_installer.api.result.ContactResultGroup;
 import th.co.thiensurat.toss_installer.api.result.DashboardItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
+import th.co.thiensurat.toss_installer.api.result.data.DataResultGroup;
 
 import static th.co.thiensurat.toss_installer.api.ApiURL.BASE_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_BASE_URL;
@@ -25,6 +28,7 @@ public class ServiceManager {
 
     private static ServiceManager instance;
     private static ApiService api;
+    private Call<Object> dataUpdate;
     private Call<AuthItemResultGroup> requestAuthenCall;
 
     public interface ServiceManagerCallback<T>{
@@ -211,6 +215,117 @@ public class ServiceManager {
             }
         });
     }
-
     /*************************************************End***************************************************/
+
+    /**********************************************All Data*************************************************/
+    /*public Call<DataResultGroup> allData(String data) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .getAllData( data );
+    }
+
+    public void requestAllData(String data, final ServiceManagerCallback<DataResultGroup> callback) {
+        allData(data).enqueue(new Callback<DataResultGroup>() {
+            @Override
+            public void onResponse(Call<DataResultGroup> call, Response<DataResultGroup> response) {
+                Log.e("request Data", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DataResultGroup> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }/
+    /*************************************************End***************************************************/
+
+    /**********************************************Get Contact number*************************************************/
+    public Call<ContactResultGroup> contact() {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .getContact();
+    }
+
+    public void requestContact(final ServiceManagerCallback<ContactResultGroup> callback) {
+        contact().enqueue(new Callback<ContactResultGroup>() {
+            @Override
+            public void onResponse(Call<ContactResultGroup> call, Response<ContactResultGroup> response) {
+                Log.e("request contact", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ContactResultGroup> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /******************************************************End*******************************************************/
+
+    /**********************************************Update address*************************************************/
+    public Call update(RequestUpdateAddress updateBody) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .requestUpdateAddress(updateBody);
+    }
+
+    public void requestUpdateAddr(List<RequestUpdateAddress.updateBody> body, final ServiceManagerCallback callback) {
+        RequestUpdateAddress requestUpdateAddress = new RequestUpdateAddress();
+        requestUpdateAddress.setBody(body);
+
+        dataUpdate = update(requestUpdateAddress);
+        dataUpdate.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.e("request Update", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /***************************************************End******************************************************/
+
+    /**********************************************Update job finish*************************************************/
+    public Call jobFinish(String action, String orderid, String start, String end, String usercode) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .requestUpdateJobFinish(action, orderid, start, end, usercode);
+    }
+
+    public void requestUpdateJobFinish(String action, String orderid, String start, String end, String usercode, final ServiceManagerCallback callback) {
+        jobFinish(action, orderid, start, end, usercode).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.e("request Finish", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /*****************************************************End********************************************************/
 }

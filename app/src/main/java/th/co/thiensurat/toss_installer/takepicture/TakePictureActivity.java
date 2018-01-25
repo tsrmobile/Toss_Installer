@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +36,9 @@ import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.BuildConfig;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
+import th.co.thiensurat.toss_installer.installation.InstallationActivity;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.job.item.ProductItem;
 import th.co.thiensurat.toss_installer.takepicture.adapter.TakePictureAdapter;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 import th.co.thiensurat.toss_installer.takepicturecard.TakeIDCardActivity;
@@ -53,12 +57,12 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private Uri pictureUri;
     private TextView textViewTitle;
     private CustomDialog customDialog;
-    private PermissionUtil permissionUtil;
     private ImageConfiguration imageConfiguration;
 
     private String id = "-1";
     private String serial;
     private JobItem jobItem;
+    private String productcode;
     private TakePictureAdapter adapter;
     private List<ImageItem> imageItemList;
     private LinearLayoutManager layoutManager;
@@ -88,7 +92,6 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void setupInstance() {
-        permissionUtil = new PermissionUtil();
         imageConfiguration = new ImageConfiguration(TakePictureActivity.this);
         adapter = new TakePictureAdapter(TakePictureActivity.this);
         customDialog = new CustomDialog(TakePictureActivity.this);
@@ -104,7 +107,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             @Override
             public void onClick(View view) {
                 floatingActionButton.startAnimation(new AnimateButton().animbutton());
-                id = "";
+                id = "-1";
                 try {
                     imageChooser();
                 } catch (IOException e) {
@@ -117,12 +120,20 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     public void initialize() {
         getDataFromIntent();
-        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
     }
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
         serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
+        productcode = getIntent().getStringExtra(Constance.KEY_PRODUCT_CODE);
+
+        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), "", Constance.IMAGE_TYPE_INSTALL);
+        /*Log.e("serial number", serial);
+        if (serial.equals("000")) {
+            getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), "", Constance.IMAGE_TYPE_INSTALL);
+        } else {
+            getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
+        }*/
     }
 
     private void setRecyclerView() {
@@ -198,22 +209,25 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             @Override
             public void onClick(View view) {
                 buttonNext.startAnimation(new AnimateButton().animbutton());
-                Intent intent = new Intent(TakePictureActivity.this, TakeIDCardActivity.class);
-                intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-                startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
+                if (getPresenter().getAllItem(TakePictureActivity.this, jobItem.getOrderid()).size() > 1) {
+                    if (getPresenter().getItemInstalled(TakePictureActivity.this, jobItem.getOrderid())) {
+                        onNextInstall();
+                    } else {
+                        onNextStep();
+                    }
+                } else {
+                    onNextStep();
+                }
             }
         };
     }
 
     private void imageChooser() throws IOException {
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        //file = imageConfiguration.createImageFile();
         file = imageConfiguration.createImage(jobItem.getOrderid(), serial);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);
-        //Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        //customDialog.dialogChooser(pickPhoto, Constance.REQUEST_GALLERY, takePicture, REQUEST_CAMERA);
     }
 
     @Override
@@ -253,9 +267,23 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private void setImage(File file) {
         String url = file.getPath().toString();
         if (id.equals("-1")) {
-            getPresenter().saveImageUrl(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL, url);
+            getPresenter().saveImageUrl(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL, url, productcode);
         } else {
             getPresenter().editImageUrl(TakePictureActivity.this, id, url);
         }
+    }
+
+    private void onNextStep() {
+        Intent intent = new Intent(TakePictureActivity.this, TakeIDCardActivity.class);
+        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
+        intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
+        startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
+    }
+
+    private void onNextInstall() {
+        Intent intent = new Intent(getApplicationContext(), InstallationActivity.class);
+        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        startActivity(intent);
     }
 }

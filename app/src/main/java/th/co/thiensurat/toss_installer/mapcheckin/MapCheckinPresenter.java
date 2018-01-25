@@ -19,9 +19,9 @@ public class MapCheckinPresenter extends BaseMvpPresenter<MapCheckinInterface.Vi
     }
 
     @Override
-    public void saveImageUrl(Context context, String orderid, String type, String url) {
+    public void saveImageUrl(Context context, String orderid, String type, String url, String productcode) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        dbHelper.addImage(orderid, "", type, url);
+        dbHelper.addImage(orderid, "", type, url, productcode);
         getView().resultCheckin();
     }
 
@@ -31,5 +31,12 @@ public class MapCheckinPresenter extends BaseMvpPresenter<MapCheckinInterface.Vi
         if (dbHelper.getImage(orderid, type).size() > 0 ) {
             getView().resultCheckin();
         }
+    }
+
+    @Override
+    public void editImageUrl(Context context, String id, String url) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.editImage(id, url);
+        getView().resultCheckin();
     }
 }

@@ -29,5 +29,6 @@ public class InstallationInterface {
         void updateProduct(Context context, String id, String serial);
         boolean checkItem(Context context);
         boolean checkSerial(Context context, String serial, String productcode);
+        boolean checkPackageInstall(Context context, String orderid, String productcode);
     }
 }

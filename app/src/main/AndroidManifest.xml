@@ -127,8 +127,10 @@
         <activity
             android:name=".installation.step.StepViewActivity"
             android:screenOrientation="sensorPortrait" />
-        <activity android:name=".detail.edit.EditActivity"
-            android:screenOrientation="sensorPortrait"></activity>
+        <activity
+            android:name=".detail.edit.EditActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity android:name=".contract.installReceipt.InstallReceiptActivity"></activity>
     </application>
 
 </manifest>

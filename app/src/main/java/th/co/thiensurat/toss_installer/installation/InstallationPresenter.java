@@ -1,6 +1,7 @@
 package th.co.thiensurat.toss_installer.installation;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.List;
 
@@ -70,6 +71,16 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
     public boolean checkSerial(Context context, String serial, String productcode) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         if (dbHelper.checkItemSerial(serial, productcode)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean checkPackageInstall(Context context, String orderid, String productcode) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        if (dbHelper.getProductPackage(orderid, productcode)) {
             return true;
         } else {
             return false;

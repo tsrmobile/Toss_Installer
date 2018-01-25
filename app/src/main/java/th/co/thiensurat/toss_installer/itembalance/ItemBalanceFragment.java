@@ -85,15 +85,15 @@ public class ItemBalanceFragment extends BaseMvpFragment<ItemBalanceInterface.Pr
 
     @Override
     public void setItemBalanceToAdapter(List<InstallItem> installItemList) {
-        if (installItemList.size() == 0) {
-            relativeLayoutFail.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        }
-
         recyclerView.setVisibility(View.VISIBLE);
         relativeLayoutFail.setVisibility(View.GONE);
         adapter.setInstallItemList(installItemList);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+
+        if (installItemList.size() == 0) {
+            relativeLayoutFail.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 }

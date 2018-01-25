@@ -13,6 +13,7 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -22,7 +23,9 @@ import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.DateFormateUtilities;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 
 public class DocumentController {
@@ -33,6 +36,8 @@ public class DocumentController {
     private static int LINE_FEED = 250;
     private static int LAYOUT_WIDTH = 1080;
     private static int PRINTER_LAYOUT_WIDTH = 580;
+
+    private static DecimalFormat df = new DecimalFormat("#,###.00");
 
     private static Context context;
 
@@ -442,7 +447,6 @@ public class DocumentController {
     }
 
     public static void saveImage(Bitmap bitmap) {
-
         try {
 //			img.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/sdcard/ImageAfterAddingText.png")));
             //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(File.createTempFile("PrintImage", ".jpg", new File(BHStorage.getFolder(BHStorage.FolderType.Picture)))));
@@ -467,11 +471,11 @@ public class DocumentController {
 
         Matrix scaleMatrix = new Matrix();
         scaleMatrix.postScale(ratio, ratio);
-//        scaleMatrix.setScale(ratio, ratio);
+        //scaleMatrix.setScale(ratio, ratio);
 
         Canvas canvas = new Canvas(scaledBitmap);
-//        canvas.setMatrix(scaleMatrix);
-//        canvas.drawBitmap(bm, 0, 0, new Paint(Paint.FILTER_BITMAP_FLAG));
+        //canvas.setMatrix(scaleMatrix);
+        //canvas.drawBitmap(bm, 0, 0, new Paint(Paint.FILTER_BITMAP_FLAG));
         canvas.drawBitmap(bm, scaleMatrix, new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
 
         //BitMapToString(scaledBitmap);
@@ -487,10 +491,8 @@ public class DocumentController {
         return temp;
     }*/
 
-
     public static Bitmap scaleBitmapByHeight(Bitmap bm, int height) {
         int width = (int) (1f * height / bm.getHeight() * bm.getWidth());
-
         return Bitmap.createScaledBitmap(bm, width, height, true);
     }
 
@@ -499,8 +501,8 @@ public class DocumentController {
         img.setHasAlpha(true);
 
         Canvas cv = new Canvas(img);
-//		cv.drawColor(Color.WHITE);
-//		cv.drawColor(Color.TRANSPARENT, Mode.CLEAR);
+        //cv.drawColor(Color.WHITE);
+        //cv.drawColor(Color.TRANSPARENT, Mode.CLEAR);
 
         int logoHeight = 180;
         Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.drawable.tsr_logo_gray);
@@ -523,21 +525,16 @@ public class DocumentController {
         y += fontSize + LINE_SPACE;
         cv.drawText("เลขประจำตัวภาษี 1122331565468", x, y, p);
 
-
-
         return img;
     }
-
-
-
 
     public static Bitmap getHeader() {
         Bitmap img = Bitmap.createBitmap(LAYOUT_WIDTH, 650, Config.ARGB_8888);
         img.setHasAlpha(true);
 
         Canvas cv = new Canvas(img);
-//		cv.drawColor(Color.WHITE);
-//		cv.drawColor(Color.TRANSPARENT, Mode.CLEAR);
+        //cv.drawColor(Color.WHITE);
+        //cv.drawColor(Color.TRANSPARENT, Mode.CLEAR);
 
         int logoHeight = 220;
         Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.drawable.tsr_logo_gray);
@@ -576,24 +573,23 @@ public class DocumentController {
     public static List<PrintTextInfo> getTextHeader() {
         List<PrintTextInfo> listHeader = new ArrayList<>();
 
-//        listHeader.addAll(getTextAlignLeft("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)", PrintTextInfo.FontType.Bold));
-//        listHeader.addAll(getTextAlignLeft("43/9 หมู่ 7 ซ.ชูชาติอนุสรณ์ 4 ต.บางตลาด", PrintTextInfo.FontType.Bold));
-//        listHeader.addAll(getTextAlignLeft("อ.ปากเกร็ด จ.นนทบุรี 11120", PrintTextInfo.FontType.Bold));
-//        listHeader.addAll(getTextAlignLeft("โทร. 0 2819 8888  แฟกซ์ 0 2962 6951-3", PrintTextInfo.FontType.Bold));
-//        listHeader.addAll(getTextAlignLeft("อีเมล์. thiensurat@thiensurat.co.th", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignLeft("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignLeft("43/9 หมู่ 7 ซ.ชูชาติอนุสรณ์ 4 ต.บางตลาด", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignLeft("อ.ปากเกร็ด จ.นนทบุรี 11120", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignLeft("โทร. 0 2819 8888  แฟกซ์ 0 2962 6951-3", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignLeft("อีเมล์. thiensurat@thiensurat.co.th", PrintTextInfo.FontType.Bold));
 
         listHeader.add(new PrintTextInfo("printHeader"));
 
         return listHeader;
     }
 
-
     public static List<PrintTextInfo> getTextShortHeader() {
         List<PrintTextInfo> listHeader = new ArrayList<>();
 
-//        listHeader.addAll(getTextAlignCenter("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)", PrintTextInfo.FontType.Bold));
-//        listHeader.addAll(getTextAlignCenter("เลขประจำตัวผู้เสียภาษี 0107556000213", PrintTextInfo.FontType.Bold));
-//        listHeader.addAll(getTextAlignCenter("โทร. 1210", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignCenter("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignCenter("เลขประจำตัวผู้เสียภาษี 0107556000213", PrintTextInfo.FontType.Bold));
+        //listHeader.addAll(getTextAlignCenter("โทร. 1210", PrintTextInfo.FontType.Bold));
         listHeader.add(new PrintTextInfo("printShortHeader"));
         return listHeader;
     }
@@ -603,8 +599,8 @@ public class DocumentController {
         img.setHasAlpha(true);
 
         Canvas cv = new Canvas(img);
-//		cv.drawColor(Color.WHITE);
-//		cv.drawColor(Color.TRANSPARENT, Mode.CLEAR);
+        //cv.drawColor(Color.WHITE);
+        //cv.drawColor(Color.TRANSPARENT, Mode.CLEAR);
 
         float y = 0;
         float fontSize = 44;
@@ -620,7 +616,6 @@ public class DocumentController {
         y += LINE_FEED / 2;
         cv.drawText("บริษัท เธียรสุรัตน์ จำกัด (มหาชน)", LAYOUT_WIDTH / 2, y, p);
 
-
         y += fontSize + lineSpace;
         cv.drawText("เลขประจำตัวผู้เสียภาษี 0107556000213", LAYOUT_WIDTH / 2, y, p);
 
@@ -634,8 +629,6 @@ public class DocumentController {
 
         return result;
     }
-
-
 
     /*public static Bitmap getContract(ContractInfo contract, AddressInfo defaultAddress, AddressInfo installAddress, ManualDocumentInfo manual) {
         Bitmap img = Bitmap.createBitmap(LAYOUT_WIDTH, 3000, Config.ARGB_8888);
@@ -785,7 +778,6 @@ public class DocumentController {
         Paint pSignature = new Paint(pValue);
         pSignature.setTextAlign(Align.CENTER);
 
-
         String customer = String.format("(%s %s)", BHUtilities.trim(contract.CustomerFullName), BHUtilities.trim(contract.CompanyName));
 
         if (contract.MODE == 1) {
@@ -858,7 +850,6 @@ public class DocumentController {
                     cv.drawText(texts2[ii], (LAYOUT_WIDTH / 4) * 3, yy, pSignature);
                 }
             }
-
 
             yy += 200;
             String salename = "(" + BHUtilities.trim(contract.SaleEmployeeName) + ")";
@@ -938,32 +929,162 @@ public class DocumentController {
         return scaleBitmapByWidth(result);
     }*/
 
-    public static List<PrintTextInfo> getTextContract(JobItem jobItem, List<AddressItem> addressItems, List<ProductItem> productItems) {
+    public static List<PrintTextInfo> getTextContract(JobItem jobItem, List<AddressItem> addressItems, List<ProductItem> productItems, String contacenumber) {
         List<PrintTextInfo> listText = new ArrayList<>();
         String[] texts;
 
-        //listText.addAll(getTextHeader());
         listText.add(new PrintTextInfo("printHeader"));
-        //listText.add(new PrintTextInfo("selectPageMode"));
-        //listText.add(new PrintTextInfo("setContractPageRegion"));
-        listText.addAll(getTextAlignCenter((jobItem.getPaytype().equals("2")) ? "ใบสัญญาเช่าซื้อ" : "ใบสัญญาซื้อขาย", PrintTextInfo.FontType.Bold));
-        //listText.add(new PrintTextInfo("printContractPageTitle"));
-        //listText.add(new PrintTextInfo("beginContractPage"));
+        listText.addAll(getTextAlignCenter((productItems.get(0).getProductPayType().equals("2")) ? "ใบสัญญาเช่าซื้อ" : "ใบสัญญาซื้อขาย", PrintTextInfo.FontType.Bold));
 
-        listText.addAll(getTextAlignLeftByOffSetLeft("วันที่ทำสัญญา", DateFormateUtilities.dateFormat(new Date())));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" วันที่ทำสัญญา", DateFormateUtilities.dateFormat(new Date())));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่สัญญา", contacenumber));
+        listText.addAll(getTextAlignLeftByOffSetLeft((productItems.get(0).getProductPayType().equals("2")) ? " ผู้เช่าซื้อ" : " ผู้ซื้อ",
+                String.format("%s%s %s", DateFormateUtilities.trim(jobItem.getTitle()), DateFormateUtilities.trim(jobItem.getFirstName()), DateFormateUtilities.trim(jobItem.getLastName()))));
 
-        /*** [START] :: Fixed - [BHPROJ-0024-3080] :: [Android-รายละเอียดสัญญา] แก้ไขให้แสดงค่า 'เลขที่อ้างอิง' โดยเปลี่ยนให้ดึงมาจากค่าข้อมูลใน [Contract].ContractReferenceNo แทน ***/
-        /*if (manual != null) {
-            listText.addAll(getTextAlignLeftByOffSetLeft("เลขที่อ้างอิง", String.format("%4d", manual.ManualRunningNo).replace(' ', '0')));
-        }*/
-        //listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่อ้างอิง", contract.ContractReferenceNo != null ? contract.ContractReferenceNo : ""));
-        /*** [END] :: Fixed - [BHPROJ-0024-3080] :: [Android-รายละเอียดสัญญา] แก้ไขให้แสดงค่า 'เลขที่อ้างอิง' โดยเปลี่ยนให้ดึงมาจากค่าข้อมูลใน [Contract].ContractReferenceNo แทน ***/
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่บัตร", DateFormateUtilities.trim(jobItem.getIDCard())));
 
-        //listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่สัญญา", BHUtilities.trim(contract.CONTNO)));
-        listText.addAll(getTextAlignLeftByOffSetLeft((jobItem.getPaytype().equals("2")) ? "ผู้เช่าซื้อ" : "ผู้ซื้อ",
-                String.format("%s %s", DateFormateUtilities.trim(jobItem.getFirstName()), DateFormateUtilities.trim(jobItem.getLastName()))));
+        StringBuilder sb1 = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        String phone1= null;
+        String phone2 = null;
+        String mobile1 = null;
+        String mobile2 = null;
+        for (AddressItem item : addressItems) {
+            if (item.getAddressType().equals("AddressIDCard")) {
+                sb1.append(item.getAddrDetail());
+                sb1.append("\n");
+                sb1.append("ต." + item.getSubdistrict() + " อ." + item.getDistrict());
+                sb1.append("\n");
+                sb1.append("จ." + item.getProvince() + " " + item.getZipcode());
 
-        listText.addAll(getTextAlignLeftByOffSetLeft("เลขที่บัตร", DateFormateUtilities.trim(jobItem.getIDCard())));
+                phone1 = (item.getPhone().isEmpty()) ? "-" : item.getPhone();
+                mobile1 = (item.getMobile().isEmpty()) ? "-" : item.getMobile();
+            }
+
+            if (item.getAddressType().equals("AddressInstall")) {
+                sb2.append(item.getAddrDetail());
+                sb2.append("\n");
+                sb2.append("ต." + item.getSubdistrict() + " อ." + item.getDistrict());
+                sb2.append("\n");
+                sb2.append("จ." + item.getProvince() + " " + item.getZipcode());
+
+                phone2 = (item.getPhone().isEmpty()) ? "-" : item.getPhone();
+                mobile2 = (item.getMobile().isEmpty()) ? "-" : item.getMobile();
+            }
+        }
+
+        listText.addAll(getTextAlignLeftByOffSetLeft(" ที่อยู่บัตร", sb1.toString()));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เบอร์โทรติดต่อ", phone1));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" มือถือ", mobile1));
+
+        listText.addAll(getTextAlignLeftByOffSetLeft(" ที่ติดตั้ง", sb2.toString()));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เบอร์โทรติดต่อ", phone2));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" มือถือ", mobile2));
+
+        String temp = "";
+        String temp2 = "";
+        String productname = "";
+        String productmodel = "";
+        StringBuilder sb3 = new StringBuilder();
+
+        for (ProductItem item : productItems) {
+            if (temp.isEmpty()) {
+                temp = item.getProductName();
+            } else {
+                temp2 = temp;
+                temp = item.getProductName();
+            }
+
+            if (!temp2.equals(temp) || temp2.isEmpty()) {
+                productname = item.getProductName();
+                sb3.append(item.getProductSerial());
+                sb3.append("\n");
+            }
+
+            listText.addAll(getTextAlignLeftByOffSetLeft(" สินค้า", productname));
+            listText.addAll(getTextAlignLeftByOffSetLeft(" รุ่น", productmodel));
+            listText.addAll(getTextAlignLeftByOffSetLeft(" เลขเครื่อง", sb3.toString()));
+        }
+
+        float qty = 0;
+        float normalPrice = 0;
+        float discountPrice = 0;
+        float grandTotalPrice = 0;
+        if (productItems.get(0).getProductPayType().equals("2")) {
+            for (int i = 0; i < productItems.size(); i++) {
+                ProductItem item = productItems.get(i);
+                qty += Float.parseFloat(item.getProductQty());
+                normalPrice = Float.parseFloat(item.getProductPrice());
+                discountPrice = Float.parseFloat(item.getProductDiscount());
+            }
+            grandTotalPrice = (qty * normalPrice) - (qty * discountPrice);
+            listText.addAll(getTextAlignLeftRight(" ราคา", df.format((qty * normalPrice)) + " บาท"));
+            listText.addAll(getTextAlignLeftRight(" ส่วนลด", df.format((qty * discountPrice)) + " บาท"));
+            listText.addAll(getTextAlignLeftRight(" ราคาสุทธิ", df.format(grandTotalPrice) + " บาท"));
+            listText.addAll(getTextAlignLeftRight(" จำนวนงวด", df.format(grandTotalPrice) + " งวด"));
+            listText.addAll(getTextAlignLeftRight(" งวดละ", df.format(grandTotalPrice) + " บาท"));
+        } else {
+            for (int i = 0; i < productItems.size(); i++) {
+                ProductItem item = productItems.get(i);
+                qty += Float.parseFloat(item.getProductQty());
+                normalPrice = Float.parseFloat(item.getProductPrice());
+                discountPrice = Float.parseFloat(item.getProductDiscount());
+            }
+            grandTotalPrice = (qty * normalPrice) - (qty * discountPrice);
+            listText.addAll(getTextAlignLeftRight(" ราคา", df.format((qty * normalPrice)) + " บาท"));
+            listText.addAll(getTextAlignLeftRight(" ส่วนลด", df.format((qty * discountPrice)) + " บาท"));
+            listText.addAll(getTextAlignLeftRight(" ราคาสุทธิ", df.format(grandTotalPrice) + " บาท"));
+        }
+
+        listText.add(new PrintTextInfo(""));
+        String customer = String.format("(%s%s %s)", DateFormateUtilities.trim(jobItem.getTitle()), DateFormateUtilities.trim(jobItem.getFirstName()), DateFormateUtilities.trim(jobItem.getLastName()));
+
+        if (!productItems.get(0).getProductPayType().equals("2")) {
+            listText.add(new PrintTextInfo(""));
+            listText.add(new PrintTextInfo("k_viruchWithCustomer"));
+            listText.addAll(getTextLeftRightAlignCenter("......................", ".....................", "EN"));
+            listText.addAll(getTextLeftRightAlignCenter("           ผู้ขาย       ", "          ผู้ซื้อ        "));
+            String TSR = "(นายวิรัช วงศ์นิรันดร์)";
+            listText.addAll(getTextLeftRightAlignCenter(TSR, customer));
+
+        } else {
+            listText.add(new PrintTextInfo(""));
+            listText.add(new PrintTextInfo("k_viruchWithCustomer"));
+            listText.addAll(getTextLeftRightAlignCenter("......................", ".....................", "EN"));
+            listText.addAll(getTextLeftRightAlignCenter("     ผู้ให้เช่าซื้อ       ", "       ผู้เช่าซื้อ        "));
+            String TSR = "(นายวิรัช วงศ์นิรันดร์)";
+            listText.addAll(getTextLeftRightAlignCenter(TSR, customer));
+
+
+            String installername = "" + DateFormateUtilities.trim(
+                    MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRSTNAME) + " " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_LASTNAME));
+            String salename = "" + DateFormateUtilities.trim(jobItem.getPresale());
+
+            listText.add(new PrintTextInfo(""));
+            listText.addAll(getTextLeftRightAlignCenter(".................พยาน", ".................พยาน"));
+            listText.addAll(getTextLeftRightAlignCenter(installername, salename));
+        }
+
+        listText.add(new PrintTextInfo(""));
+        listText.add(new PrintTextInfo("endContractPage"));
+        listText.add(new PrintTextInfo("selectStandardMode"));
+
+        return listText;
+    }
+
+    public static List<PrintTextInfo> getTextInstallation(JobItem jobItem, List<AddressItem> addressItems, List<ProductItem> productItems, String contacenumber) {
+        List<PrintTextInfo> listText = new ArrayList<>();
+        String[] texts;
+
+        listText.add(new PrintTextInfo("printHeader"));
+        listText.addAll(getTextAlignCenter("ใบรับการติดตั้ง", PrintTextInfo.FontType.Bold));
+
+        listText.addAll(getTextAlignLeftByOffSetLeft(" วันที่ติดตั้ง", DateFormateUtilities.dateFormat(new Date())));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่สัญญา", contacenumber));
+        listText.addAll(getTextAlignLeftByOffSetLeft((productItems.get(0).getProductPayType().equals("2")) ? " ผู้เช่าซื้อ" : " ผู้ซื้อ",
+                String.format("%s%s %s", DateFormateUtilities.trim(jobItem.getTitle()), DateFormateUtilities.trim(jobItem.getFirstName()), DateFormateUtilities.trim(jobItem.getLastName()))));
+
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่บัตร", DateFormateUtilities.trim(jobItem.getIDCard())));
 
         StringBuilder sb1 = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
@@ -995,67 +1116,26 @@ public class DocumentController {
             }
         }
 
-        listText.addAll(getTextAlignLeftByOffSetLeft("ที่อยู่บัตร", sb1.toString()));
-        listText.addAll(getTextAlignLeftByOffSetLeft("เบอร์โทรติดต่อ", phone1));
-        listText.addAll(getTextAlignLeftByOffSetLeft("มือถือ", mobile1));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" ที่อยู่บัตร", sb1.toString()));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เบอร์โทรติดต่อ", phone1));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" มือถือ", mobile1));
 
-        listText.addAll(getTextAlignLeftByOffSetLeft("ที่ติดตั้ง", sb2.toString()));
-        listText.addAll(getTextAlignLeftByOffSetLeft("เบอร์โทรติดต่อ", phone2));
-        listText.addAll(getTextAlignLeftByOffSetLeft("มือถือ", mobile2));
-
-        /*listText.addAll(getTextAlignLeftByOffSetLeft(" สินค้า", BHUtilities.trim(contract.ProductName)));
-        listText.addAll(getTextAlignLeftByOffSetLeft(" รุ่น", BHUtilities.trim(contract.MODEL)));
-        listText.addAll(getTextAlignLeftByOffSetLeft(" เลขเครื่อง", BHUtilities.trim(contract.ProductSerialNumber)));
-
-        if (contract.TradeInDiscount > 0) {
-            listText.addAll(getTextAlignLeftRight(" ราคา", BHUtilities.numericFormat(contract.SALES) + " บาท"));
-            listText.addAll(getTextAlignLeftRight(" ส่วนลดเครื่องแสดง", BHUtilities.numericFormat(contract.TradeInDiscount) + " บาท"));
-            listText.addAll(getTextAlignLeftRight(" ราคาสุทธิ", BHUtilities.numericFormat(contract.TotalPrice) + " บาท"));
-        } else {
-            listText.addAll(getTextAlignLeftRight(" ราคาขาย", BHUtilities.numericFormat(contract.SALES) + " บาท"));
-        }
-
-        if (contract.MODE > 1) {
-            float sum = contract.PaymentAmount - contract.TradeInDiscount;
-            listText.addAll(getTextAlignLeftRight(" งวดที่ 1 ต้องชำระ", BHUtilities.numericFormat(sum) + " บาท"));
-            listText.addAll(getTextAlignLeftRight(" งวดที่ 2 ถึงงวดที่ " + BHUtilities.numericFormat(contract.MODE) + " ต้องชำระงวดละ", BHUtilities.numericFormat(contract.NextPaymentAmount) + " บาท"));
-        }
-        */
+        listText.addAll(getTextAlignLeftByOffSetLeft(" ที่ติดตั้ง", sb2.toString()));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" เบอร์โทรติดต่อ", phone2));
+        listText.addAll(getTextAlignLeftByOffSetLeft(" มือถือ", mobile2));
 
         listText.add(new PrintTextInfo(""));
-        String customer = String.format("(%s%s)", DateFormateUtilities.trim(jobItem.getFirstName()), DateFormateUtilities.trim(jobItem.getLastName()));
-
-        if (jobItem.getPaytype().equals("1")) {
-            listText.add(new PrintTextInfo(""));
-            listText.add(new PrintTextInfo("signature"));
-            listText.addAll(getTextLeftRightAlignCenter("......................", ".....................", "EN"));
-            listText.addAll(getTextLeftRightAlignCenter("           ผู้ขาย       ", "          ผู้ซื้อ        "));
-            String TSR = "(นายวิรัช วงศ์นิรันดร์)";
-            listText.addAll(getTextLeftRightAlignCenter(TSR, customer));
-
-        } else {
-            listText.add(new PrintTextInfo(""));
-            listText.add(new PrintTextInfo("signature"));
-            listText.addAll(getTextLeftRightAlignCenter("......................", ".....................", "EN"));
-            listText.addAll(getTextLeftRightAlignCenter("     ผู้ให้เช่าซื้อ       ", "       ผู้เช่าซื้อ        "));
-            String TSR = "(นายวิรัช วงศ์นิรันดร์)";
-            listText.addAll(getTextLeftRightAlignCenter(TSR, customer));
-
-            String saleteamname = "" + DateFormateUtilities.trim("Upper name") + "";
-            String saleteamcode = "" + DateFormateUtilities.trim("Sale team name");
-
-            String salename = "" + DateFormateUtilities.trim("Sale employee name") + "";
-            String salecode = "รหัส " + DateFormateUtilities.trim("Sale code");
-
-            listText.add(new PrintTextInfo(""));
-            listText.addAll(getTextLeftRightAlignCenter(".................พยาน", ".................พยาน"));
-            listText.addAll(getTextLeftRightAlignCenter(saleteamname, salename));
-            listText.addAll(getTextLeftRightAlignCenter(saleteamcode, salecode));
-        }
+        String customer = String.format("(%s%s %s)", DateFormateUtilities.trim(jobItem.getTitle()), DateFormateUtilities.trim(jobItem.getFirstName()), DateFormateUtilities.trim(jobItem.getLastName()));
 
         listText.add(new PrintTextInfo(""));
-        /*listText.addAll(getTextAlignLeft(String.format(" รหัส %s %s", BHUtilities.trim(contract.SaleCode), BHUtilities.trim(contract.SaleEmployeeName))));
-        listText.addAll(getTextAlignLeft(String.format(" %s %s", BHUtilities.trim(contract.SaleTeamName), BHUtilities.trim(contract.upperEmployeeName))));*/
+        listText.add(new PrintTextInfo("customerWithInstaller"));
+        listText.addAll(getTextLeftRightAlignCenter("......................", ".....................", "EN"));
+        listText.addAll(getTextLeftRightAlignCenter("           ผู้รับการติดตั้ง       ", "          ผู้ติดตั้ง        "));
+        String installername = "" + DateFormateUtilities.trim(
+                MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_TITLE) + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRSTNAME) + " " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_LASTNAME));
+        listText.addAll(getTextLeftRightAlignCenter(customer, installername));
+
+        listText.add(new PrintTextInfo(""));
         listText.add(new PrintTextInfo("endContractPage"));
         listText.add(new PrintTextInfo("selectStandardMode"));
 
@@ -1415,8 +1495,6 @@ public class DocumentController {
         p.setTextAlign(Align.CENTER);
         yy += fontSize + LINE_SPACE;
         cv.drawText("ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ", LAYOUT_WIDTH / 2, yy, p);
-
-
 
         Bitmap resultHeader = Bitmap.createBitmap(LAYOUT_WIDTH, (int) yy, Config.ARGB_8888);
         cv = new Canvas(resultHeader);

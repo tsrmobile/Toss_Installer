@@ -14,7 +14,10 @@ public class Constance {
     public static String TABLE_IMAGE = "image";
     public static String TABLE_PRODUCT = "product";
     public static String TABLE_INSTALL_ITEM = "install_item";
-    public static int DB_CURRENT_VERSION = 13;
+    public static String TABLE_PROVINCE = "Province";
+    public static String TABLE_DISTRICT = "Amphur";
+    public static String TABLE_SUB_DISTRICT = "District";
+    public static int DB_CURRENT_VERSION = 23;
     public static int STATUS_DEFAULT = 21;
     public static int STATUS_JOB_FINISH = 01;
     public static int STATUS_CANCEL_ORDER = 90;
@@ -49,6 +52,8 @@ public class Constance {
     public static final int REQUEST_CONNECT_DEVICE = 17;
     public static final int REQUEST_SIGNATURE = 18;
     public static int REQUEST_EDIT_DETAIL = 19;
+    public static int REQUEST_LOCATION = 20;
+    public static int REQUEST_INSTALL_RECEIPT = 21;
 
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
@@ -69,32 +74,27 @@ public class Constance {
     public static final String KEY_POSITION = "POSITION";
     public static final String KEY_DEPARTMENT = "DEPARTMENT";
 
-    /*public static final String KEY_JOB_ORDERID = "JOB_ORDERID";
-    public static final String KEY_JOB_IDCARD = "JOB_IDCARD";
-    public static final String KEY_JOB_TITLE = "JOB_TITLE";
-    public static final String KEY_JOB_FIRSTNAME = "JOB_FIRSTNAME";
-    public static final String KEY_JOB_LASTNAME = "JOB_LASTNAME";
-    public static final String KEY_JOB_CONTACT_PHONE = "JOB_CONTACT_PHONE";
-    public static final String KEY_JOB_PRODUCT_CODE = "JOB_PRODUCT_CODE";
-    public static final String KEY_JOB_PRODUCT_NAME = "JOB_PRODUCT_NAME";
-    public static final String KEY_JOB_PRODUCT_QTY = "JOB_PRODUCT_QTY";
-    public static final String KEY_JOB_INSTALLDATESTART = "JOB_INSTALL_DATE_START";
-    public static final String KEY_JOB_INSTALLDATEEND = "JOB_INSTALL_DATE_END";
-
-    public static final String KEY_PRODUCT_SERIAL = "KEY_PRODUCT_SERIAL";
-    public static final String KEY_INSTALL_IMAGE = "KEY_INSTALL_IMAGE";*/
-
     public static final String KEY_SORT_ID = "KEY_SORT_ID";
+    public static final String KEY_CONTNO = "KEY_CONTNO";
     public static final String KEY_SERIAL_ITEM = "KEY_SERIAL_ITEM";
+    public static final String KEY_PRODUCT_CODE = "KEY_PRODUCT_CODE";
+    public static final String KEY_CUSTOMER_SIGN_PATH = "KEY_CUSTOMER_SIGN_PATH";
 
+    public static final String KEY_ORDER_ID = "KEY_ORDER_ID";
     public static final String KEY_JOB_ITEM = "KEY_JOB_ITEM";
     public static final String KEY_JOB_ADDR = "KEY_JOB_ADDR";
-
+    public static final String KEY_CUSTOMER_NAME = "KEY_CUSTOMER_NAME";
+    public static final String KEY_FIRST_OPEN = "KEY_FIRST_OPEN";
     public static final String EXTRA_DEVICE_ADDRESS = "EXTRA_DEVICE_ADDRESS";
 
     public static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    public static final String[] PERMISSIONS_LOCATION = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
 }

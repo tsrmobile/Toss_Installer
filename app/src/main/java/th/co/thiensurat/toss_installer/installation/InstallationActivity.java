@@ -1,12 +1,16 @@
 package th.co.thiensurat.toss_installer.installation;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -39,7 +43,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         implements InstallationInterface.View, InstallationAdapter.ClickListener  {
 
     private String id;
-    private String serial;
+    private String serial = "000";
     private JobItem jobItem;
     private String productcode;
     private TextView textViewTitle;
@@ -91,6 +95,13 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.print_menu, menu);
+        return true;
+    }
+
     private void setRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
@@ -103,6 +114,8 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         adapter.setClickListener(this);
+        adapter.setLongClickListener(this);
+
 
         for (ProductItem item : productItemList) {
             if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
@@ -144,18 +157,25 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
             if(result.getContents() == null) {
                 relativeLayoutNext.setVisibility(View.GONE);
             } else {
+                Log.e("Product serial", result.getContents());
                 if (getPresenter().checkSerial(InstallationActivity.this, result.getContents(), productcode)) {
-                    serial = result.getContents();
                     getPresenter().updateProduct(InstallationActivity.this, id, result.getContents());
                     for (ProductItem item : productItemList) {
                         if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
-                            relativeLayoutNext.setVisibility(View.VISIBLE);
+                            /*relativeLayoutNext.setVisibility(View.VISIBLE);
                         } else {
                             relativeLayoutNext.setVisibility(View.GONE);
                             return;
+                            if (jobItem.getOrderid().startsWith("G")) {
+                                Log.e("Order id", "G");
+                            }*/
+                            /*if (getPresenter().checkPackageInstall(InstallationActivity.this, jobItem.getOrderid(), productcode)) {
+
+                            }*/
+                            //onNextStep();
+                            getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
                         }
                     }
-                    //Log.e("Check serial", String.valueOf(getPresenter().checkSerial(InstallationActivity.this, result.getContents(), productcode)));
                 } else {
                     serial = "000";
                     customDialog.dialogFail("serial สินค้าไม่ถูกต้อง!");
@@ -171,6 +191,8 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_CANCELED);
             finish();
+        } else if (item.getItemId() == R.id.menu_print) {
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -188,15 +210,54 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         };
     }
 
+    public void onNextStep() {
+        Intent intent = new Intent(getApplicationContext(), TakePictureActivity.class);
+        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
+        intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
+        startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
+    }
+
     @Override
     public void ClickedListener(View view, int position) {
         ProductItem item = productItemList.get(position);
         id = item.getProductID();
         productcode = item.getProductCode();
-        IntentIntegrator integrator = new IntentIntegrator(InstallationActivity.this);
-        integrator.setOrientationLocked(true);
-        integrator.setCaptureActivity(CaptureActivityPortrait.class);
-        integrator.initiateScan();
+        serial = item.getProductSerial();
+
+        if (item.getProductStatus().equals("พร้อมติดตั้ง")) {
+            onNextStep();
+        } else {
+            IntentIntegrator integrator = new IntentIntegrator(InstallationActivity.this);
+            integrator.setOrientationLocked(true);
+            integrator.setCaptureActivity(CaptureActivityPortrait.class);
+            integrator.initiateScan();
+        }
+    }
+
+    @Override
+    public void LongClickedListener(View view, int position) {
+        ProductItem item = productItemList.get(position);
+        id = item.getProductID();
+        productcode = item.getProductCode();
+        final CharSequence choice[] = new CharSequence[] {"สแกนใหม่", "พิมพ์สัญญา"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("เลือกรายการ");
+        builder.setItems(choice, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (String.valueOf(choice[which]).equals("สแกนใหม่")) {
+                    IntentIntegrator integrator = new IntentIntegrator(InstallationActivity.this);
+                    integrator.setOrientationLocked(true);
+                    integrator.setCaptureActivity(CaptureActivityPortrait.class);
+                    integrator.initiateScan();
+                } else {
+
+                }
+            }
+        });
+        builder.show();
     }
 
     @Override

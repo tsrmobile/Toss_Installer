@@ -5,6 +5,7 @@ import android.content.Context;
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
+import th.co.thiensurat.toss_installer.job.item.ProductItem;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 
 /**
@@ -21,9 +22,11 @@ public class TakePictureInterface {
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<TakePictureInterface.View> {
-        void saveImageUrl(Context context, String orderid, String serial, String type, String url);
+        void saveImageUrl(Context context, String orderid, String serial, String type, String url, String productcode);
         void getImage(Context context, String orderid, String serial, String type);
         void editImageUrl(Context context, String id, String url);
         void delImage(Context context, String id);
+        boolean getItemInstalled(Context context, String orderid);
+        List<ProductItem> getAllItem(Context context, String orderid);
     }
 }

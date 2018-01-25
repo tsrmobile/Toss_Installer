@@ -15,4 +15,8 @@
     <string name="scanning">scanning for devices...</string>
     <string name="select_device">select a device to connect</string>
     <string name="none_found">No devices found</string>
+
+    <string name="spinner_sub_district">กรุณาเลือกตำบล</string>
+    <string name="spinner_district">กรุณาเลือกอำเภอ</string>
+    <string name="spinner_province">กรุณาเลือกจังหวัด</string>
 </resources>

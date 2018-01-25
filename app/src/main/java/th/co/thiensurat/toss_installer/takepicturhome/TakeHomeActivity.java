@@ -49,8 +49,10 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
     private PermissionUtil permissionUtil;
     private ImageConfiguration imageConfiguration;
 
-    private String id;
+    private String id = "-1";
+    private String serial;
     private JobItem jobItem;
+    private String productcode;
     private TakePictureAdapter adapter;
     private List<ImageItem> imageItemList;
     private LinearLayoutManager layoutManager;
@@ -96,7 +98,7 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
             @Override
             public void onClick(View view) {
                 floatingActionButton.startAnimation(new AnimateButton().animbutton());
-                id = "";
+                id = "-1";
                 try {
                     imageChooser();
                 } catch (IOException e) {
@@ -138,6 +140,8 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
                 buttonNext.startAnimation(new AnimateButton().animbutton());
                 Intent intent = new Intent(TakeHomeActivity.this, MapCheckinActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+                intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
+                intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
                 startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
             }
         };
@@ -204,6 +208,8 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
+        productcode = getIntent().getStringExtra(Constance.KEY_PRODUCT_CODE);
     }
 
     private void setRecyclerView() {
@@ -241,8 +247,8 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
 
     private void setImage(File file) {
         String url = file.getPath().toString();
-        if (id.equals("")) {
-            getPresenter().saveImageUrl(TakeHomeActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME, url);
+        if (id.equals("-1")) {
+            getPresenter().saveImageUrl(TakeHomeActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME, url, productcode);
         } else {
             getPresenter().editImageUrl(TakeHomeActivity.this, id, url);
         }

@@ -93,7 +93,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center|left"
-                    android:text=""
+                    android:text=" -"
                     android:textStyle="bold"
                     android:textColor="@color/colorPrimaryDark"/>
 

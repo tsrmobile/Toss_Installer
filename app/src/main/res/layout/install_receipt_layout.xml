@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="วันที่ติดตั้ง"/>
+
+            <TextView
+                android:id="@+id/contract_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:textSize="16sp"
+                android:text="01/12/2560"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="เลขที่สัญญา"/>
+
+            <TextView
+                android:id="@+id/contract_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:textSize="16sp"
+                android:text="601200001"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="เลขที่ใบสั่งจอง"/>
+
+            <TextView
+                android:id="@+id/order_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:textSize="16sp"
+                android:text="C60110002"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="ชื่อผู้ซื้อ"/>
+
+            <TextView
+                android:id="@+id/contract_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:textSize="16sp"
+                android:text="เธียรสุรัตน์ จำกัด (มหาชน)"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="เลขบัตร"/>
+
+            <TextView
+                android:id="@+id/contract_id_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:textSize="16sp"
+                android:text="0107556000213"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_add_id"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="ที่อยู่บัตรฯ"/>
+
+            <TextView
+                android:id="@+id/contract_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.5"
+                android:gravity="right|center"
+                android:scrollHorizontally="false"
+                android:ellipsize="none"
+                android:textSize="16sp"
+                android:text="@string/address"
+                />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_add_install"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="ที่อยู่ติดตั้ง"/>
+
+            <TextView
+                android:id="@+id/install_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.5"
+                android:gravity="right|center"
+                android:scrollHorizontally="false"
+                android:ellipsize="none"
+                android:textSize="16sp"
+                android:text="@string/address"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_phone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="เบอร์โทรติดต่อ"/>
+
+            <TextView
+                android:id="@+id/contract_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:textSize="16sp"
+                android:text="0 2819 8888"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_product_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="สินค้า"/>
+
+            <TextView
+                android:id="@+id/contract_product_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="เครื่องกรองน้ำดื่มอัลคาไลน์"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_product_model"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="รุ่น"/>
+
+            <TextView
+                android:id="@+id/contract_product_model"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="อัลคาไลน์มินิ"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_product_serial"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="หมายเลขเครื่อง"/>
+
+            <TextView
+                android:id="@+id/contract_product_serial"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="อัลคาไลน์มินิ"/>
+
+        </LinearLayout>
+
+        <!--<View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/table_data_row_odd"
+            android:padding="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="ราคา"/>
+
+            <TextView
+                android:id="@+id/contract_product_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="18,400 บาท"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/table_data_row_even"
+            android:padding="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_discount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="ส่วนลด"/>
+
+            <TextView
+                android:id="@+id/contract_product_discount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="1,000 บาท"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/table_data_row_odd"
+            android:padding="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_net_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="ราคาสุทธิ"/>
+
+            <TextView
+                android:id="@+id/contract_product_net_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="17,400 บาท"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/table_data_row_even"
+            android:padding="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_month"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="จำนวนงวด"/>
+
+            <TextView
+                android:id="@+id/contract_product_month"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="12 งวด"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/table_data_row_even"
+            android:padding="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_per_month"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:text="งวดละ"/>
+
+            <TextView
+                android:id="@+id/contract_price_per_month"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right|center"
+                android:layout_weight="1.5"
+                android:textSize="16sp"
+                android:text="2,000 บาท"/>
+
+        </LinearLayout>-->
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/signature_show"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/signature_customer"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/hint_signature1"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            android:text="เซ็นที่นี่"
+                            android:background="@color/table_data_row_odd"/>
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:ellipsize="none"
+                        android:text="........................................................................"/>
+
+                    <TextView
+                        android:id="@+id/customer_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="(ลูกค้า)"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="ผู้รับการติดตั้ง"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="match_parent"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+
+                        <ImageView
+                            android:id="@+id/signature_installer"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitXY"/>
+
+                        <TextView
+                            android:id="@+id/hint_signature2"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            android:text="เซ็นที่นี่"
+                            android:background="@color/table_data_row_odd"/>
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:ellipsize="none"
+                        android:text="........................................................................"/>
+
+                    <TextView
+                        android:id="@+id/installer_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="(ช่างติดตั้ง)"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:singleLine="true"
+                        android:text="ผู้ติดตั้ง"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.printer.bluetoothDevice;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -41,6 +42,8 @@ import th.co.thiensurat.toss_installer.utils.CustomDialog;
 
 public class BluetoothDeviceActivity extends AppCompatActivity {
 
+    private int position;
+    private BluetoothDevice device;
     private List<String> s;
     private static String address;
     private CustomDialog customDialog;
@@ -77,6 +80,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         listViewDevice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                position = i;
                 if (bluetoothAdapter == null) {
                     return;
                 }
@@ -84,13 +88,43 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                 if (bluetoothAdapter.isDiscovering()) {
                     bluetoothAdapter.cancelDiscovery();
                 }
-                //new ConnectTask(bluetoothDeviceArrayAdapter.getItem(i)).execute();
-                address = bluetoothDeviceArrayAdapter.getItem(i).getAddress();
-                Intent intent = new Intent();
-                intent.putExtra(Constance.EXTRA_DEVICE_ADDRESS, address);
+                new ConnectTask(bluetoothDeviceArrayAdapter.getItem(i)).execute();
+                //device = bluetoothDeviceArrayAdapter.getItem(i);
 
-                setResult(Activity.RESULT_OK, intent);
-                finish();
+                /*Thread connectThread = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            bluetoothSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(Constance.UUID));
+                            bluetoothSocket.connect();
+                        } catch (IOException ex) {
+                            //runOnUiThread(socketErrorRunnable);
+                            try {
+                                bluetoothSocket.close();
+                            } catch (IOException e) {
+
+                            }
+                            bluetoothSocket = null;
+                            return;
+                        } finally {
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    bluetoothSocketStatic = bluetoothSocket;
+                                    address = bluetoothDeviceArrayAdapter.getItem(position).getAddress();
+                                    Intent intent = new Intent();
+                                    intent.putExtra(Constance.EXTRA_DEVICE_ADDRESS, address);
+                                    setResult(Activity.RESULT_OK, intent);
+                                    finish();
+
+                                }
+                            });
+                        }
+                    }
+                });
+                connectThread.start();*/
             }
         });
     }
@@ -166,6 +200,14 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                buttonSearch.startAnimation(new AnimateButton().animbutton());
+                initialDevice();
+
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(BluetoothDevice.ACTION_FOUND);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+                registerReceiver(receiver, filter);
                 bluetoothAdapter.startDiscovery();
             }
         };
@@ -176,7 +218,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                customDialog.dialogLoading();
+                //customDialog.dialogLoading();
             } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 try {
@@ -193,7 +235,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     ex.printStackTrace();
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                customDialog.dialogDimiss();
+                //customDialog.dialogDimiss();
             }
         }
     };
@@ -248,13 +290,12 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            customDialog.dialogLoading();
+            //customDialog.dialogLoading();
         }
 
         @Override
         protected Long doInBackground(URL... urls) {
             long result = 0;
-
             try {
                 bluetoothSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(Constance.UUID));
                 bluetoothSocket.connect();
@@ -269,11 +310,17 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
-            customDialog.dialogDimiss();
+            //customDialog.dialogDimiss();
             if (bluetoothSocket != null && aLong == 1) {
                 bluetoothSocketStatic = bluetoothSocket;
-                address = device.getAddress();
+                /*address = device.getAddress();
                 setResult(RESULT_OK);
+                finish();*/
+
+                address = device.getAddress();
+                Intent intent = new Intent();
+                intent.putExtra(Constance.EXTRA_DEVICE_ADDRESS, address);
+                setResult(Activity.RESULT_OK, intent);
                 finish();
             } else {
                 customDialog.dialogFail("ไม่สามารถ\nเชื่อมต่ออุปกรณ์ได้");

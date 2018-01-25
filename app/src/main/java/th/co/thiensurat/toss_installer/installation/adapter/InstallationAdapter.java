@@ -45,8 +45,8 @@ public class InstallationAdapter extends RecyclerView.Adapter<InstallationAdapte
     @Override
     public void onBindViewHolder(InstallationAdapter.ViewHolder holder, int position) {
         ProductItem item = productItemList.get(position);
-        holder.textViewName.setText((item.getProductItemCode().equals("")) ? item.getProductName() : item.getProductItemName());
-        if (item.getProductItemQty().equals("") || item.getProductItemQty().equals("0")) {
+        holder.textViewName.setText((item.getProductItemCode().equals("-")) ? item.getProductName() : item.getProductItemName());
+        if (item.getProductItemQty().equals("0")) {
             holder.textViewQTY.setText(item.getProductQty());
         } else {
             holder.textViewQTY.setText(item.getProductItemQty());
@@ -73,6 +73,10 @@ public class InstallationAdapter extends RecyclerView.Adapter<InstallationAdapte
         this.clickListener = clickListener;
     }
 
+    public void setLongClickListener(ClickListener clickListener){
+        this.clickListener = clickListener;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.productname) TextView textViewName;
@@ -83,6 +87,7 @@ public class InstallationAdapter extends RecyclerView.Adapter<InstallationAdapte
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener( onClickListener() );
+            itemView.setOnLongClickListener( onLongClickListener() );
         }
 
         private View.OnClickListener onClickListener() {
@@ -95,9 +100,23 @@ public class InstallationAdapter extends RecyclerView.Adapter<InstallationAdapte
                 }
             };
         }
+
+        private View.OnLongClickListener onLongClickListener() {
+            return new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (clickListener !=null) {
+                        clickListener.LongClickedListener(view, getPosition());
+                        return true;
+                    }
+                    return false;
+                }
+            };
+        }
     }
 
     public interface ClickListener{
         void ClickedListener(View view, int position);
+        void LongClickedListener(View view, int position);
     }
 }

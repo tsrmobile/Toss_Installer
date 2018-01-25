@@ -49,9 +49,9 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
     }
 
     @Override
-    public void requestInstallItem(String data) {
+    public void requestInstallItem(String data, String action) {
         getView().onLoad();
-        serviceManager.loadInstallItem(data, "load", new ServiceManager.ServiceManagerCallback<InstallItemResultGroup>() {
+        serviceManager.loadInstallItem(data, action, new ServiceManager.ServiceManagerCallback<InstallItemResultGroup>() {
             @Override
             public void onSuccess(InstallItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
@@ -67,6 +67,31 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
                     getView().onFail(result.getMessage().toString());
                 } else if (result.getStatus().equals("ERROR")) {
                     getView().onDismiss();
+                    getView().onFail(result.getMessage().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
+    }
+
+    @Override
+    public void requestApplyItem(final String data, String action) {
+        //getView().onLoad();
+        serviceManager.loadInstallItem(data, action, new ServiceManager.ServiceManagerCallback<InstallItemResultGroup>() {
+            @Override
+            public void onSuccess(InstallItemResultGroup result) {
+                if (result.getStatus().equals("SUCCESS")) {
+                    //getView().onDismiss();
+                    getView().onApply();
+                } else if (result.getStatus().equals("FAIL")) {
+                    //getView().onDismiss();
+                    getView().onFail(result.getMessage().toString());
+                } else if (result.getStatus().equals("ERROR")) {
+                    //getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 }
             }
@@ -97,5 +122,11 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
     public void insertDataToSQLite(Context context, List<InstallItem> installItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.setTableItem(installItemList);
+    }
+
+    @Override
+    public boolean checkStockID(Context context, String number) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        return dbHelper.checkNumber(number);
     }
 }

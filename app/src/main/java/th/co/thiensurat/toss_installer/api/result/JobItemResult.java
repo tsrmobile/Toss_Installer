@@ -20,8 +20,11 @@ public class JobItemResult {
     private String contactphone;
     private String installStartDate;
     private String installEndDate;
-    private String paytype;
+    private String installStart;
+    private String installEnd;
     private String status;
+    private String presale;
+    private String contno;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -89,12 +92,20 @@ public class JobItemResult {
         this.installEndDate = installEndDate;
     }
 
-    public String getPaytype() {
-        return paytype;
+    public String getInstallStart() {
+        return installStart;
     }
 
-    public void setPaytype(String paytype) {
-        this.paytype = paytype;
+    public void setInstallStart(String installStart) {
+        this.installStart = installStart;
+    }
+
+    public String getInstallEnd() {
+        return installEnd;
+    }
+
+    public void setInstallEnd(String installEnd) {
+        this.installEnd = installEnd;
     }
 
     public String getStatus() {
@@ -103,6 +114,22 @@ public class JobItemResult {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPresale() {
+        return presale;
+    }
+
+    public void setPresale(String presale) {
+        this.presale = presale;
+    }
+
+    public String getContno() {
+        return contno;
+    }
+
+    public void setContno(String contno) {
+        this.contno = contno;
     }
 
     public List<ProductItem> getProduct() {

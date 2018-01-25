@@ -2,6 +2,8 @@ package th.co.thiensurat.toss_installer;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -20,29 +22,38 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.time.LocalDate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
-import th.co.thiensurat.toss_installer.dashboard.DashboardFragment;
+import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.itembalance.ItemBalanceFragment;
 import th.co.thiensurat.toss_installer.itemlist.ItemlistFragment;
 import th.co.thiensurat.toss_installer.job.JobFragment;
 import th.co.thiensurat.toss_installer.job.all.AllJobFragment;
+import th.co.thiensurat.toss_installer.setting.SettingFragment;
 import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
 import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CustomDialog;
+import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> implements MainInterface.View {
 
+    private String empid;
+    private File signPath;
+    private ImageConfiguration imageConfiguration;
+
     private String itemIntent;
-    private TextView textViewName, textViewTitle;
-    private ImageView imageViewProfile;
     private boolean clickBackAain;
     private MenuItem menuItemClicked;
+    private CustomDialog customDialog;
+    private ImageView imageViewProfile;
+    private TextView textViewName, textViewTitle;
 
     @Override
     public MainInterface.Presenter createPresenter() {
@@ -65,24 +76,44 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
 
     @Override
     public void setupInstance() {
-
+        customDialog = new CustomDialog(MainActivity.this);
+        imageConfiguration = new ImageConfiguration(MainActivity.this);
     }
 
     @Override
     public void setupView() {
         setToolbar();
-        setMenu();
+        try {
+            if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_POSITION).equals("ช่างติดตั้งผลิตภัณฑ์")) {
+                setMenu();
+            } else if (MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_POSITION).equals("พนักงานเก็บเงิน")) {
+                setMenuPaymet();
+            } else {
+                setMenu();
+            }
+        } catch (Exception ex) {
+
+        }
     }
 
     @Override
     public void initialize() {
         loadHomePage();
+        try {
+            empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
+            signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
+            if (!signPath.exists()) {
+                customDialog.dialogWarning("ยังไม่มีลายเซ็นต์พนักงาน\nกรุณาเพิ่มลายเซ็นต์");
+            }
+        } catch (Exception e) {
+            customDialog.dialogWarning("ยังไม่มีลายเซ็นต์พนักงาน\nกรุณาเพิ่มลายเซ็นต์");
+        }
+
     }
 
     private void loadHomePage() {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-        //transaction.replace(R.id.container, DashboardFragment.getInstance()).addToBackStack(null).commit();
         transaction.replace(R.id.container, JobFragment.getInstance()).addToBackStack(null).commit();
     }
 
@@ -105,6 +136,41 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
 
         String fullname = title + "" + firstname + " " + lastname;
         textViewName.setText(fullname);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+    }
+
+    private void setMenuPaymet() {
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+            // This method will trigger on Item Click of navigation menu
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItemClicked = menuItem;
+                drawerLayout.closeDrawers();
+                return true;
+            }
+        });
+
+        navigationView.inflateMenu(R.menu.pay_menu);
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.openDrawer, R.string.closeDrawer){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                if(menuItemClicked != null)
+                    handleSelectedMenuPayment(menuItemClicked);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                menuItemClicked = null;
+            }
+        };
+
+        drawerLayout.setDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        setHeaderMenu();
     }
 
     private void setMenu() {
@@ -118,7 +184,7 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
                 return true;
             }
         });
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+
         navigationView.inflateMenu(R.menu.main_menu);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.openDrawer, R.string.closeDrawer){
             @Override
@@ -144,16 +210,7 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
-
         switch (menuItem.getItemId()){
-            /*case R.id.memu_home :
-                if (currentFragment instanceof DashboardFragment) {
-                    drawerLayout.closeDrawers();
-                } else {
-                    setTitle(getResources().getString(R.string.app_name));
-                    transaction.replace(R.id.container, DashboardFragment.getInstance(), "DashboardFragment").addToBackStack(null).commit();
-                }
-                break;*/
             case R.id.menu_job_all :
                 if (currentFragment instanceof AllJobFragment) {
                     drawerLayout.closeDrawers();
@@ -182,6 +239,34 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
                     transaction.replace(R.id.container, ItemBalanceFragment.getInstance(), "ItemBalanceFragment").addToBackStack(null).commit();
                 }
                 break;
+            case R.id.menu_setting :
+                if (currentFragment instanceof SettingFragment) {
+                    drawerLayout.closeDrawers();
+                } else {
+                    transaction.replace(R.id.container, SettingFragment.getInstance(), "SettingFragment").addToBackStack(null).commit();
+                }
+                break;
+            case R.id.menu_logout :
+                MyApplication.getInstance().getPrefManager().clear();
+                startActivity(new Intent(getApplicationContext(), AuthActivity.class));
+                finish();
+                break;
+            default: break;
+        }
+    }
+
+    private void handleSelectedMenuPayment(MenuItem menuItem) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        switch (menuItem.getItemId()){
+            case R.id.menu_setting :
+                if (currentFragment instanceof SettingFragment) {
+                    drawerLayout.closeDrawers();
+                } else {
+                    transaction.replace(R.id.container, SettingFragment.getInstance(), "SettingFragment").addToBackStack(null).commit();
+                }
+                break;
             case R.id.menu_logout :
                 MyApplication.getInstance().getPrefManager().clear();
                 startActivity(new Intent(getApplicationContext(), AuthActivity.class));
@@ -199,7 +284,7 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
                 return true;
             }
             this.clickBackAain = true;
-            Toast.makeText(MainActivity.this, "คลิกอีกครั้งเพื่อออกจากแอพพลิเคชั่น", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "คลิกอีกครั้งเพื่อออก", Toast.LENGTH_LONG).show();
 
             new Handler().postDelayed(new Runnable() {
 

@@ -6,7 +6,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     android:windowSoftInputMode="adjustPan|adjustResize"
-    tools:context=".installation.InstallationActivity">
+    tools:context=".installation.InstallationActivity"
+    android:background="@color/white">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -49,11 +50,33 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_rounded_colorprimarydark"
+        android:layout_margin="8dp"
+        android:paddingRight="4dp"
+        android:paddingLeft="8dp"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/floating_print_install_receipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="พิมพ์ใบรับการติดตั้ง"
+            android:textColor="@color/white"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/ic_print_white_24dp"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
         android:id="@+id/bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/background_rounded_accent"
-        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
         android:layout_margin="8dp"
         android:paddingRight="4dp"
         android:paddingLeft="8dp"
@@ -66,7 +89,29 @@
             android:text="พิมพ์สัญญา"
             android:textColor="@color/white"
             android:background="@android:color/transparent"
-            android:drawableLeft="@drawable/ic_print_white_24dp"/>
+            android:drawableLeft="@drawable/ic_print_white_24dp"
+            android:visibility="visible"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_rounded_colorprimarydark"
+        android:layout_alignParentRight="true"
+        android:layout_margin="8dp"
+        android:paddingRight="4dp"
+        android:paddingLeft="8dp"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/floating_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="จบการทำงาน"
+            android:textColor="@color/white"
+            android:background="@android:color/transparent"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

@@ -13,10 +13,18 @@ public class ProductItem extends BaseItem implements Parcelable {
 
     private String productCode;
     private String productName;
+    private String productModel;
     private String productQty;
     private String productItemCode;
     private String productItemName;
     private String productItemQty;
+    private String productPrice;
+    private String productDiscount;
+    private String productDiscountPercent;
+    private String productPayType;
+    private String productPackageID;
+    private String productPayPeriods;
+    private String productPayPerPeriods;
     private String productID;
     private String productSerial;
     private String productStatus;
@@ -26,15 +34,23 @@ public class ProductItem extends BaseItem implements Parcelable {
 
     public ProductItem(Parcel in) {
         super(in);
-        productCode         = in.readString();
-        productName         = in.readString();
-        productQty          = in.readString();
-        productItemCode     = in.readString();
-        productItemName     = in.readString();
-        productItemQty      = in.readString();
-        productID           = in.readString();
-        productSerial       = in.readString();
-        productStatus       = in.readString();
+        productCode             = in.readString();
+        productName             = in.readString();
+        productModel            = in.readString();
+        productQty              = in.readString();
+        productItemCode         = in.readString();
+        productItemName         = in.readString();
+        productItemQty          = in.readString();
+        productPrice            = in.readString();
+        productDiscount         = in.readString();
+        productDiscountPercent  = in.readString();
+        productPayType          = in.readString();
+        productPackageID        = in.readString();
+        productPayPeriods       = in.readString();
+        productPayPerPeriods    = in.readString();
+        productID               = in.readString();
+        productSerial           = in.readString();
+        productStatus           = in.readString();
     }
 
     public String getProductCode() {
@@ -64,6 +80,15 @@ public class ProductItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getProductModel() {
+        return productModel;
+    }
+
+    public ProductItem setProductModel(String productModel) {
+        this.productModel = productModel;
+        return this;
+    }
+
     public String getProductItemCode() {
         return productItemCode;
     }
@@ -88,6 +113,69 @@ public class ProductItem extends BaseItem implements Parcelable {
 
     public ProductItem setProductItemQty(String productItemQty) {
         this.productItemQty = productItemQty;
+        return this;
+    }
+
+    public String getProductPrice() {
+        return productPrice;
+    }
+
+    public ProductItem setProductPrice(String productPrice) {
+        this.productPrice = productPrice;
+        return this;
+    }
+
+    public String getProductDiscount() {
+        return productDiscount;
+    }
+
+    public ProductItem setProductDiscount(String productDiscount) {
+        this.productDiscount = productDiscount;
+        return this;
+    }
+
+    public String getProductDiscountPercent() {
+        return productDiscountPercent;
+    }
+
+    public ProductItem setProductDiscountPercent(String productDiscountPercent) {
+        this.productDiscountPercent = productDiscountPercent;
+        return this;
+    }
+
+    public String getProductPayType() {
+        return productPayType;
+    }
+
+    public ProductItem setProductPayType(String productPayType) {
+        this.productPayType = productPayType;
+        return this;
+    }
+
+    public String getProductPackageID() {
+        return productPackageID;
+    }
+
+    public ProductItem setProductPackageID(String productPackageID) {
+        this.productPackageID = productPackageID;
+        return this;
+    }
+
+    public String getProductPayPeriods() {
+        return productPayPeriods;
+    }
+
+    public ProductItem setProductPayPeriods(String productPayPeriods) {
+        this.productPayPeriods = productPayPeriods;
+        return this;
+    }
+
+    public String getProductPayPerPeriods() {
+        return productPayPerPeriods;
+    }
+
+    public ProductItem setProductPayPerPeriods(String productPayPerPeriods) {
+        this.productPayPerPeriods = productPayPerPeriods;
         return this;
     }
 
@@ -128,10 +216,18 @@ public class ProductItem extends BaseItem implements Parcelable {
         super.writeToParcel(dest, flags);
         dest.writeString(productCode);
         dest.writeString(productName);
+        dest.writeString(productModel);
         dest.writeString(productQty);
         dest.writeString(productItemCode);
         dest.writeString(productItemName);
         dest.writeString(productItemQty);
+        dest.writeString(productPrice);
+        dest.writeString(productDiscount);
+        dest.writeString(productDiscountPercent);
+        dest.writeString(productPayType);
+        dest.writeString(productPackageID);
+        dest.writeString(productPayPeriods);
+        dest.writeString(productPayPerPeriods);
         dest.writeString(productID);
         dest.writeString(productSerial);
         dest.writeString(productStatus);
@@ -154,10 +250,18 @@ public class ProductItem extends BaseItem implements Parcelable {
         ProductItem productItem = new ProductItem()
                 .setProductCode(productCode)
                 .setProductName(productName)
+                .setProductModel(productModel)
                 .setProductQty(productQty)
                 .setProductItemCode(productItemCode)
                 .setProductItemName(productItemName)
                 .setProductItemQty(productItemQty)
+                .setProductPrice(productPrice)
+                .setProductDiscount(productDiscount)
+                .setProductDiscountPercent(productDiscountPercent)
+                .setProductPayType(productPayType)
+                .setProductPackageID(productPackageID)
+                .setProductPayPeriods(productPayPeriods)
+                .setProductPayPerPeriods(productPayPerPeriods)
                 .setProductID(productID)
                 .setProductSerial(productSerial)
                 .setProductStatus(productStatus);

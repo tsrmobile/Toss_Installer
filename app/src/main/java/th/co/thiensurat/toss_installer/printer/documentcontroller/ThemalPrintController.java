@@ -566,18 +566,18 @@ public class ThemalPrintController {
         }
     }
 
-    public void printSignatureCustomer(String imageurl) {
+    public void printSignatureKViruchWithCustomer(String imageurl) {
         try {
             if(mPrinterAddress.startsWith("00:01")) {
                 final BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inScaled = true;
-                final Bitmap bitmap = getResizedBitmap(BitmapFactory.decodeFile(imageurl, options), 250, 50);
+                final Bitmap bitmap = BitmapFactory.decodeFile(imageurl, options);
                 final int width = bitmap.getWidth();
                 final int height = bitmap.getHeight();
                 final int[] argb = new int[width * height];
                 bitmap.getPixels(argb, 0, width, 0, 0, width, height);
                 bitmap.recycle();
-                mPrinter.printCompressedImage(argb, width, height, Printer.ALIGN_RIGHT, true);
+                mPrinter.printCompressedImage(argb, width, height, Printer.ALIGN_CENTER, true);
             } else {
                 byte[] sendData = null;
                 PrintPic pg = new PrintPic();
@@ -593,7 +593,7 @@ public class ThemalPrintController {
         }
     }
 
-    public void printSignatureWithCustomer(String imageurl) {
+    /*public void printSignatureWithCustomer(String imageurl) {
         try {
             if(mPrinterAddress.startsWith("00:01")) {
                 final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -635,7 +635,7 @@ public class ThemalPrintController {
         } catch (IOException e) {
             Log.e("customer signature", e.getMessage());
         }
-    }
+    }*/
 
     private String createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage, File photo) throws IOException {
         Bitmap result = Bitmap.createBitmap(firstImage.getWidth() + secondImage.getWidth(), firstImage.getHeight(), Bitmap.Config.ARGB_8888);

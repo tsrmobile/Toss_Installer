@@ -26,6 +26,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -94,6 +95,9 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
     private LocationRequest locationRequest;
     private Location currentLocation;
 
+    private String id = "-1";
+    private String serial;
+    private String productcode;
     private TextView textViewTitle;
     private CustomDialog customDialog;
     private ImageConfiguration imageConfiguration;
@@ -154,6 +158,8 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
+        productcode = getIntent().getStringExtra(Constance.KEY_PRODUCT_CODE);
     }
 
     @Override
@@ -223,7 +229,7 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
         LatLng latLng = new LatLng(latitude, longitude);
         mMap.addMarker(new MarkerOptions().position(latLng).title("").draggable(true));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
     }
 
     @Override
@@ -265,7 +271,7 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
         LatLng latLng = new LatLng(13.881021, 100.405851);
         mMap.addMarker(new MarkerOptions().position(latLng).title("").draggable(true));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
         /*if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(MapCheckinActivity.this,
@@ -282,14 +288,18 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
 
     @Override
     public void onLocationChanged(Location location) {
-        currentLocation = location;
-        if (mMap != null)
-            mMap.clear();
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        moveMap();
-        if (googleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        try {
+            currentLocation = location;
+            if (mMap != null)
+                mMap.clear();
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            moveMap();
+            if (googleApiClient != null) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            }
+        } catch (Exception e) {
+            Log.e("location exception", e.getMessage());
         }
     }
 
@@ -365,6 +375,11 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
             if (resultCode == RESULT_CANCELED) {
                 buildGoogleApiClient();
                 googleApiClient.connect();
+            } else if (resultCode == RESULT_OK) {
+                buildGoogleApiClient();
+                googleApiClient.connect();
+                id = data.getStringExtra("Image_ID");
+                Log.e("image id", data.getStringExtra("Image_ID"));
             }
         }
     }
@@ -429,6 +444,7 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
     public void resultCheckin() {
         Intent intent = new Intent(MapCheckinActivity.this, CheckinResultActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
         startActivityForResult(intent, Constance.REQUEST_CHECKIN_RESULT);
     }
 
@@ -486,7 +502,11 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
                 } catch (IOException e) {
                 }
 
-                getPresenter().saveImageUrl(MapCheckinActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_CHECKIN, pictureUri.getPath().toString());
+                if (id.equals("-1")) {
+                    getPresenter().saveImageUrl(MapCheckinActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_CHECKIN, pictureUri.getPath().toString(), productcode);
+                } else {
+                    getPresenter().editImageUrl(MapCheckinActivity.this, id, pictureUri.getPath().toString());
+                }
             }
         };
         mMap.snapshot(callback);

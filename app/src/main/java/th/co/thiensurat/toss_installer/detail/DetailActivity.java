@@ -30,13 +30,18 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.detail.edit.EditActivity;
+import th.co.thiensurat.toss_installer.detail.edit.addresscard.CardAddressFragment;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
+import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
+import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
@@ -51,6 +56,8 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     private TextView textViewTitle;
     private AddressItem addressItem;
     private CustomDialog customDialog;
+    private AddressItemGroup addressItemGroup;
+    private ProductItemGroup productItemGroup = new ProductItemGroup();
 
     @Override
     public DetailInterface.Presenter createPresenter() {
@@ -93,9 +100,9 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         textViewTitle.setText(jobItem.getTitle() + "" + jobItem.getFirstName() + " " + jobItem.getLastName());
         getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
 
-        if (jobItem.getStatus().equals("01")) {
+        /*if (jobItem.getStatus().equals("01")) {
             buttonCancel.setVisibility(View.GONE);
-        }
+        }*/
     }
 
     @Override
@@ -115,11 +122,13 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_CANCELED);
+            //setResult(RESULT_CANCELED);
+            startActivity(new Intent(this, MainActivity.class));
             finish();
         } else if (item.getItemId() == R.id.menu_edit) {
             Intent intent = new Intent(DetailActivity.this, EditActivity.class);
             intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
             startActivityForResult(intent, Constance.REQUEST_EDIT_DETAIL);
         }
         return super.onOptionsItemSelected(item);
@@ -158,11 +167,18 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     private void getItemFromIntent() {
         JobItem jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        setJobItem(jobItem);
+
+        AddressItemGroup addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
+        List<AddressItem> addressItemList = addressItemGroup.getData();
+
+        setJobItem(jobItem, addressItemGroup);
+
+        getPresenter().setAddressDetail(DetailActivity.this, jobItem.getOrderid(), addressItemList);
     }
 
-    private void setJobItem(JobItem item) {
+    private void setJobItem(JobItem item, AddressItemGroup addressItemGroup) {
         this.jobItem = item;
+        this.addressItemGroup = addressItemGroup;
     }
 
     private View.OnClickListener onNext() {
@@ -172,6 +188,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                 buttonNext.startAnimation(new AnimateButton().animbutton());
                 Intent intent = new Intent(getApplicationContext(), InstallationActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+                intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
                 startActivityForResult(intent, Constance.REQUEST_INSTALLATION);
             }
         };

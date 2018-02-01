@@ -9,10 +9,14 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.detail.edit.adapter.DetailTabAdapter;
+import th.co.thiensurat.toss_installer.job.item.AddressItem;
+import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 
@@ -21,6 +25,7 @@ public class EditActivity extends AppCompatActivity {
     private JobItem jobItem;
     private TextView textViewTitle;
     private DetailTabAdapter detailTabAdapter;
+    private AddressItemGroup addressItemGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +46,9 @@ public class EditActivity extends AppCompatActivity {
 
     private void getItemFromIntent() {
         JobItem jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        AddressItemGroup addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
         setJobItem(jobItem);
+        setAddressGroup(addressItemGroup);
     }
 
     public void setJobItem(JobItem jobItem) {
@@ -50,6 +57,14 @@ public class EditActivity extends AppCompatActivity {
 
     public JobItem getJobItem() {
         return jobItem;
+    }
+
+    public void setAddressGroup(AddressItemGroup addressGroup) {
+        this.addressItemGroup = addressGroup;
+    }
+
+    public AddressItemGroup getAddressItemGroup() {
+        return addressItemGroup;
     }
 
     private void setToolbar() {

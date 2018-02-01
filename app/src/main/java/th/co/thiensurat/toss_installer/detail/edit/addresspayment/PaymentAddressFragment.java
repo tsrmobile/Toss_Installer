@@ -42,6 +42,8 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
     private SpinnerCustomAdapter spinnerCustomAdapter;
     private List<AddressItem> addressItems = new ArrayList<AddressItem>();
 
+    private AddressItemGroup addressItemGroup;
+
     public PaymentAddressFragment() {
         // Required empty public constructor
     }

@@ -42,7 +42,6 @@ import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
 import th.co.thiensurat.toss_installer.detail.DetailActivity;
-import th.co.thiensurat.toss_installer.installation.step.StepViewActivity;
 import th.co.thiensurat.toss_installer.job.all.adapter.AllJobAdapter;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
 import th.co.thiensurat.toss_installer.job.item.JobItem;

@@ -147,11 +147,12 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     @Override
     public void onSuccess() {
         //getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        onNextPage();
     }
 
     @Override
     public void onInstall() {
-        getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        //getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
     }
 
     @Override

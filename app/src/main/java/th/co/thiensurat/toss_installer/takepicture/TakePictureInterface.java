@@ -17,6 +17,8 @@ public class TakePictureInterface {
     public interface View extends BaseMvpInterface.View {
         void onLoading();
         void onDismiss();
+        void onFail(String fail);
+        void onSuccess(String success);
         void setImageToAdapter(List<ImageItem> imageItems);
         void refresh();
     }
@@ -28,5 +30,7 @@ public class TakePictureInterface {
         void delImage(Context context, String id);
         boolean getItemInstalled(Context context, String orderid);
         List<ProductItem> getAllItem(Context context, String orderid);
+
+        void uploadImageToServer(String action, String orderid, String image64, String imageType, String productcode);
     }
 }

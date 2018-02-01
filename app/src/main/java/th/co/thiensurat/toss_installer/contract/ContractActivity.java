@@ -204,6 +204,11 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         buttonPrintContact.setOnClickListener( onPrint() );
         imageViewCustomerSignature.setOnClickListener( onSign() );
         buttonInstallReceipt.setOnClickListener( onPrintInstallReceipt() );
+
+        filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -225,6 +230,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     public void initialize() {
         getDataFromIntent();
         setUpContract();
+        connectBluetoothPaired();
 
         try {
             if (path.isEmpty() || installerPathSign.isEmpty())

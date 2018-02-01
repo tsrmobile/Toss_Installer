@@ -1,9 +1,19 @@
 package th.co.thiensurat.toss_installer.takepicture;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.google.gson.Gson;
+import com.hwangjr.rxbus.RxBus;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import th.co.thiensurat.toss_installer.api.ServiceManager;
+import th.co.thiensurat.toss_installer.api.request.UploadImage;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
 import th.co.thiensurat.toss_installer.job.item.ProductItem;
 import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
@@ -20,8 +30,29 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
     private DBHelper dbHelper;
     private List<ImageItem> imageItemList;
     private ProductItemGroup productItemGroup;
+
+    private ServiceManager serviceManager;
+
     public static TakePictureInterface.Presenter create() {
         return new TakePicturePresenter();
+    }
+
+    public TakePicturePresenter() {
+        serviceManager = ServiceManager.getInstance();
+    }
+
+    public void setManager( ServiceManager manager ){
+        serviceManager = manager;
+    }
+
+    @Override
+    public void onViewCreate() {
+        RxBus.get().register( this );
+    }
+
+    @Override
+    public void onViewDestroy() {
+        RxBus.get().unregister( this );
     }
 
     @Override
@@ -64,5 +95,44 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         productItemGroup = dbHelper.getProductByID(orderid);
         return productItemGroup.getProduct();
+    }
+
+    @Override
+    public void uploadImageToServer(String action, String orderid, String image64, String imageType, String productcode) {
+        List<UploadImage.uploadBody> uploadBodies = new ArrayList<>();
+        uploadBodies.add(new UploadImage.uploadBody()
+                .setAction(action)
+                .setOrderid(orderid)
+                .setImage64(image64)
+                .setImageType(imageType)
+                .setProductcode(productcode)
+        );
+        getView().onLoading();
+        serviceManager.requestUpload(uploadBodies, new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onSuccess(jsonObject.getString("message"));
+                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onFail(jsonObject.getString("message"));
+                    } else {
+                        getView().onDismiss();
+                        getView().onFail(jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("json obj", e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("upload failure", t.getLocalizedMessage());
+            }
+        });
     }
 }

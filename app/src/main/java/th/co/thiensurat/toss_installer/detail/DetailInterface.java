@@ -6,6 +6,7 @@ import java.util.List;
 
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
 import th.co.thiensurat.toss_installer.job.item.AddressItem;
+import th.co.thiensurat.toss_installer.utils.Constance;
 
 /**
  * Created by teerayut.k on 11/10/2017.
@@ -22,6 +23,7 @@ public class DetailInterface {
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<DetailInterface.View> {
+        void setAddressDetail(Context context, String orderid, List<AddressItem> addressItemList);
         void getAddressDetail(Context context, String orderid);
         void setCancelJob(Context context, String orderid, String cancelnote);
     }

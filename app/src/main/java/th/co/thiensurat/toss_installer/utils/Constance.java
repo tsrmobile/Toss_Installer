@@ -54,6 +54,7 @@ public class Constance {
     public static int REQUEST_EDIT_DETAIL = 19;
     public static int REQUEST_LOCATION = 20;
     public static int REQUEST_INSTALL_RECEIPT = 21;
+    public static int REQUEST_TIMELINE = 22;
 
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
@@ -83,6 +84,7 @@ public class Constance {
     public static final String KEY_ORDER_ID = "KEY_ORDER_ID";
     public static final String KEY_JOB_ITEM = "KEY_JOB_ITEM";
     public static final String KEY_JOB_ADDR = "KEY_JOB_ADDR";
+    public static final String KEY_JOB_PRODUCT = "KEY_JOB_PRODUCT";
     public static final String KEY_CUSTOMER_NAME = "KEY_CUSTOMER_NAME";
     public static final String KEY_FIRST_OPEN = "KEY_FIRST_OPEN";
     public static final String EXTRA_DEVICE_ADDRESS = "EXTRA_DEVICE_ADDRESS";

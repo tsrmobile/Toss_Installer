@@ -125,12 +125,12 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/PopupTheme" />
         <activity
-            android:name=".installation.step.StepViewActivity"
+            android:name=".step.TimeLineActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".detail.edit.EditActivity"
             android:screenOrientation="sensorPortrait" />
-        <activity android:name=".contract.installReceipt.InstallReceiptActivity"></activity>
+        <activity android:name=".contract.installReceipt.InstallReceiptActivity" />
     </application>
 
 </manifest>

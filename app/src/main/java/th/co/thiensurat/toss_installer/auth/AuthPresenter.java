@@ -72,9 +72,9 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
                     AuthenItemGroup authenItemGroup = ConvertAuthItem.createAuthItemGroupFromResult(result);
                     authenItems = authenItemGroup.getData();
                     MyApplication.getInstance().getPrefManager().setProfile(authenItemGroup);
-                    //getView().onDismiss();
-                    //getView().onSuccess();
-                    if (authenItems.get(0).getPositionName().equals("ช่างติดตั้งผลิตภัณฑ์")) {
+                    getView().onDismiss();
+                    getView().onSuccess();
+                    /*if (authenItems.get(0).getPositionName().equals("ช่างติดตั้งผลิตภัณฑ์")) {
                         getView().onInstall();
                     } else if (authenItems.get(0).getPositionName().equals("พนักงานเก็บเงิน")) {
                         getView().onPayment();
@@ -82,7 +82,7 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
                         //getView().onDismiss();
                         //getView().onFail("ตำแหน่งของคุณ\nไม่สามารถใช้แอพฯนี้ได้");
                         getView().onInstall();
-                    }
+                    }*/
                 } else if (result.getStatus().equals("FAIL")) {
                     getView().onDismiss();
                     getView().onFail(result.getMessage());
@@ -144,7 +144,7 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
                 }
 
                 dbHelper.setTableJob(jobItemList);
-                dbHelper.setTableAddress(jobItemList);
+                //dbHelper.setTableAddress(jobItemList);
                 dbHelper.setTableProduct(jobItemList);
                 MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_FIRST_OPEN, "opened");
                 getView().onDismiss();
@@ -163,7 +163,7 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
             }
 
             dbHelper.setTableJob(jobItemList);
-            dbHelper.setTableAddress(jobItemList);
+            //dbHelper.setTableAddress(jobItemList);
             dbHelper.setTableProduct(jobItemList);
             MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_FIRST_OPEN, "opened");
             getView().onDismiss();

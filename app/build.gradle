@@ -47,7 +47,10 @@ dependencies {
     compile 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
     compile 'org.apache.commons:commons-lang3:3.6'
     compile 'com.github.gcacace:signature-pad:1.2.1'
+    compile 'com.github.vipulasri:timelineview:1.0.6'
     compile 'com.github.badoualy:datepicker-timeline:c6dcd05737'
+    compile 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
+    compile 'com.github.liefery:android-vertical-stepper-view:0.0.10'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
     implementation project(':sweetAlert')
     implementation 'com.google.android.gms:play-services-maps:11.6.0'

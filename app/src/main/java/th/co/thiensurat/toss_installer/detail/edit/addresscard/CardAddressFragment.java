@@ -31,6 +31,7 @@ import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
+import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 
 /**
@@ -44,6 +45,8 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
     private String provinceid, districtid, subdistrictid;
     private SpinnerCustomAdapter spinnerCustomAdapter;
     private List<AddressItem> addressItems = new ArrayList<AddressItem>();
+
+    private AddressItemGroup addressItemGroup;
 
     public CardAddressFragment() {
         // Required empty public constructor
@@ -91,6 +94,9 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
     @Override
     public void initialize() {
         jobItem = ((EditActivity)getActivity()).getJobItem();
+        //addressItemGroup = ((EditActivity)getActivity()).getAddressItemGroup();
+        //List<AddressItem> addressItems = addressItemGroup.getData();
+        //setAddressDetail(addressItems);
         getPresenter().getAddressDetail(getActivity(), jobItem.getOrderid());
     }
 

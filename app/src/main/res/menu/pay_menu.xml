@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/payment"
+        android:checkableBehavior="single">
+        <item android:title="ชำระเงิน">
+            <menu>
+                <item android:id="@+id/menu_payment"
+                    android:icon="@drawable/ic_monetization_on_white_36dp"
+                    android:title="รับชำระเงิน" />
+            </menu>
+        </item>
+    </group>
     <group android:id="@+id/system"
         android:checkableBehavior="single">
         <item android:title="ระบบ">

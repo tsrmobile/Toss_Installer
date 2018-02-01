@@ -6,10 +6,11 @@
             <menu>
                 <item android:id="@+id/menu_job_all"
                     android:icon="@drawable/ic_assignment_white_36dp"
-                    android:title="งานทั้งหมด"/>
+                    android:title="งานทั้งหมด"
+                    android:visible="false"/>
                 <item android:id="@+id/menu_assignment"
                     android:icon="@drawable/ic_assignment_white_36dp"
-                    android:title="งานติดตั้งประจำวัน"/>
+                    android:title="งานติดตั้ง"/>
             </menu>
         </item>
     </group>
@@ -23,6 +24,16 @@
                 <item android:id="@+id/menu_item_balance"
                     android:icon="@drawable/ic_inbox_white_36dp"
                     android:title="รายการสินค้าคงเหลือ" />
+            </menu>
+        </item>
+    </group>
+    <group android:id="@+id/payment"
+        android:checkableBehavior="single">
+        <item android:title="ชำระเงิน">
+            <menu>
+                <item android:id="@+id/menu_payment"
+                    android:icon="@drawable/ic_monetization_on_white_36dp"
+                    android:title="รับชำระเงิน" />
             </menu>
         </item>
     </group>

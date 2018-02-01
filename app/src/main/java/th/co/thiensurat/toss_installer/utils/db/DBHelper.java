@@ -233,7 +233,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void setTableJob(List<JobItem> jobItemList) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
         String currentDate = sdf.format(new Date());
         sqlite = this.getWritableDatabase();
         for (int i = 0; i < jobItemList.size(); i++) {
@@ -265,11 +265,12 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(JOB_CONTNO, jobItemList.get(i).getContno());
             values.put(JOB_CREATED, currentDate);
             sqlite.insert(Constance.TABLE_JOB, null, values);
-        }
+        }*/
     }
 
     public JobItemGroup getJobList(String date) {
-        sqlite = this.getReadableDatabase();
+        JobItemGroup jobItemGroup = new JobItemGroup();
+        /*sqlite = this.getReadableDatabase();
         date = date + "%";
         Cursor cursor = sqlite.query
                 (Constance.TABLE_JOB, null, INSTALLSTARTDATE + " LIKE ? AND " + STATUS + " = 21",
@@ -279,7 +280,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             cursor.moveToFirst();
         }
-        JobItemGroup jobItemGroup = new JobItemGroup();
+
         jobItemGroup.setStatus("SUCCESS");
         jobItemGroup.setMessage("SUCCESS");
         List<JobItem> jobItemList = new ArrayList<JobItem>();
@@ -317,19 +318,20 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
 
-        jobItemGroup.setData(jobItemList);
+        jobItemGroup.setData(jobItemList);*/
         return jobItemGroup;
     }
 
     public JobItemGroup getAllJob() {
-        sqlite = this.getReadableDatabase();
+        JobItemGroup jobItemGroup = new JobItemGroup();
+        /*sqlite = this.getReadableDatabase();
         Cursor cursor = sqlite.query
                 (Constance.TABLE_JOB, null, null, null, null, null, INSTALLSTARTDATE + " DESC");
 
         if (cursor != null) {
             cursor.moveToFirst();
         }
-        JobItemGroup jobItemGroup = new JobItemGroup();
+
         jobItemGroup.setStatus("SUCCESS");
         jobItemGroup.setMessage("SUCCESS");
         List<JobItem> jobItemList = new ArrayList<JobItem>();
@@ -367,12 +369,13 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
 
-        jobItemGroup.setData(jobItemList);
+        jobItemGroup.setData(jobItemList);*/
         return jobItemGroup;
     }
 
     public JobItemGroup getAllJobByDate(String date) {
-        sqlite = this.getReadableDatabase();
+        JobItemGroup jobItemGroup = new JobItemGroup();
+        /*sqlite = this.getReadableDatabase();
         date = date + "%";
         Cursor cursor = sqlite.query
                 (Constance.TABLE_JOB, null, INSTALLSTARTDATE + " LIKE ?",
@@ -381,7 +384,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor != null) {
             cursor.moveToFirst();
         }
-        JobItemGroup jobItemGroup = new JobItemGroup();
+
         jobItemGroup.setStatus("SUCCESS");
         jobItemGroup.setMessage("SUCCESS");
         List<JobItem> jobItemList = new ArrayList<JobItem>();
@@ -419,7 +422,7 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
 
-        jobItemGroup.setData(jobItemList);
+        jobItemGroup.setData(jobItemList);*/
         return jobItemGroup;
     }
 
@@ -524,7 +527,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void setTableProduct(List<JobItem> jobItemList) {
-        sqlite = this.getWritableDatabase();
+        /*sqlite = this.getWritableDatabase();
         for (int i = 0; i < jobItemList.size(); i++) {
             for (ProductItem productItem : jobItemList.get(i).getProduct()) {
                 if (!productItem.getProductItemQty().equals("0")) {
@@ -589,7 +592,92 @@ public class DBHelper extends SQLiteOpenHelper {
                 }
             }
         }
+        sqlite.close();*/
+    }
+
+    public void setTableProductByOrderid(String orderid, List<ProductItem> productItemList) {
+        sqlite = this.getWritableDatabase();
+        if (!checkProductItem(orderid)) {
+            for (int i = 0; i < productItemList.size(); i++) {
+                ProductItem productItem = productItemList.get(i);
+                if (!productItem.getProductItemQty().equals("0")) {
+                    int itemQty = Integer.parseInt(productItem.getProductItemQty());
+                    for (int j = 0; j < itemQty; j++) {
+                        ContentValues values = new ContentValues();
+                        values.put(PRODUCT_ORDER_ID, orderid);
+                        values.put(PRODUCT_CODE, productItem.getProductCode());
+                        values.put(PRODUCT_NAME, productItem.getProductName());
+                        values.put(PRODUCT_MODEL, productItem.getProductModel());
+                        values.put(PRODUCT_QTY, productItem.getProductQty());
+                        values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
+                        values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
+                        values.put(PRODUCT_ITEM_QTY, String.valueOf(1));
+                        values.put(PRODUCT_PRICE, productItem.getProductPrice());
+                        values.put(PRODUCT_DISCOUNT, productItem.getProductDiscount());
+                        values.put(PRODUCT_DISCOUNT_PERCENT, productItem.getProductDiscountPercent());
+                        values.put(PRODUCT_PAYTYPE, productItem.getProductPayType());
+                        values.put(PRODUCT_SERIAL, "");
+                        values.put(PRODUCT_STATUS, Constance.PRODUCT_STATUS_WAIT);
+                        values.put(PRODUCT_CONTACT, "");
+                        sqlite.insert(Constance.TABLE_PRODUCT, null, values);
+                    }
+                } else if (Integer.parseInt(productItem.getProductQty()) > 1) {
+                    for (int k = 0; k < Integer.parseInt(productItem.getProductQty()); k++) {
+                        ContentValues values = new ContentValues();
+                        values.put(PRODUCT_ORDER_ID, orderid);
+                        values.put(PRODUCT_CODE, productItem.getProductCode());
+                        values.put(PRODUCT_NAME, productItem.getProductName());
+                        values.put(PRODUCT_MODEL, productItem.getProductModel());
+                        values.put(PRODUCT_QTY, String.valueOf(1));
+                        values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
+                        values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
+                        values.put(PRODUCT_ITEM_QTY, productItem.getProductItemQty());
+                        values.put(PRODUCT_PRICE, productItem.getProductPrice());
+                        values.put(PRODUCT_DISCOUNT, productItem.getProductDiscount());
+                        values.put(PRODUCT_DISCOUNT_PERCENT, productItem.getProductDiscountPercent());
+                        values.put(PRODUCT_PAYTYPE, productItem.getProductPayType());
+                        values.put(PRODUCT_SERIAL, "");
+                        values.put(PRODUCT_STATUS, Constance.PRODUCT_STATUS_WAIT);
+                        values.put(PRODUCT_CONTACT, "");
+                        sqlite.insert(Constance.TABLE_PRODUCT, null, values);
+                    }
+                } else {
+                    ContentValues values = new ContentValues();
+                    values.put(PRODUCT_ORDER_ID, orderid);
+                    values.put(PRODUCT_CODE, productItem.getProductCode());
+                    values.put(PRODUCT_NAME, productItem.getProductName());
+                    values.put(PRODUCT_MODEL, productItem.getProductModel());
+                    values.put(PRODUCT_QTY, productItem.getProductQty());
+                    values.put(PRODUCT_ITEM_CODE, productItem.getProductItemCode());
+                    values.put(PRODUCT_ITEM_NAME, productItem.getProductItemName());
+                    values.put(PRODUCT_ITEM_QTY, productItem.getProductItemQty());
+                    values.put(PRODUCT_PRICE, productItem.getProductPrice());
+                    values.put(PRODUCT_DISCOUNT, productItem.getProductDiscount());
+                    values.put(PRODUCT_DISCOUNT_PERCENT, productItem.getProductDiscountPercent());
+                    values.put(PRODUCT_PAYTYPE, productItem.getProductPayType());
+                    values.put(PRODUCT_SERIAL, "");
+                    values.put(PRODUCT_STATUS, Constance.PRODUCT_STATUS_WAIT);
+                    values.put(PRODUCT_CONTACT, "");
+                    sqlite.insert(Constance.TABLE_PRODUCT, null, values);
+                }
+            }
+        }
         sqlite.close();
+    }
+
+    public boolean checkProductItem(String orderid) {
+        boolean collect = false;
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query
+                (Constance.TABLE_PRODUCT, null,PRODUCT_ORDER_ID + " = ? ",
+                        new String[] {orderid},
+                        null, null, null);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                collect = true;
+            }
+        }
+        return collect;
     }
 
     public ProductItemGroup getProductByID(String orderid) {
@@ -645,7 +733,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return installed;
     }
 
-    public boolean getProductPackage(String orderid, String productcode) {
+    /*public boolean getProductPackage(String orderid, String productcode) {
         boolean installed = false;
         Cursor cursor = sqlite.query
                 (Constance.TABLE_PRODUCT, null, PRODUCT_ORDER_ID + " = ? AND " + PRODUCT_CODE + " = ? AND " + PRODUCT_STATUS + " = ?",
@@ -658,7 +746,7 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return installed;
-    }
+    }*/
 
     public void updateSerialToTableProduct(String id, String serial) {
         sqlite = this.getWritableDatabase();
@@ -672,7 +760,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sqlite.close();
     }
 
-    public void setTableAddress(List<JobItem> jobItemList) {
+    /*public void setTableAddress(List<JobItem> jobItemList) {
         sqlite = this.getWritableDatabase();
         for (int i = 0; i < jobItemList.size(); i++) {
             for (AddressItem addressItem : jobItemList.get(i).getAddress()) {
@@ -690,6 +778,26 @@ public class DBHelper extends SQLiteOpenHelper {
                 values.put(EMAIL, addressItem.getEmail());
                 sqlite.insert(Constance.TABLE_ADDRESS, null, values);
             }
+        }
+        sqlite.close();
+    }*/
+
+    public void setTableAddressDetial(String orderid, List<AddressItem> addressItemList) {
+        sqlite = this.getWritableDatabase();
+        for (AddressItem addressItem : addressItemList) {
+            ContentValues values = new ContentValues();
+            values.put(ORDERID, orderid);
+            values.put(ADDRESTYPECODE, addressItem.getAddressType());
+            values.put(ADDRESSDETAIL, addressItem.getAddrDetail());
+            values.put(PROVINCENAME, addressItem.getProvince());
+            values.put(DISTRICTNAME, addressItem.getDistrict());
+            values.put(SUBDISTRICT, addressItem.getSubdistrict());
+            values.put(ZIPCODE, addressItem.getZipcode());
+            values.put(PHONE, addressItem.getPhone());
+            values.put(MOBILE, addressItem.getMobile());
+            values.put(WORK, addressItem.getOffice());
+            values.put(EMAIL, addressItem.getEmail());
+            sqlite.insert(Constance.TABLE_ADDRESS, null, values);
         }
         sqlite.close();
     }
@@ -811,7 +919,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = sqlite.query
                 (Constance.TABLE_IMAGE, null, IMG_ORDER_ID + " = ? AND " + IMG_TYPE + " = ?",
                         new String[] { orderid, type },
-                        null, null, null);
+                        null, null, "id DESC");
 
         if (cursor != null) {
             cursor.moveToFirst();
@@ -853,7 +961,7 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         return imageItemList;
-    }*/
+    }
 
     public List<ImageItem> getImageWithserial(String orderid, String serial, String type) {
         sqlite = this.getReadableDatabase();
@@ -886,7 +994,7 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         return imageItemList;
-    }
+    }*/
 
     public void setTableItem(List<InstallItem> installItemList) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -948,9 +1056,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (!cursor.isAfterLast()) {
             collect = true;
+            Log.e("serial", cursor.getString(cursor.getColumnIndex(STOCK_ITEM_SERIAL)));
+        } /*else {
+            Log.e("serial(else)", cursor.getString(cursor.getColumnIndex(STOCK_ITEM_SERIAL)));
         }
 
-        cursor.close();
+        cursor.close();*/
         sqlite.close();
         return collect;
     }

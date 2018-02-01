@@ -156,7 +156,7 @@ public class JobPresenter extends BaseMvpPresenter<JobInterface.View> implements
             Log.e("insertNewData", ex.getMessage());
         }*/
         dbHelper.setTableJob(jobItemList);
-        dbHelper.setTableAddress(jobItemList);
+        //dbHelper.setTableAddress(jobItemList);
         dbHelper.setTableProduct(jobItemList);
 
         getView().onSuccess("");

@@ -43,6 +43,8 @@ public class InstallAddressFragment extends BaseMvpFragment<InstallAddressInterf
     private SpinnerCustomAdapter spinnerCustomAdapter;
     private List<AddressItem> addressItems = new ArrayList<AddressItem>();
 
+    private AddressItemGroup addressItemGroup;
+
     public InstallAddressFragment() {
         // Required empty public constructor
     }

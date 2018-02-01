@@ -34,6 +34,7 @@ import th.co.thiensurat.toss_installer.itembalance.ItemBalanceFragment;
 import th.co.thiensurat.toss_installer.itemlist.ItemlistFragment;
 import th.co.thiensurat.toss_installer.job.JobFragment;
 import th.co.thiensurat.toss_installer.job.all.AllJobFragment;
+import th.co.thiensurat.toss_installer.jobinstallation.JobInstallFragment;
 import th.co.thiensurat.toss_installer.setting.SettingFragment;
 import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
 import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
@@ -103,18 +104,21 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
             empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
             signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
             if (!signPath.exists()) {
-                customDialog.dialogWarning("ยังไม่มีลายเซ็นต์พนักงาน\nกรุณาเพิ่มลายเซ็นต์");
+                //customDialog.dialogWarning("ยังไม่มีลายเซ็นต์พนักงาน\nกรุณาเพิ่มลายเซ็นต์");
             }
         } catch (Exception e) {
-            customDialog.dialogWarning("ยังไม่มีลายเซ็นต์พนักงาน\nกรุณาเพิ่มลายเซ็นต์");
+            //customDialog.dialogWarning("ยังไม่มีลายเซ็นต์พนักงาน\nกรุณาเพิ่มลายเซ็นต์");
         }
 
     }
 
     private void loadHomePage() {
+        /*FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.container, JobFragment.getInstance()).addToBackStack(null).commit();*/
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.container, JobFragment.getInstance()).addToBackStack(null).commit();
+        transaction.replace(R.id.container, JobInstallFragment.getInstance()).addToBackStack(null).commit();
     }
 
     private void setToolbar() {
@@ -212,17 +216,17 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
         switch (menuItem.getItemId()){
             case R.id.menu_job_all :
-                if (currentFragment instanceof AllJobFragment) {
+                /*if (currentFragment instanceof AllJobFragment) {
                     drawerLayout.closeDrawers();
                 } else {
                     transaction.replace(R.id.container, AllJobFragment.getInstance(), "AllJobFragment").addToBackStack(null).commit();
-                }
+                }*/
                 break;
             case R.id.menu_assignment :
                 if (currentFragment instanceof JobFragment) {
                     drawerLayout.closeDrawers();
                 } else {
-                    transaction.replace(R.id.container, JobFragment.getInstance(), "JobFragment").addToBackStack(null).commit();
+                    transaction.replace(R.id.container, JobInstallFragment.getInstance(), "JobInstallFragment").addToBackStack(null).commit();
                 }
                 break;
             case R.id.menu_archive :
@@ -238,6 +242,9 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
                 } else {
                     transaction.replace(R.id.container, ItemBalanceFragment.getInstance(), "ItemBalanceFragment").addToBackStack(null).commit();
                 }
+                break;
+            case R.id.menu_payment:
+
                 break;
             case R.id.menu_setting :
                 if (currentFragment instanceof SettingFragment) {
@@ -260,6 +267,9 @@ public class MainActivity extends BaseMvpActivity<MainInterface.Presenter> imple
         FragmentTransaction transaction = manager.beginTransaction();
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
         switch (menuItem.getItemId()){
+            case R.id.menu_payment:
+
+                break;
             case R.id.menu_setting :
                 if (currentFragment instanceof SettingFragment) {
                     drawerLayout.closeDrawers();

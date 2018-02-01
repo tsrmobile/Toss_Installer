@@ -33,6 +33,7 @@ import th.co.thiensurat.toss_installer.installation.camera.CaptureActivityPortra
 import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
 import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.takepicture.TakePictureActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
@@ -45,11 +46,13 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     private String id;
     private String serial = "000";
     private JobItem jobItem;
-    private String productcode;
+
     private TextView textViewTitle;
     private CustomDialog customDialog;
     private InstallationAdapter adapter;
     private LinearLayoutManager layoutManager;
+
+    private String productcode;
     private List<ProductItem> productItemList;
 
     @Override
@@ -102,6 +105,27 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         return true;
     }
 
+    @Override
+    public void onLoad() {
+        customDialog.dialogLoading();
+    }
+
+    @Override
+    public void onDismiss() {
+        customDialog.dialogDimiss();
+    }
+
+    @Override
+    public void onFail(String fail) {
+        customDialog.dialogFail(fail);
+    }
+
+    @Override
+    public void onSuccess(String success) {
+        Log.e("update serial", jobItem.getOrderid() + ", " + productcode + ", " + success);
+        getPresenter().updateProduct(InstallationActivity.this, id, success);
+    }
+
     private void setRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
@@ -115,7 +139,6 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         adapter.notifyDataSetChanged();
         adapter.setClickListener(this);
         adapter.setLongClickListener(this);
-
 
         for (ProductItem item : productItemList) {
             if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
@@ -134,6 +157,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
             getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
         } else {
             customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
+            return;
         }
     }
 
@@ -154,30 +178,22 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
+            serial = result.getContents();
             if(result.getContents() == null) {
                 relativeLayoutNext.setVisibility(View.GONE);
             } else {
-                Log.e("Product serial", result.getContents());
-                if (getPresenter().checkSerial(InstallationActivity.this, result.getContents(), productcode)) {
-                    getPresenter().updateProduct(InstallationActivity.this, id, result.getContents());
+                //Log.e("Product serial", result.getContents());
+                if (getPresenter().checkSerial(InstallationActivity.this, serial, productcode)) {
+                    getPresenter().updateSerialToServer(jobItem.getOrderid(), productcode, serial);
                     for (ProductItem item : productItemList) {
                         if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
-                            /*relativeLayoutNext.setVisibility(View.VISIBLE);
+                            relativeLayoutNext.setVisibility(View.VISIBLE);
                         } else {
                             relativeLayoutNext.setVisibility(View.GONE);
-                            return;
-                            if (jobItem.getOrderid().startsWith("G")) {
-                                Log.e("Order id", "G");
-                            }*/
-                            /*if (getPresenter().checkPackageInstall(InstallationActivity.this, jobItem.getOrderid(), productcode)) {
-
-                            }*/
-                            //onNextStep();
-                            getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
+                            onNextStep();
                         }
                     }
                 } else {
-                    serial = "000";
                     customDialog.dialogFail("serial สินค้าไม่ถูกต้อง!");
                 }
             }
@@ -189,7 +205,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_CANCELED);
+            //setResult(RESULT_CANCELED);
             finish();
         } else if (item.getItemId() == R.id.menu_print) {
 
@@ -204,7 +220,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
                 buttonNext.startAnimation(new AnimateButton().animbutton());
                 Intent intent = new Intent(getApplicationContext(), TakePictureActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-                intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
+                intent.putExtra(Constance.KEY_JOB_PRODUCT, productcode);
                 startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
             }
         };
@@ -213,8 +229,6 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     public void onNextStep() {
         Intent intent = new Intent(getApplicationContext(), TakePictureActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
-        intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
         startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
     }
 
@@ -223,7 +237,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         ProductItem item = productItemList.get(position);
         id = item.getProductID();
         productcode = item.getProductCode();
-        serial = item.getProductSerial();
+        /*IntentIntegrator integrator = new IntentIntegrator(InstallationActivity.this);
+        integrator.setOrientationLocked(true);
+        integrator.setCaptureActivity(CaptureActivityPortrait.class);
+        integrator.initiateScan();*/
+
+        //serial = item.getProductSerial();
 
         if (item.getProductStatus().equals("พร้อมติดตั้ง")) {
             onNextStep();

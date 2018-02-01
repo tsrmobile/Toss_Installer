@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,7 +25,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +63,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private CustomDialog customDialog;
     private ImageConfiguration imageConfiguration;
 
+    private String action;
     private String id = "-1";
     private String serial;
     private JobItem jobItem;
@@ -66,6 +71,8 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private TakePictureAdapter adapter;
     private List<ImageItem> imageItemList;
     private LinearLayoutManager layoutManager;
+
+    private File image;
 
     @Override
     public TakePictureInterface.Presenter createPresenter() {
@@ -107,6 +114,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             @Override
             public void onClick(View view) {
                 floatingActionButton.startAnimation(new AnimateButton().animbutton());
+                action = "upload";
                 id = "-1";
                 try {
                     imageChooser();
@@ -124,7 +132,6 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
         productcode = getIntent().getStringExtra(Constance.KEY_PRODUCT_CODE);
 
         getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), "", Constance.IMAGE_TYPE_INSTALL);
@@ -172,6 +179,17 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     }
 
     @Override
+    public void onFail(String fail) {
+        customDialog.dialogFail(fail);
+    }
+
+    @Override
+    public void onSuccess(String success) {
+        Log.e("success msg", success);
+        refresh();
+    }
+
+    @Override
     public void refresh() {
         getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
     }
@@ -195,7 +213,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_CANCELED);
+            //setResult(RESULT_CANCELED);
             finish();
         } else if (item.getItemId() == R.id.menu_gallery) {
             Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -209,6 +227,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             @Override
             public void onClick(View view) {
                 buttonNext.startAnimation(new AnimateButton().animbutton());
+                uploadImage();
                 if (getPresenter().getAllItem(TakePictureActivity.this, jobItem.getOrderid()).size() > 1) {
                     if (getPresenter().getItemInstalled(TakePictureActivity.this, jobItem.getOrderid())) {
                         onNextInstall();
@@ -247,6 +266,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void itemClicked(View view, int position) {
+        action = "edit";
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -258,6 +278,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void delClicked(View view, int position) {
+        action = "delete";
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
         getPresenter().delImage(TakePictureActivity.this, id);
@@ -265,6 +286,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     }
 
     private void setImage(File file) {
+        image = new File(file.getAbsolutePath());
         String url = file.getPath().toString();
         if (id.equals("-1")) {
             getPresenter().saveImageUrl(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL, url, productcode);
@@ -276,7 +298,6 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private void onNextStep() {
         Intent intent = new Intent(TakePictureActivity.this, TakeIDCardActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
         intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
         startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
     }
@@ -285,5 +306,26 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
         Intent intent = new Intent(getApplicationContext(), InstallationActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         startActivity(intent);
+    }
+
+    private void uploadImage() {
+        String img64 = encodeImage(image);
+        String orderid = jobItem.getOrderid();
+        getPresenter().uploadImageToServer(action, orderid, img64, "install", productcode);
+    }
+
+    private String encodeImage(File imagefile) {
+        FileInputStream fis = null;
+        try{
+            fis = new FileInputStream(imagefile);
+        }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        Bitmap bm = BitmapFactory.decodeStream(fis);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+        byte[] b = baos.toByteArray();
+        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+        return encImage;
     }
 }

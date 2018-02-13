@@ -4,21 +4,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.PictureDrawable;
-import android.net.Uri;
-import android.os.Bundle;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,72 +23,52 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.GenericRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.StreamEncoder;
-import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
-import com.caverock.androidsvg.SVG;
 import com.datecs.api.emsr.EMSR;
 import com.datecs.api.printer.Printer;
 import com.datecs.api.printer.ProtocolAdapter;
-import com.zj.btsdk.BluetoothService;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.http.Body;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.api.result.ContactResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobFinishItem;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
-import th.co.thiensurat.toss_installer.contract.installReceipt.InstallReceiptActivity;
-import th.co.thiensurat.toss_installer.contract.item.JobSuccessItem;
+import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.DocumentController;
+import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.PrintTextInfo;
+import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.ThemalPrintController;
+import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServer;
+import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServerListener;
 import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.mapcheckin.MapCheckinActivity;
-import th.co.thiensurat.toss_installer.printer.documentcontroller.DocumentController;
-import th.co.thiensurat.toss_installer.printer.documentcontroller.PrintTextInfo;
-import th.co.thiensurat.toss_installer.printer.bluetoothDevice.BluetoothDeviceActivity;
-import th.co.thiensurat.toss_installer.printer.bluetoothDevice.PrinterServer;
-import th.co.thiensurat.toss_installer.printer.bluetoothDevice.PrinterServerListener;
-import th.co.thiensurat.toss_installer.printer.documentcontroller.ThemalPrintController;
-import th.co.thiensurat.toss_installer.takepicturhome.TakeHomeActivity;
+import th.co.thiensurat.toss_installer.contract.utils.ReceiptConfiguration;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.Utils;
-import th.co.thiensurat.toss_installer.utils.svg.SvgDecoder;
-import th.co.thiensurat.toss_installer.utils.svg.SvgDrawableTranscoder;
-import th.co.thiensurat.toss_installer.utils.svg.SvgSoftwareLayerSetter;
-
-import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_CONNECT_DEVICE;
 
 public class ContractActivity extends BaseMvpActivity<ContractInterface.Presenter>
         implements ContractInterface.View {
 
     private JobItem jobItem;
-    private JobFinishItem jobFinishItem;
     private List<ProductItem> productItemList = new ArrayList<ProductItem>();
     private List<AddressItem> addressItemList = new ArrayList<AddressItem>();
 
@@ -101,7 +77,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     private String serial;
     private String number;
     private String printType;
-    private String printerAddr;
+    private String printAddress;
     private String pathCustomer;
     private StringBuilder sbAdd;
     private StringBuilder sbInAdd;
@@ -109,31 +85,27 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     private CustomDialog customDialog;
     private ImageConfiguration imageConfiguration;
     private DocumentController documentController;
+    private ThemalPrintController themalPrintController;
 
-    private String installerPathSign;
+    private Printer mPrinter;
+    private BluetoothSocket mBtSocket;
+    private PrinterServer mPrinterServer;
+    private ProtocolAdapter mProtocolAdapter;
+    private ProtocolAdapter.Channel mPrinterChannel;
 
-    private BluetoothAdapter bluetoothAdapter;
-    private static BluetoothSocket bluetoothSocket;
-
-    private static String printAddress;
-    private PrinterServer printerServer;
+    private UUID uuid;
+    private IntentFilter filter;
+    private BluetoothDevice bluetoothDevice;
+    private Set<BluetoothDevice> pairedDevices;
     private static InputStream inputStream = null;
     private static OutputStream outputStream = null;
-    private BluetoothService bluetoothService = null;
-    private ThemalPrintController themalPrintController;
 
     private String empid;
     private File signPath;
-
-    private UUID uuid;
-    private Socket mSocket;
-    private Printer mPrinter;
-    private IntentFilter filter;
-    private Thread connectThread;
-    private BluetoothDevice bluetoothDevice;
-    private ProtocolAdapter mProtocolAdapter;
-    private Set<BluetoothDevice> pairedDevices;
-    private ProtocolAdapter.Channel mPrinterChannel;
+    private File customerPath;
+    private StringBuilder sb1;
+    private StringBuilder sb2;
+    private StringBuilder sb3;
     private DecimalFormat df = new DecimalFormat("#,###.00");
 
     public static ContractActivity getInstance() {
@@ -186,6 +158,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @BindView(R.id.title_net_price) TextView textViewTitleNetPrice;
     @BindView(R.id.title_per_month) TextView textViewTitlePerMonth;
     @BindView(R.id.hint_signature) TextView textViewHintSignature;
+    @BindView(R.id.textview_1) TextView textView1;
+    @BindView(R.id.textview_2) TextView textView2;
     @BindView(R.id.customer_name) TextView textViewCustomerName;
     @BindView(R.id.customer_signature) ImageView imageViewCustomerSignature;
     @BindView(R.id.signature_1) ImageView imageViewSignature1;
@@ -199,16 +173,11 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @Override
     public void bindView() {
         ButterKnife.bind(this);
-        textViewPrintStatus.setVisibility(View.GONE);
+        buttonPrintContact.setVisibility(View.GONE);
         buttonFinish.setOnClickListener( onFinish() );
         buttonPrintContact.setOnClickListener( onPrint() );
         imageViewCustomerSignature.setOnClickListener( onSign() );
         buttonInstallReceipt.setOnClickListener( onPrintInstallReceipt() );
-
-        filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -216,9 +185,6 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         customDialog = new CustomDialog(ContractActivity.this);
         imageConfiguration = new ImageConfiguration(ContractActivity.this);
         documentController = new DocumentController(ContractActivity.this);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        themalPrintController = new ThemalPrintController(ContractActivity.this);
-        bluetoothService = new BluetoothService(ContractActivity.this, handler);
     }
 
     @Override
@@ -230,25 +196,12 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     public void initialize() {
         getDataFromIntent();
         setUpContract();
+
         connectBluetoothPaired();
-
-        try {
-            if (path.isEmpty() || installerPathSign.isEmpty())
-                buttonPrintContact.setVisibility(View.GONE);
-        } catch (Exception e) {
-            buttonPrintContact.setVisibility(View.GONE);
-        }
-
-        try {
-            empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
-            signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
-            Glide.with(this).load(signPath).into(imageViewSignature1);
-            String titlename = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_TITLE);
-            String firstname = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRSTNAME);
-            String lastname = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_LASTNAME);
-            textViewSignature1.setText(titlename + firstname + " " + lastname);
-        } catch (Exception e) {
-        }
+        filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(receiver, filter);
     }
 
     private void setToolbar() {
@@ -262,7 +215,6 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
         try {
             File signFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + jobItem.getOrderid(), "signature_" + jobItem.getOrderid() + ".jpg");
             if (signFile.exists()) {
@@ -273,47 +225,15 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         } catch (Exception e) {
             Log.e("sign path", e.getMessage());
         }
+
+        getPresenter().getContactNumber(jobItem.getOrderid());
     }
 
-    /*private void checkInstallerSign() {
-        try {
-            String installerID = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
-            File signFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/installer", "signature_" + installerID + ".jpg");
-            if (signFile.exists()) {
-                installerPathSign = signFile.getAbsolutePath();
-            }
-        } catch (Exception e) {
-            Log.e("installer sign path", e.getMessage());
-        }
-    }*/
-
     private void setUpContract() {
-        try {
-            number = getPresenter().getContno(ContractActivity.this, jobItem.getOrderid());
-            textViewNumber.setText(number);
-            //jobFinishItem = getPresenter().getFinishData(ContractActivity.this, jobItem.getOrderid(), number);
-            List<JobSuccessItem> successItemList = getPresenter().getDataSuccess(ContractActivity.this, jobItem.getOrderid());
-            Log.e("data size", successItemList.size() + "");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date myDate = null;
-            try {
-                myDate = dateFormat.parse(jobFinishItem.getInstallend());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
-            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyy");
-            textViewDate.setText(timeFormat.format(myDate));
-        } catch (Exception e) {
-            Log.e("getContno", e.getMessage());
-            getPresenter().getContactNumber();
-        }
-
         textViewOrder.setText(jobItem.getOrderid());
         name = jobItem.getTitle().trim() + "" + jobItem.getFirstName().trim() + " " + jobItem.getLastName().trim();
         textViewName.setText(name);
         textViewID.setText(jobItem.getIDCard());
-
         textViewSignature2.setText(jobItem.getPresale());
 
         getPresenter().getAddressFromSQLite(ContractActivity.this, jobItem.getOrderid());
@@ -377,12 +297,16 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     }
 
     @Override
-    public void setContactNumber(String number) {
-        this.number = number;
-        textViewNumber.setText(number);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String currentDate = sdf.format(new Date());
-        textViewDate.setText(Utils.ConvertDateFormat(currentDate));
+    public void setContactNumber(String num) {
+        String[] str = num.split("\\|");
+        try {
+            this.number = str[0];
+            textViewNumber.setText(number);
+            textViewDate.setText(Utils.ConvertDateFormat(str[1]));
+        } catch (Exception ex) {
+            Log.e("get contact", ex.getMessage());
+        }
+        getPresenter().updateContactNumber(ContractActivity.this, jobItem.getOrderid(), number);
     }
 
     @Override
@@ -390,9 +314,9 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         this.productItemList = productItemList;
         String temp = "";
         String temp2 = "";
-        StringBuilder sb1 = new StringBuilder();
-        StringBuilder sb2 = new StringBuilder();
-        StringBuilder sb3 = new StringBuilder();
+        sb1 = new StringBuilder();
+        sb2 = new StringBuilder();
+        sb3 = new StringBuilder();
 
         for (ProductItem item : productItemList) {
             if (temp.isEmpty()) {
@@ -419,9 +343,14 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             }
 
             if (item.getProductPayType().equals("1")) {
+                textView1.setText("ผู้ขาย");
+                textView2.setText("ผู้ซื้อ");
                 linearLayoutSignBottom.setVisibility(View.GONE);
                 linearLayoutPeriods.setVisibility(View.GONE);
                 linearLayoutPermonth.setVisibility(View.GONE);
+            } else {
+                textView1.setText("ผู้ให้เช่าซื้อ");
+                textView2.setText("ผู้เช่าซื้อ");
             }
         }
 
@@ -445,278 +374,14 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         textViewNetPrice.setText(df.format(grandTotalPrice) + " บาท");
     }
 
-    private View.OnClickListener onPrint() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonPrintContact.startAnimation(new AnimateButton().animbutton());
-                printType = "contact";
-                try {
-                    printText(inputStream, outputStream);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-    }
-
-    private View.OnClickListener onPrintInstallReceipt() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonInstallReceipt.startAnimation(new AnimateButton().animbutton());
-                printType = "installreceipt";
-                try {
-                    printText(inputStream, outputStream);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-    }
-
-    private View.OnClickListener onSign() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ContractActivity.this, SignatureActivity.class);
-                intent.putExtra("KEY", "contact");
-                intent.putExtra(Constance.KEY_ORDER_ID, jobItem.getOrderid());
-                startActivityForResult(intent, Constance.REQUEST_SIGNATURE);
-            }
-        };
-    }
-
-    private View.OnClickListener onFinish() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonFinish.startAnimation(new AnimateButton().animbutton());
-                getPresenter().updatejobFinish(ContractActivity.this, jobItem.getOrderid(), number);
-            }
-        };
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_CANCELED);
             finish();
         } else if (item.getItemId() == R.id.menu_bt) {
             connectBluetoothPaired();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            if (requestCode == Constance.REQUEST_BLUETOOTH_SETTINGS) {
-                filter = new IntentFilter();
-                filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-                filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-                registerReceiver(receiver, filter);
-            }
-
-            /*if (requestCode == REQUEST_CONNECT_DEVICE) {
-                if (resultCode == RESULT_OK) {
-                    String address = data.getStringExtra(Constance.EXTRA_DEVICE_ADDRESS);
-                    this.printerAddr = address;
-                    bluetoothSocket = BluetoothDeviceActivity.getSocket();
-                }
-            }*/
-
-            if (requestCode == Constance.REQUEST_SIGNATURE) {
-                if (resultCode == RESULT_OK) {
-                    String status = data.getStringExtra("status");
-                    if(status.equalsIgnoreCase("done")){
-                        path = data.getStringExtra("pathSignContact");
-                        pathCustomer = data.getStringExtra("pathCustomer");
-                        setSignToImageView(pathCustomer);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setSignToImageView(String pathBMP) {
-        textViewHintSignature.setVisibility(View.GONE);
-
-        Glide.clear(imageViewCustomerSignature);
-        Glide.with(ContractActivity.this)
-                .load(pathBMP)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .into(imageViewCustomerSignature);
-
-        imageViewCustomerSignature.setOnClickListener( onSign() );
-
-        filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        registerReceiver(receiver, filter);
-        connectBluetoothPaired();
-
-        buttonPrintContact.setVisibility(View.VISIBLE);
-    }
-
-    private void connectBluetoothPaired() {
-        if (bluetoothAdapter != null) {
-            if (bluetoothAdapter.isEnabled()) {
-                customDialog.dialogLoading();
-                pairedDevices = bluetoothAdapter.getBondedDevices();
-                if (pairedDevices.size() > 0) {
-                    for (final BluetoothDevice device : pairedDevices) {
-                        connectThread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                bluetoothAdapter.cancelDiscovery();
-                                try {
-                                    uuid = UUID.fromString(Constance.UUID);
-                                    bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
-                                    try {
-                                        bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
-                                        bluetoothSocket.connect();
-                                        printerAddr = device.getAddress();
-                                        printAddress = device.getAddress();
-                                        inputStream = bluetoothSocket.getInputStream();
-                                        outputStream = bluetoothSocket.getOutputStream();
-                                    } catch (IOException ie) {
-                                        runOnUiThread(Warning);
-                                        ie.printStackTrace();
-                                        return;
-                                    }
-                                    runOnUiThread(Success);
-                                } finally {
-                                    customDialog.dialogDimiss();
-                                }
-                            }
-                        });
-                        connectThread.start();
-                    }
-                } else {
-                    waitForConnection();
-                }
-            } else {
-                Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(intentBtEnabled, Constance.REQUEST_BLUETOOTH_SETTINGS);
-            }
-        }
-    }
-
-    private void printText(InputStream in, OutputStream out) throws IOException {
-        try {
-            Printer.setDebug(true);
-            EMSR.setDebug(true);
-            mProtocolAdapter = new ProtocolAdapter(in, out);
-            if (mProtocolAdapter.isProtocolEnabled()) {
-                mPrinterChannel = mProtocolAdapter.getChannel(ProtocolAdapter.CHANNEL_PRINTER);
-                mPrinter = new Printer(mPrinterChannel.getInputStream(), mPrinterChannel.getOutputStream());
-                /*if (printType.equals("contact")) {
-                    printContract();
-                } else {
-
-                }*/
-            } else {
-                mPrinter = new Printer(mProtocolAdapter.getRawInputStream(), mProtocolAdapter.getRawOutputStream());
-                /*if (printType.equals("contact")) {
-                    printContract();
-                } else {
-
-                }*/
-            }
-        } catch (Exception ex) {
-
-        }
-    }
-
-    private void printContract() throws IOException {
-        if (bluetoothService != null) {
-            themalPrintController.setPrinterController(mPrinter, printerAddr);
-            mPrinter.reset();
-            themalPrintController.setFontNormal();
-            List<List<PrintTextInfo>> documents = new ArrayList<>();
-            List<PrintTextInfo> document = null;
-            if (printType.equals("contact")) {
-                document = documentController.getTextContract(jobItem, addressItemList, productItemList, number);
-            } else {
-                document = documentController.getTextInstallation(jobItem, addressItemList, productItemList, number);
-            }
-            documents.add(document);
-            for (List<PrintTextInfo> listInfo : documents) {
-                for (PrintTextInfo info : listInfo) {
-                    if (info.text.equals("printShortHeader")) {
-                        themalPrintController.printShortHeader();
-                    } else if (info.text.equals("printHeader")) {
-                        themalPrintController.printHeader();
-                    } else if (info.text.equals("selectPageMode")) {
-                        themalPrintController.selectPageMode();
-                    } else if (info.text.equals("setContractPageRegion")) {
-                        themalPrintController.setContractPageRegion();
-                    } else if (info.text.equals("printContractPageTitle")) {
-                        themalPrintController.printContractPageTitle();
-                    } else if (info.text.equals("beginContractPage")) {
-                        themalPrintController.beginContractPage();
-                    } else if (info.text.equals("endContractPage")) {
-                        themalPrintController.endContractPage();
-                    } else if (info.text.equals("selectStandardMode")) {
-                        themalPrintController.selectStandardMode();
-                    } else if (info.text.contains("setPageRegion")) {
-                        themalPrintController.setPageRegion(info.text);
-                    } else if (info.text.contains("beginPage")) {
-                        themalPrintController.beginPage(info.text);
-                    } else if (info.text.contains("endPage")) {
-                        themalPrintController.endPage();
-                    } else if (info.text.contains("printTitleBackground")) {
-                        themalPrintController.printTitleBackground(info.text);
-                    } else if (info.text.contains("printFrame")) {
-                        themalPrintController.printFrame(info.text);
-                    } else if (info.text.equals("k_viruchWithCustomer")) {
-                        themalPrintController.printSignatureKViruchWithCustomer(path);
-                    } else if (info.text.equals("customerWithInstaller")) {
-
-                    } else {
-                        if (info.language.equals("TH")) {
-                            themalPrintController.sendThaiMessage(info.text);
-                        } else {
-                            themalPrintController.sendEnglishMessage(info.text);
-                        }
-                    }
-                }
-            }
-
-            themalPrintController.sendThaiMessage("");
-            mPrinter.feedPaper(100);
-            mPrinter.flush();
-            ContractActivity.this.runOnUiThread(new Runnable() {
-                public void run() {
-                    try {
-                        if (jobFinishItem.getStatus().equals("01")) {
-                            /*setResult(RESULT_OK);
-                            finish();*/
-                            onSuccess("");
-                        } else {
-                            getPresenter().updatejobFinish(ContractActivity.this, jobItem.getOrderid(), number);
-                        }
-                    } catch (Exception e) {
-                        Log.e("job finish exception", e.getMessage());
-                    }
-                }
-            });
-        }
-    }
-
-    @Override
-    public void updatejobFinishSuccess(boolean boo) {
-        if (boo) {
-            jobFinishItem = getPresenter().getFinishData(ContractActivity.this, jobItem.getOrderid(), number);
-            getPresenter().requestUpdateJobFinish(jobFinishItem);
-        } else {
-            customDialog.dialogFail("พบข้อผิดพลาดระหว่างการอัพเดท!");
-        }
     }
 
     @Override
@@ -736,45 +401,196 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     @Override
     public void onSuccess(String success) {
-        //customDialog.dialogSuccess(success);
-        /*Intent intent = new Intent(ContractActivity.this, InstallReceiptActivity.class);
-        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_CONTNO, number);
-        startActivityForResult(intent, Constance.REQUEST_INSTALL_RECEIPT);*/
-        buttonInstallReceipt.setVisibility(View.VISIBLE);
+        if (buttonInstallReceipt.isShown()) {
+            buttonInstallReceipt.setVisibility(View.GONE);
+            buttonFinish.setVisibility(View.VISIBLE);
+        } else {
+            buttonInstallReceipt.setVisibility(View.VISIBLE);
+        }
     }
 
-    private Runnable Success = new Runnable() {
-
-        @Override
-        public void run() {
-            textViewPrintStatus.setVisibility(View.VISIBLE);
-            textViewPrintStatus.setText("เชื่อมต่อปริ้นท์เตอร์ " + bluetoothDevice.getName() + " แล้ว");
-            textViewPrintStatus.setBackgroundColor(getResources().getColor(R.color.LimeGreen));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constance.REQUEST_BLUETOOTH_SETTINGS) {
+            connectBluetoothPaired();
         }
-    };
 
-    private Runnable Warning = new Runnable() {
-
-        @Override
-        public void run() {
-            textViewPrintStatus.setVisibility(View.VISIBLE);
-            textViewPrintStatus.setText("ไม่ได้เชื่อมต่อปริ้นท์เตอร์");
-            textViewPrintStatus.setBackgroundColor(getResources().getColor(R.color.Orange));
-        }
-    };
-
-    /*private synchronized void closeBlutoothConnection() {
-        BluetoothSocket s = bluetoothSocket;
-        bluetoothSocket = null;
-        if (s != null) {
-            try {
-                s.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (requestCode == Constance.REQUEST_SIGNATURE) {
+            if (resultCode == RESULT_OK) {
+                String status = data.getStringExtra("status");
+                if(status.equalsIgnoreCase("done")){
+                    path = data.getStringExtra("pathSignContact");
+                    pathCustomer = data.getStringExtra("pathCustomer");
+                    setSignToImageView(pathCustomer);
+                }
             }
         }
-    }*/
+    }
+
+    private void setSignToImageView(String pathBMP) {
+        textViewHintSignature.setVisibility(View.GONE);
+
+        Glide.clear(imageViewCustomerSignature);
+        Glide.with(ContractActivity.this)
+                .load(pathBMP)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(imageViewCustomerSignature);
+
+        imageViewCustomerSignature.setOnClickListener( onSign() );
+    }
+
+    private View.OnClickListener onPrint() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonPrintContact.startAnimation(new AnimateButton().animbutton());
+                printType = "contact";
+                printText();
+            }
+        };
+    }
+
+    private View.OnClickListener onPrintInstallReceipt() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonInstallReceipt.startAnimation(new AnimateButton().animbutton());
+                printType = "installreceipt";
+                printText();
+            }
+        };
+    }
+
+    private View.OnClickListener onSign() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ContractActivity.this, SignatureActivity.class);
+                intent.putExtra(Constance.KEY_ORDER_ID, jobItem.getOrderid());
+                startActivityForResult(intent, Constance.REQUEST_SIGNATURE);
+            }
+        };
+    }
+
+    private View.OnClickListener onFinish() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonFinish.startAnimation(new AnimateButton().animbutton());
+                getPresenter().updateStep(ContractActivity.this, jobItem.getOrderid(), Constance.STEP_7);
+            }
+        };
+    }
+
+    private void printTask(final PrinterRunnable runnable) {
+        customDialog.dialogLoading();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    runnable.print(customDialog, mPrinter);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e("I/O error occurs: ", e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ContractActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            customDialog.dialogFail("การเชื่อมต่อไม่สมบูรณ์\nกรุณาปิดและเปิดปริ้นท์เตอร์\nเพื่อเชื่อมต่อใหม่");
+                            connectBluetoothPaired();
+                        }
+                    });
+
+                    Log.e("Critical error occurs: ", e.getMessage());
+                } finally {
+                    customDialog.dialogDimiss();
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private interface PrinterRunnable {
+        void print(CustomDialog customDialog, Printer printer) throws IOException;
+    }
+
+    private void printText() {
+        printTask(new PrinterRunnable() {
+            @Override
+            public void print(CustomDialog customDialog, Printer printer) throws IOException {
+                themalPrintController = new ThemalPrintController(ContractActivity.this, printer, printAddress);
+                List<List<PrintTextInfo>> documents = new ArrayList<>();
+                List<PrintTextInfo> document;
+                if (printType.equals("contact")) {
+                    document = documentController.getTextContract(jobItem, addressItemList, productItemList, number);
+                } else {
+                    document = documentController.getTextInstallation(jobItem, addressItemList, productItemList, number);
+                }
+                documents.add(document);
+                for (List<PrintTextInfo> listInfo : documents) {
+                    for (PrintTextInfo info : listInfo) {
+                        if (info.text.equals("printShortHeader")) {
+                            themalPrintController.printShortHeader();
+                        } else if (info.text.equals("printHeader")) {
+                            themalPrintController.printHeader();
+                        } else if (info.text.equals("selectPageMode")) {
+                            themalPrintController.selectPageMode();
+                        } else if (info.text.equals("setContractPageRegion")) {
+                            themalPrintController.setContractPageRegion();
+                        } else if (info.text.equals("printContractPageTitle")) {
+                            themalPrintController.printContractPageTitle();
+                        } else if (info.text.equals("beginContractPage")) {
+                            themalPrintController.beginContractPage();
+                        } else if (info.text.equals("endContractPage")) {
+                            themalPrintController.endContractPage();
+                        } else if (info.text.equals("selectStandardMode")) {
+                            themalPrintController.selectStandardMode();
+                        } else if (info.text.contains("setPageRegion")) {
+                            themalPrintController.setPageRegion(info.text);
+                        } else if (info.text.contains("beginPage")) {
+                            themalPrintController.beginPage(info.text);
+                        } else if (info.text.contains("endPage")) {
+                            themalPrintController.endPage();
+                        } else if (info.text.contains("printTitleBackground")) {
+                            themalPrintController.printTitleBackground(info.text);
+                        } else if (info.text.contains("printFrame")) {
+                            themalPrintController.printFrame(info.text);
+                        } else if (info.text.equals("k_viruchWithCustomer")) {
+                            themalPrintController.printSignatureKViruchWithCustomer(path);
+                        } else if (info.text.equals("customerWithInstaller")) {
+                            themalPrintController.printSignatureInstallerWithCustomer(generateSignForPrintReceiptInstallation());
+                        } else {
+                            if (info.language.equals("TH")) {
+                                themalPrintController.sendThaiMessage(info.text);
+                            } else {
+                                themalPrintController.sendEnglishMessage(info.text);
+                            }
+                        }
+                    }
+                }
+
+                printer.reset();
+                printer.feedPaper(110);
+                printer.flush();
+                ContractActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
+                            if (jobItem.getOrderid().equals("01")) {
+                                startActivity(new Intent(ContractActivity.this, MainActivity.class));
+                                finish();
+                            } else {
+                                onSuccess("");
+                            }
+                        } catch (Exception e) {
+                            Log.e("job finish exception", e.getMessage());
+                        }
+                    }
+                });
+            }
+        });
+    }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -784,109 +600,25 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 textViewPrintStatus.setText("เชื่อมต่อปริ้นท์เตอร์ " + bluetoothDevice.getName() + " แล้ว");
                 textViewPrintStatus.setBackgroundColor(getResources().getColor(R.color.LimeGreen));
-                customDialog.dialogDimiss();
+                buttonPrintContact.setVisibility(View.VISIBLE);
             }  else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
                 Log.e("Bluetooth connection", action);
                 textViewPrintStatus.setText("ไม่ได้เชื่อมต่อปริ้นท์เตอร์");
                 textViewPrintStatus.setBackgroundColor(getResources().getColor(R.color.Orange));
+                buttonPrintContact.setVisibility(View.GONE);
+                buttonInstallReceipt.setVisibility(View.GONE);
+                buttonFinish.setVisibility(View.GONE);
+                waitForConnection();
             }
         }
     };
 
-    private final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case BluetoothService.MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1) {
-                        case BluetoothService.STATE_CONNECTED:
-                            connectBluetoothPaired();
-                            Log.e("handle state", msg.toString());
-                            if (bluetoothService.isAvailable()) {
-                                runOnUiThread(Success);
-                            }
-                            break;
-                        case BluetoothService.STATE_CONNECTING:
-                            //Log.d(LOG_TAG, "STATE_CONNECTING");
-                            break;
-                        case BluetoothService.STATE_LISTEN:
-                        case BluetoothService.STATE_NONE:
-                            //Log.d(LOG_TAG, "STATE_LISTEN &&  STATE_NONE");
-                            break;
-                    }
-                    break;
-                case BluetoothService.MESSAGE_CONNECTION_LOST:
-                    Log.e("Handle", "MESSAGE_CONNECTION_LOST");
-                    break;
-                case BluetoothService.MESSAGE_UNABLE_CONNECT:
-                    break;
-            }
-        }
-
-    };
-
-    private synchronized void waitForConnection() {
-        if (bluetoothSocket == null) {
-            final Intent intent = new Intent(Intent.ACTION_MAIN, null);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            final ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.bluetoothSettings");
-            intent.setComponent(cn);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
-        }
-        try {
-            printerServer = new PrinterServer(new PrinterServerListener() {
-                @Override
-                public void onConnect(Socket socket) {
-                    mSocket = socket;
-                    try {
-                        inputStream = socket.getInputStream();
-                        outputStream = socket.getOutputStream();
-                        printText(inputStream, outputStream);
-                    } catch (IOException e) {
-                        Log.e("printer server", e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            unregisterReceiver(receiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        try {
-            unregisterReceiver(receiver);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /*@Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            unregisterReceiver(receiver);
-            if (bluetoothService != null) {
-                bluetoothService.stop();
-            }
-            bluetoothService = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
+        unregisterReceiver(receiver);
+        closeBluetoothConnection();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -895,19 +627,178 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         return true;
     }
 
-    public static InputStream getInputStream() {
-        return inputStream;
+    private synchronized void waitForConnection() {
+        try {
+            mPrinterServer = new PrinterServer(new PrinterServerListener() {
+                @Override
+                public void onConnect(Socket socket) {
+                    try {
+                        inputStream = socket.getInputStream();
+                        outputStream = socket.getOutputStream();
+                        initPrinter(inputStream, outputStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e("FAILED to initialize: ", e.getMessage());
+                        waitForConnection();
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static OutputStream getOutputStream() {
-        return outputStream;
+    protected void initPrinter(InputStream inputStream, OutputStream outputStream) throws IOException {
+        Log.e("initPrinter", "Initialize printer...");
+        Printer.setDebug(true);
+        EMSR.setDebug(true);
+        mProtocolAdapter = new ProtocolAdapter(inputStream, outputStream);
+        if (mProtocolAdapter.isProtocolEnabled()) {
+            Log.e("Protocol", "Protocol mode is enabled");
+
+            mPrinterChannel = mProtocolAdapter.getChannel(ProtocolAdapter.CHANNEL_PRINTER);
+            mPrinter = new Printer(mPrinterChannel.getInputStream(), mPrinterChannel.getOutputStream());
+        } else {
+            mPrinter = new Printer(mProtocolAdapter.getRawInputStream(), mProtocolAdapter.getRawOutputStream());
+        }
+
+        mPrinter.setConnectionListener(new Printer.ConnectionListener() {
+            @Override
+            public void onDisconnect() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isFinishing()) {
+                            waitForConnection();
+                        }
+                    }
+                });
+            }
+        });
     }
 
-    public static BluetoothSocket getBluetoothSocket() {
-        return bluetoothSocket;
+    private void connectBluetoothPaired() {
+        closePrinterServer();
+        closePrinterConnection();
+        closeBluetoothConnection();
+        final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            customDialog.dialogLoading();
+            pairedDevices = bluetoothAdapter.getBondedDevices();
+            if (pairedDevices.size() > 0) {
+                for (final BluetoothDevice device : pairedDevices) {
+                    final Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            bluetoothAdapter.cancelDiscovery();
+                            try {
+                                uuid = UUID.fromString(Constance.UUID);
+                                bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
+                                try {
+                                    mBtSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+                                    mBtSocket.connect();
+                                    printAddress = device.getAddress();
+                                    inputStream = mBtSocket.getInputStream();
+                                    outputStream = mBtSocket.getOutputStream();
+                                } catch (IOException ie) {
+                                    ie.printStackTrace();
+                                    return;
+                                }
+
+                                try {
+                                    initPrinter(inputStream, outputStream);
+                                } catch (IOException e) {
+                                    Log.e("FAILED to initiallize: ", e.getMessage());
+                                    return;
+                                }
+
+                            } finally {
+                                customDialog.dialogDimiss();
+                            }
+                        }
+                    });
+                    thread.start();
+                }
+            } else {
+                waitForConnection();
+            }
+        } else {
+            Intent intentOpenBluetoothSettings = new Intent();
+            intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+            startActivityForResult(intentOpenBluetoothSettings, Constance.REQUEST_BLUETOOTH_SETTINGS);
+        }
     }
 
-    public static String getDeviceAddress() {
-        return printAddress;
+    private synchronized void closeBluetoothConnection() {
+        BluetoothSocket s = mBtSocket;
+        mBtSocket = null;
+        if (s != null) {
+            try {
+                s.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private synchronized void closePrinterServer() {
+        PrinterServer ps = mPrinterServer;
+        mPrinterServer = null;
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private synchronized void closePrinterConnection() {
+        if (mPrinter != null) {
+            mPrinter.close();
+        }
+
+        if (mProtocolAdapter != null) {
+            mProtocolAdapter.close();
+        }
+    }
+
+    private String generateSignForPrintReceiptInstallation() {
+        File installationPath = new File(imageConfiguration.getAlbumStorageDir(jobItem.getOrderid()), String.format("signature_%s_install.jpg", jobItem.getOrderid()));
+        try {
+            empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
+            signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
+            customerPath = new File(imageConfiguration.getAlbumStorageDir(jobItem.getOrderid()), String.format("signature_%s.jpg", jobItem.getOrderid()));
+
+            Bitmap bmp1 = BitmapFactory.decodeFile(customerPath.getAbsolutePath());
+            Bitmap bmp2 = BitmapFactory.decodeFile(signPath.getAbsolutePath());
+            createSingleImageFromMultipleImages(getResizedBitmap(bmp1, 210, 71), getResizedBitmap(bmp2, 210, 71), installationPath);
+        } catch (Exception e) {
+        }
+
+        return installationPath.getAbsolutePath();
+    }
+
+    private void createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage, File path) throws IOException {
+        Bitmap result = Bitmap.createBitmap((firstImage.getWidth() + secondImage.getWidth()), firstImage.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        canvas.drawColor(Color.WHITE);
+        canvas.drawBitmap(firstImage, 0, 0, null);
+        canvas.drawBitmap(secondImage, firstImage.getWidth(), 0, null);
+        OutputStream stream = new FileOutputStream(path);
+        result.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        stream.close();
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
     }
 }

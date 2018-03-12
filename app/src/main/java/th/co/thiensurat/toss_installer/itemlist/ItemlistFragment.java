@@ -48,7 +48,7 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
 
     @Override
     public ItemlistInterface.Presenter createPresenter() {
-        return ItemlistPresenter.create();
+        return ItemlistPresenter.create(getActivity());
     }
 
     @Override
@@ -154,7 +154,8 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
         if (installItemList.get(0).getAStockStatus().equals("T")) {
             buttonConfirm.setVisibility(View.VISIBLE);
         } else {
-            new createDb().execute();
+            //new createDb().execute();
+            getPresenter().insertDataToSQLite(installItem);
         }
     }
 
@@ -174,10 +175,10 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
             public void onClick(View view) {
                 buttonSearch.startAnimation(new AnimateButton().animbutton());
                 if (!editTextSearch.getText().toString().isEmpty()) {
-                    if (!getPresenter().checkStockID(getActivity(), editTextSearch.getText().toString())) {
+                    if (!getPresenter().checkStockID(editTextSearch.getText().toString())) {
                         getPresenter().requestInstallItem(editTextSearch.getText().toString(), "load");
                     } else {
-                        customDialog.dialogFail("เบิกสินค้าแล้ว");
+                        customDialog.dialogFail("รายการนี้เบิกสินค้าแล้ว");
                     }
                 }
             }
@@ -193,7 +194,7 @@ public class ItemlistFragment extends BaseMvpFragment<ItemlistInterface.Presente
 
         @Override
         protected Void doInBackground(Void... voids) {
-            getPresenter().insertDataToSQLite(getActivity(), installItemList);
+            getPresenter().insertDataToSQLite(installItemList);
             return null;
         }
 

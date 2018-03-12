@@ -1,6 +1,7 @@
 package th.co.thiensurat.toss_installer.itemlist;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 
 import com.hwangjr.rxbus.RxBus;
 
@@ -22,11 +23,13 @@ import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> implements ItemlistInterface.Presenter {
 
     private DBHelper dbHelper;
+    private static Context context;
     private ServiceManager serviceManager;
     private InstallItemGroup installItemGroup;
     private List<InstallItem> installItemList;
 
-    public static ItemlistInterface.Presenter create() {
+    public static ItemlistInterface.Presenter create(FragmentActivity activity) {
+        context = activity;
         return new ItemlistPresenter();
     }
 
@@ -80,18 +83,18 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
 
     @Override
     public void requestApplyItem(final String data, String action) {
-        //getView().onLoad();
+        getView().onLoad();
         serviceManager.loadInstallItem(data, action, new ServiceManager.ServiceManagerCallback<InstallItemResultGroup>() {
             @Override
             public void onSuccess(InstallItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
-                    //getView().onDismiss();
+                    getView().onDismiss();
                     getView().onApply();
                 } else if (result.getStatus().equals("FAIL")) {
-                    //getView().onDismiss();
+                    getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 } else if (result.getStatus().equals("ERROR")) {
-                    //getView().onDismiss();
+                    getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 }
             }
@@ -119,13 +122,13 @@ public class ItemlistPresenter extends BaseMvpPresenter<ItemlistInterface.View> 
     }
 
     @Override
-    public void insertDataToSQLite(Context context, List<InstallItem> installItemList) {
+    public void insertDataToSQLite(List<InstallItem> installItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.setTableItem(installItemList);
     }
 
     @Override
-    public boolean checkStockID(Context context, String number) {
+    public boolean checkStockID(String number) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         return dbHelper.checkNumber(number);
     }

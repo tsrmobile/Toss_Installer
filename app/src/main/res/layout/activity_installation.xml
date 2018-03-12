@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_margin="16dp"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentRight="true"
             android:background="@drawable/background_rounded_colorprimarydark"
             android:text="ถัดไป"
             android:textSize="12sp"

@@ -24,11 +24,13 @@ import th.co.thiensurat.toss_installer.api.result.data.DataItem;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.detail.edit.EditActivity;
 import th.co.thiensurat.toss_installer.detail.edit.adapter.SpinnerCustomAdapter;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,7 +56,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
 
     @Override
     public PaymentAddressInterface.Presenter createPresenter() {
-        return PaymentAddressPresenter.create();
+        return PaymentAddressPresenter.create(getActivity());
     }
 
     @Override
@@ -89,35 +91,14 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
 
     @Override
     public void initialize() {
-        jobItem = ((EditActivity)getActivity()).getJobItem();
-        getPresenter().getAddressDetail(getActivity(), jobItem.getOrderid());
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("jobitem", jobItem);
-        outState.putParcelable("AddressPayment", getPresenter().getAddressItemGroup());
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        jobItem = savedInstanceState.getParcelable("jobitem");
-        getPresenter().setAddressItemGroup((AddressItemGroup) savedInstanceState.getParcelable("AddressPayment"));
-    }
-
-    @Override
-    public void restoreView(Bundle savedInstanceState) {
-        super.restoreView(savedInstanceState);
-        getPresenter().setAddressItemToAdapter(getPresenter().getAddressItemGroup());
+        getPresenter().getAddressDetail(MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID"));
     }
 
     @Override
     public void setMenuVisibility(final boolean visible) {
         super.setMenuVisibility(visible);
         if (visible) {
-            getPresenter().getInfo(getActivity(), "province", "");
+            getPresenter().getInfo("province", "");
         }
     }
 
@@ -139,6 +120,24 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
                 editTextEmail.setText((item.getEmail().equals("")) ? "-" : item.getEmail());
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("AddressPayment", getPresenter().getAddressItemGroup());
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        getPresenter().setAddressItemGroup((AddressItemGroup) savedInstanceState.getParcelable("AddressPayment"));
+    }
+
+    @Override
+    public void restoreView(Bundle savedInstanceState) {
+        super.restoreView(savedInstanceState);
+        getPresenter().setAddressItemToAdapter(getPresenter().getAddressItemGroup());
     }
 
     @Override
@@ -164,7 +163,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
             DataItem item = dataItems.get(i);
             if (province.equals(item.getDataName())) {
                 spinnerProvince.setSelection(i);
-                getPresenter().getInfo(getActivity(), "district", dataItems.get(i).getDataId());
+                getPresenter().getInfo("district", dataItems.get(i).getDataId());
             }
         }
 
@@ -175,7 +174,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
                     DataItem item = dataItems.get(position);
                     province = item.getDataName();
                     provinceid = item.getDataId();
-                    getPresenter().getInfo(getActivity(), "district", item.getDataId());
+                    getPresenter().getInfo("district", item.getDataId());
                 }
             }
 
@@ -193,7 +192,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
         for (int i = 0; i < dataItems.size(); i++) {
             if (district.equals(dataItems.get(i).getDataName())) {
                 spinnerDistrict.setSelection(i);
-                getPresenter().getInfo(getActivity(), "subdistrict", dataItems.get(i).getDataId());
+                getPresenter().getInfo("subdistrict", dataItems.get(i).getDataId());
             }
         }
 
@@ -204,7 +203,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
                     DataItem item = dataItems.get(position);
                     district = item.getDataName();
                     districtid = item.getDataId();
-                    getPresenter().getInfo(getActivity(), "subdistrict", item.getDataId());
+                    getPresenter().getInfo("subdistrict", item.getDataId());
                 }
             }
 
@@ -232,7 +231,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
                     DataItem item = dataItems.get(position);
                     subdistrict = item.getDataName();
                     subdistrictid = item.getDataId();
-                    getPresenter().getInfo(getActivity(), "zipcode", item.getDataId());
+                    getPresenter().getInfo("zipcode", item.getDataId());
                 }
             }
 
@@ -260,7 +259,6 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
 
     private void updateData() {
         List<AddressItem> itemListLocal = new ArrayList<AddressItem>();
-
         AddressItem addressItemLocal = new AddressItem()
                 .setAddrDetail(editTextDetial.getText().toString())
                 .setProvince(province)
@@ -272,27 +270,31 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
                 .setMobile(editTextMobile.getText().toString())
                 .setEmail(editTextEmail.getText().toString());
         itemListLocal.add(addressItemLocal);
-        getPresenter().updateData(getActivity(), jobItem.getOrderid(), "AddressPayment", itemListLocal);
+        getPresenter().updateData(jobItem.getOrderid(), "AddressPayment", itemListLocal);
     }
 
     @Override
     public void updateLocalSuccess(boolean b) {
         if (b) {
-            List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
-            updateBodyList.add(new RequestUpdateAddress.updateBody()
-                    .setOrderid(jobItem.getOrderid())
-                    .setAddressType("AddressPayment")
-                    .setAddrDetail(editTextDetial.getText().toString())
-                    .setProvince(provinceid)
-                    .setDistrict(districtid)
-                    .setSubdistrict(subdistrictid)
-                    .setZipcode(editTextZipcode.getText().toString())
-                    .setPhone(editTextPhone.getText().toString())
-                    .setOffice(editTextWork.getText().toString())
-                    .setMobile(editTextMobile.getText().toString())
-                    .setEmail(editTextEmail.getText().toString()));
+            boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+            if (!isNetworkAvailable) {
 
-            getPresenter().updateDataOnline(updateBodyList);
+            } else {
+                List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
+                updateBodyList.add(new RequestUpdateAddress.updateBody()
+                        .setOrderid(jobItem.getOrderid())
+                        .setAddressType("AddressPayment")
+                        .setAddrDetail(editTextDetial.getText().toString())
+                        .setProvince(provinceid)
+                        .setDistrict(districtid)
+                        .setSubdistrict(subdistrictid)
+                        .setZipcode(editTextZipcode.getText().toString())
+                        .setPhone(editTextPhone.getText().toString())
+                        .setOffice(editTextWork.getText().toString())
+                        .setMobile(editTextMobile.getText().toString())
+                        .setEmail(editTextEmail.getText().toString()));
+                getPresenter().updateDataOnline(updateBodyList);
+            }
         } else {
             customDialog.dialogFail("พบข้อผิดพลาดระหว่างการอัพเดท!");
         }
@@ -316,5 +318,6 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
+        getPresenter().updateAddressSync(jobItem.getOrderid());
     }
 }

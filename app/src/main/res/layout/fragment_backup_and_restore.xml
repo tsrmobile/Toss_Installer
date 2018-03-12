@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:fontFamily="sans-serif-thin"
+                    android:text="\tสำรองข้อมูลกรณีผู้ใช้ต้องการจะถอนการติดตั้งแอพพลิเคชั่น หรือต้องการเปลี่ยนอุปกรณ์ในการใช้งาน"
+                    android:textSize="20sp"/>
+
+                <Button
+                    android:id="@+id/button_backup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="สำรองข้อมูล"
+                    android:background="@drawable/background_rounded"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:fontFamily="sans-serif-thin"
+                    android:text="\tกู้คืนข้อมูลหลังจากถอนการติดตั้งและติดตั้งใหม่ หรือทำการย้ายอุปกรณ์ในการใช้งานแล้ว"
+                    android:textSize="20sp"/>
+
+                <Button
+                    android:id="@+id/button_restore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="กู้คืนข้อมูล"
+                    android:background="@drawable/background_rounded"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

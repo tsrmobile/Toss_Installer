@@ -1,6 +1,7 @@
 package th.co.thiensurat.toss_installer.detail.edit.addresspayment;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -15,8 +16,8 @@ import java.util.List;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.api.request.RequestUpdateAddress;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 import th.co.thiensurat.toss_installer.utils.db.ExDBHelper;
@@ -29,12 +30,14 @@ public class PaymentAddressPresenter extends BaseMvpPresenter<PaymentAddressInte
 
     private DBHelper dbHelper;
     private ExDBHelper exDBHelper;
+    private static Context context;
     private List<AddressItem> addressItems;
     private AddressItemGroup itemGroup;
     private ServiceManager serviceManager;
     private AddressItemGroup addressItemGroup = new AddressItemGroup();
 
-    public static PaymentAddressInterface.Presenter create() {
+    public static PaymentAddressInterface.Presenter create(FragmentActivity activity) {
+        context = activity;
         return new PaymentAddressPresenter();
     }
 
@@ -57,7 +60,7 @@ public class PaymentAddressPresenter extends BaseMvpPresenter<PaymentAddressInte
     }
 
     @Override
-    public void getAddressDetail(Context context, String orderid) {
+    public void getAddressDetail(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.addressItems = dbHelper.getAllAddress(orderid);
         addressItemGroup.setData(addressItems);
@@ -66,7 +69,7 @@ public class PaymentAddressPresenter extends BaseMvpPresenter<PaymentAddressInte
     }
 
     @Override
-    public void getInfo(Context context, String infoType, String id) {
+    public void getInfo(String infoType, String id) {
         exDBHelper = new ExDBHelper(context);
         try {
             exDBHelper.openDataBase();
@@ -105,7 +108,7 @@ public class PaymentAddressPresenter extends BaseMvpPresenter<PaymentAddressInte
     }
 
     @Override
-    public void updateData(Context context, String orderid, String type, List<AddressItem> addressItemList) {
+    public void updateData(String orderid, String type, List<AddressItem> addressItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         if (dbHelper.updateAddress(orderid, type, addressItemList)) {
             getView().updateLocalSuccess(true);
@@ -140,5 +143,11 @@ public class PaymentAddressPresenter extends BaseMvpPresenter<PaymentAddressInte
                 Log.e("fail", t.getLocalizedMessage());
             }
         });
+    }
+
+    @Override
+    public void updateAddressSync(String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.updateAddressSync(orderid);
     }
 }

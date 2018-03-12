@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import th.co.thiensurat.toss_installer.BuildConfig;
 import th.co.thiensurat.toss_installer.takepicture.TakePictureActivity;
 import th.co.thiensurat.toss_installer.takepicturecard.TakeIDCardActivity;
+
 
 /**
  * Created by teerayut.k on 11/13/2017.
@@ -72,6 +72,22 @@ public class ImageConfiguration {
         return image;
     }
 
+    public File createImageByType(String orderid, String serial, String type) {
+        File image = null;
+        try {
+            String imageFileName = orderid + serial + type;
+            File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES + "/" + orderid + "/");
+            image = File.createTempFile(
+                    imageFileName,
+                    ".jpg",
+                    storageDir
+            );
+        } catch (IOException e) {
+
+        }
+        return image;
+    }
+
     public File createImagePNG(String dirName, String imgName) {
         File image = null;
         try {
@@ -94,11 +110,7 @@ public class ImageConfiguration {
         fileimage = new File(url);
         if (fileimage.exists()) {
             if (fileimage.delete()) {
-                if (context instanceof TakePictureActivity) {
-                    ((TakePictureActivity) context).refresh();
-                } else if (context instanceof TakeIDCardActivity) {
-                    ((TakeIDCardActivity) context).refresh();
-                }
+
             }
         }
     }

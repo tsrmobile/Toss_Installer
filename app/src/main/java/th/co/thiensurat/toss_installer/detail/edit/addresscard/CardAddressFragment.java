@@ -26,13 +26,14 @@ import th.co.thiensurat.toss_installer.api.result.data.DataItem;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.detail.edit.EditActivity;
 import th.co.thiensurat.toss_installer.detail.edit.adapter.SpinnerCustomAdapter;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,7 +59,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
 
     @Override
     public CardAddressInterface.Presenter createPresenter() {
-        return CardAddressPresenter.create();
+        return CardAddressPresenter.create(getActivity());
     }
 
     @Override
@@ -93,11 +94,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
 
     @Override
     public void initialize() {
-        jobItem = ((EditActivity)getActivity()).getJobItem();
-        //addressItemGroup = ((EditActivity)getActivity()).getAddressItemGroup();
-        //List<AddressItem> addressItems = addressItemGroup.getData();
-        //setAddressDetail(addressItems);
-        getPresenter().getAddressDetail(getActivity(), jobItem.getOrderid());
+        getPresenter().getAddressDetail(MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID"));
     }
 
     @Override
@@ -118,26 +115,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("jobitem", jobItem);
-        outState.putParcelable("AddressIDCard", getPresenter().getAddressItemGroup());
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        jobItem = savedInstanceState.getParcelable("jobitem");
-        getPresenter().setAddressItemGroup((AddressItemGroup) savedInstanceState.getParcelable("AddressIDCard"));
-    }
-
-    @Override
-    public void restoreView(Bundle savedInstanceState) {
-        super.restoreView(savedInstanceState);
-        getPresenter().setAddressItemToAdapter(getPresenter().getAddressItemGroup());
+        getPresenter().updateAddressSync(jobItem.getOrderid());
     }
 
     @Override
@@ -158,7 +136,26 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                 editTextEmail.setText((item.getEmail().equals("")) ? "-" : item.getEmail());
             }
         }
-        getPresenter().getInfo(getActivity(), "province", "");
+
+        getPresenter().getInfo("province", "");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("AddressIDCard", getPresenter().getAddressItemGroup());
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        getPresenter().setAddressItemGroup((AddressItemGroup) savedInstanceState.getParcelable("AddressIDCard"));
+    }
+
+    @Override
+    public void restoreView(Bundle savedInstanceState) {
+        super.restoreView(savedInstanceState);
+        getPresenter().setAddressItemToAdapter(getPresenter().getAddressItemGroup());
     }
 
     @Override
@@ -184,7 +181,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
             DataItem item = dataItems.get(i);
             if (province.equals(item.getDataName())) {
                 spinnerProvince.setSelection(i);
-                getPresenter().getInfo(getActivity(), "district", dataItems.get(i).getDataId());
+                getPresenter().getInfo("district", dataItems.get(i).getDataId());
             }
         }
 
@@ -196,7 +193,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                     DataItem item = dataItems.get(position);
                     province = item.getDataName();
                     provinceid = item.getDataId();
-                    getPresenter().getInfo(getActivity(), "district", item.getDataId());
+                    getPresenter().getInfo("district", item.getDataId());
                 }
             }
 
@@ -214,7 +211,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
         for (int i = 0; i < dataItems.size(); i++) {
             if (district.equals(dataItems.get(i).getDataName())) {
                 spinnerDistrict.setSelection(i);
-                getPresenter().getInfo(getActivity(), "subdistrict", dataItems.get(i).getDataId());
+                getPresenter().getInfo("subdistrict", dataItems.get(i).getDataId());
             }
         }
 
@@ -226,7 +223,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                     DataItem item = dataItems.get(position);
                     district = item.getDataName();
                     districtid = item.getDataId();
-                    getPresenter().getInfo(getActivity(), "subdistrict", item.getDataId());
+                    getPresenter().getInfo("subdistrict", item.getDataId());
                 }
             }
 
@@ -255,7 +252,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                     DataItem item = dataItems.get(position);
                     subdistrict = item.getDataName();
                     subdistrictid = item.getDataId();
-                    getPresenter().getInfo(getActivity(), "zipcode", item.getDataId());
+                    getPresenter().getInfo("zipcode", item.getDataId());
                 }
             }
 
@@ -283,7 +280,6 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
 
     private void updateData() {
         List<AddressItem> itemListLocal = new ArrayList<AddressItem>();
-
         AddressItem addressItemLocal = new AddressItem()
                 .setAddrDetail(editTextDetial.getText().toString())
                 .setProvince(province)
@@ -295,27 +291,32 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                 .setMobile(editTextMobile.getText().toString())
                 .setEmail(editTextEmail.getText().toString());
         itemListLocal.add(addressItemLocal);
-        getPresenter().updateData(getActivity(), jobItem.getOrderid(), "AddressIDCard", itemListLocal);
+        getPresenter().updateData(jobItem.getOrderid(), "AddressIDCard", itemListLocal);
     }
 
     @Override
     public void updateLocalSuccess(boolean b) {
         if (b) {
-            List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
-            updateBodyList.add(new RequestUpdateAddress.updateBody()
-                    .setOrderid(jobItem.getOrderid())
-                    .setAddressType("AddressIDCard")
-                    .setAddrDetail(editTextDetial.getText().toString())
-                    .setProvince(provinceid)
-                    .setDistrict(districtid)
-                    .setSubdistrict(subdistrictid)
-                    .setZipcode(editTextZipcode.getText().toString())
-                    .setPhone(editTextPhone.getText().toString())
-                    .setOffice(editTextWork.getText().toString())
-                    .setMobile(editTextMobile.getText().toString())
-                    .setEmail(editTextEmail.getText().toString()));
+            boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+            if (!isNetworkAvailable) {
 
-            getPresenter().updateDataOnline(updateBodyList);
+            } else {
+                List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
+                updateBodyList.add(new RequestUpdateAddress.updateBody()
+                        .setOrderid(jobItem.getOrderid())
+                        .setAddressType("AddressIDCard")
+                        .setAddrDetail(editTextDetial.getText().toString())
+                        .setProvince(provinceid)
+                        .setDistrict(districtid)
+                        .setSubdistrict(subdistrictid)
+                        .setZipcode(editTextZipcode.getText().toString())
+                        .setPhone(editTextPhone.getText().toString())
+                        .setOffice(editTextWork.getText().toString())
+                        .setMobile(editTextMobile.getText().toString())
+                        .setEmail(editTextEmail.getText().toString()));
+
+                getPresenter().updateDataOnline(updateBodyList);
+            }
         } else {
             customDialog.dialogFail("พบข้อผิดพลาดระหว่างการอัพเดท!");
         }

@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.jobinstallation.current.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
@@ -34,11 +35,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.ApiService;
-import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.jobinstallation.finish.adapter.JobFinishAdapter;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 import th.co.thiensurat.toss_installer.utils.Utils;
 import th.co.thiensurat.toss_installer.utils.helper.ItemTouchHelperAdapter;
@@ -59,6 +58,7 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
     private String origins;
     private Context context;
     private StringBuilder sb;
+    private StringBuilder stringBuilder;
     private ClickListener clickListener;
     private ChangeTintColor changeTintColor;
     private final OnStartDragListener dragListener;
@@ -93,14 +93,27 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         sb = new StringBuilder();
+        stringBuilder = new StringBuilder();
+        stringBuilder.delete(0, stringBuilder.length());
         JobItem item = jobItemList.get(position);
         holder.textViewNumber.setText(String.valueOf(position +1));
         holder.textViewName.setText(item.getTitle() + "" + item.getFirstName() + " " + item.getLastName());
+        String temp = item.getOrderid();
+        String temp2 = "";
 
-        for (ProductItem productItem : item.getProduct()) {
-            holder.textViewProduct.setText(item.getOrderid() + "\n" + productItem.getProductName() + "\nจำนวน " + productItem.getProductQty());
+        for (int i = 0; i < item.getProduct().size(); i++) {
+            ProductItem productItem = item.getProduct().get(i);
+            if (temp2.isEmpty()) {
+                temp2 = temp;
+                stringBuilder.append(item.getOrderid() + "\n" + (i + 1) + ". " + productItem.getProductName() + " จำนวน " + productItem.getProductQty() + " เครื่อง/ชิ้น");
+            } else if (temp2.equals(temp)) {
+                stringBuilder.append("\n" + (i + 1) + ". " + productItem.getProductName() + " จำนวน " + productItem.getProductQty() + " เครื่อง/ชิ้น");
+            }
         }
 
+        holder.textViewProduct.setText(stringBuilder.toString());
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
         Date date = null;
         Date endDate = null;
@@ -110,16 +123,13 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
         holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
         holder.textViewTime.setText(timeFormat.format(date) + " น.");
-
         holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
         holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
 
-        List<AddressItem> addressItems = new ArrayList<AddressItem>();
-        addressItems = item.getAddress();
+        List<AddressItem> addressItems  = item.getAddress();
         for (int i = 0; i < addressItems.size(); i++) {
             AddressItem addressItem = addressItems.get(i);
             if (addressItem.getAddressType().equals("AddressInstall")) {
@@ -134,6 +144,8 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                 holder.textViewAddress.setText(sb.toString());
                 holder.textViewPhone.setText((addressItem.getPhone().equals("")) ? "-" : addressItem.getPhone());
                 holder.textViewMobile.setText((addressItem.getMobile().equals("")) ? "-" : addressItem.getMobile());
+
+                destination = addressItem.getSubdistrict() + "+" + addressItem.getDistrict() + "+" + addressItem.getProvince();
             }
         }
 
@@ -151,6 +163,7 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
             }
         });
 
+
         synchronized (context) {
             thread = new Thread(new Runnable() {
                 public void run(){
@@ -164,6 +177,7 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onResponse(Call call, Response response) {
+                            Log.e("distance", response + "");
                             Gson gson = new Gson();
                             try {
                                 JSONObject jsonObject = new JSONObject(gson.toJson(response.body()));
@@ -179,7 +193,6 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                                         holder.textViewDistance.setText(distance);
                                     }
                                 });
-                                notifyDataSetChanged();
                             } catch (JSONException e) {
                                 Log.e("exception in adapter", e.getLocalizedMessage());
                             }
@@ -187,13 +200,13 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
 
                         @Override
                         public void onFailure(Call call, Throwable t) {
-
+                            Log.e("Distance failre", t.getLocalizedMessage());
                         }
                     });
                 }
             });
-            thread.start();
         }
+        thread.start();
     }
 
     public synchronized void stopThread() {

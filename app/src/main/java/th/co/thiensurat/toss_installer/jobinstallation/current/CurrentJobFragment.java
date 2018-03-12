@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -15,9 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,19 +25,20 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.detail.DetailActivity;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.current.adapter.CurrentJobAdapter;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
 import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
 import th.co.thiensurat.toss_installer.utils.Constance;
@@ -79,7 +78,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
 
     @Override
     public CurrentJobInterface.Presenter createPresenter() {
-        return CurrentJobPresenter.create();
+        return CurrentJobPresenter.create(getActivity());
     }
 
     @Override
@@ -99,6 +98,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
 
     @Override
     public void setupInstance() {
+        checkLocationPermission();
         gps = new GPSTracker(getActivity());
         customDialog = new CustomDialog(getActivity());
         layoutManager = new LinearLayoutManager(getActivity());
@@ -122,7 +122,13 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},  Constance.REQUEST_LOCATION);
         }
-        getPresenter().getCurrentJob("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+
+        boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+        if (!isNetworkAvailable) {
+            getPresenter().getCurrentJobLocalDB();
+        } else {
+            getPresenter().getCurrentJob("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        }
     }
 
     private void setRecyclerView() {
@@ -137,7 +143,12 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
 
     @Override
     public void onRefresh() {
-        getPresenter().getCurrentJob("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+        if (!isNetworkAvailable) {
+            getPresenter().getCurrentJobLocalDB();
+        } else {
+            getPresenter().getCurrentJob("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        }
     }
 
     @Override
@@ -168,9 +179,10 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
 
     @Override
     public void setJobItemToAdapter(List<JobItem> ItemList) {
-        checkLocationPermission();
-        this.jobItemList = getOrderItem(ItemList);
+        jobItemList = new ArrayList<>();
+        jobItemList = getOrderItem(ItemList);
         swipeRefreshLayout.setRefreshing(false);
+
         adapter.setJobItemList(jobItemList, origins);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
@@ -201,11 +213,6 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
 
         AddressItemGroup addressItemGroup = new AddressItemGroup();
         addressItemGroup.setData(jobItem.getAddress());
-
-        /*ProductItemGroup productItemGroup = new ProductItemGroup();
-        productItemGroup.setProduct(jobItem.getProduct());*/
-
-        getPresenter().setProductToTable(getActivity(), jobItem.getOrderid(), jobItem.getProduct());
 
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);

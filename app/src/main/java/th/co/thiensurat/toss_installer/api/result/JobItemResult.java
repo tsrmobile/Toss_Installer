@@ -3,8 +3,9 @@ package th.co.thiensurat.toss_installer.api.result;
 
 import java.util.List;
 
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+
 
 /**
  * Created by teerayut.k on 9/26/2017.
@@ -25,6 +26,7 @@ public class JobItemResult {
     private String status;
     private String presale;
     private String contno;
+    private String closeDate;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -146,5 +148,13 @@ public class JobItemResult {
 
     public void setAddress(List<AddressItem> address) {
         this.address = address;
+    }
+
+    public String getCloseDate() {
+        return closeDate;
+    }
+
+    public void setCloseDate(String closeDate) {
+        this.closeDate = closeDate;
     }
 }

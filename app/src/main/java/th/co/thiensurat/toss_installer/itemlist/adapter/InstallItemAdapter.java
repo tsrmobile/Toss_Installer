@@ -15,7 +15,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.itemlist.item.InstallItem;
-import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 
 /**
@@ -38,13 +37,13 @@ public class InstallItemAdapter extends RecyclerView.Adapter<InstallItemAdapter.
     }
 
     @Override
-    public InstallItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_installitem, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(InstallItemAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         InstallItem item = installItemList.get(position);
         if (item.getAStockStatus().equals("T")) {
             holder.textViewStatus.setText("ยังไม่ได้เบิก");

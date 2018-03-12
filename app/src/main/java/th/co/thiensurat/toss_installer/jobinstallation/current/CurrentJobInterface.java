@@ -5,8 +5,8 @@ import android.content.Context;
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 
 /**
  * Created by teerayut.k on 1/25/2018.
@@ -22,8 +22,9 @@ public class CurrentJobInterface {
         void setJobItemToAdapter(List<JobItem> jobItemList);
     }
 
-    public interface Presenter extends BaseMvpInterface.Presenter<CurrentJobInterface.View> {
+    public interface Presenter extends BaseMvpInterface.Presenter<View> {
         void getCurrentJob(String data, String empid);
-        void setProductToTable(Context context, String orderid, List<ProductItem> productItems);
+        void getCurrentJobLocalDB();
+        void setJobToTable(List<JobItem> jobItemList);
     }
 }

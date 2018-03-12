@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
@@ -16,6 +17,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.http.Body;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 
@@ -43,16 +45,26 @@ public class TakePictureAdapter extends RecyclerView.Adapter<TakePictureAdapter.
         this.visibility = visibility;
     }
     @Override
-    public TakePictureAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_picture_installation, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(TakePictureAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         ImageItem item = imageItemList.get(position);
         Glide.with(context).load(item.getImageUrl()).into(holder.imageView);
         holder.relativeLayoutRemove.setVisibility(visibility);
+
+        try {
+            if (!item.getImageSerial().isEmpty()) {
+                holder.textViewSerial.setText("รหัสสินค้า : " + item.getImageSerial());
+            } else {
+                holder.textViewSerial.setVisibility(View.GONE);
+            }
+        } catch (Exception ex) {
+            holder.textViewSerial.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -66,6 +78,7 @@ public class TakePictureAdapter extends RecyclerView.Adapter<TakePictureAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.textview_serial) TextView textViewSerial;
         @BindView(R.id.image_view) ImageView imageView;
         @BindView(R.id.layout_remove) RelativeLayout relativeLayoutRemove;
         public ViewHolder(View itemView) {

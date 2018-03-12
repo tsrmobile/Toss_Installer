@@ -20,10 +20,11 @@ public class TakeIDCardInterface {
         void refresh();
     }
 
-    public interface Presenter extends BaseMvpInterface.Presenter<TakeIDCardInterface.View> {
-        void saveImageUrl(Context context, String orderid, String type, String url, String productcode);
-        void getImage(Context context, String orderid, String type);
-        void editImageUrl(Context context, String id, String url);
-        void delImage(Context context, String id);
+    public interface Presenter extends BaseMvpInterface.Presenter<View> {
+        void saveImageUrl(String orderid, String type, String url, String productcode);
+        void getImage(String orderid, String type);
+        void editImageUrl(String id, String url);
+        void delImage(String id);
+        void updateStep(String orderid, String step);
     }
 }

@@ -19,10 +19,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.jobinstallation.finish.adapter.JobFinishAdapter;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 import th.co.thiensurat.toss_installer.utils.Constance;
 
@@ -36,8 +35,9 @@ public class JobUnFinishAdapter extends RecyclerView.Adapter<JobUnFinishAdapter.
 
     private Context context;
     private StringBuilder sb;
-    private ChangeTintColor changeTintColor;
+    private StringBuilder stringBuilder;
     private ClickListener clickListener;
+    private ChangeTintColor changeTintColor;
     private List<JobItem> jobItemList = new ArrayList<JobItem>();
 
     public JobUnFinishAdapter(FragmentActivity activity) {
@@ -58,14 +58,26 @@ public class JobUnFinishAdapter extends RecyclerView.Adapter<JobUnFinishAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         sb = new StringBuilder();
+        stringBuilder = new StringBuilder();
+        stringBuilder.delete(0, stringBuilder.length());
         JobItem item = jobItemList.get(position);
         int posi = (position +1);
         holder.textViewNumber.setText(String.valueOf(posi));
         holder.textViewName.setText(item.getTitle() + "" + item.getFirstName() + " " + item.getLastName());
+        String temp = item.getOrderid();
+        String temp2 = "";
 
-        for (ProductItem productItem : item.getProduct()) {
-            holder.textViewProduct.setText(item.getOrderid() + "\n" + productItem.getProductName() + "\nจำนวน " + productItem.getProductQty());
+        for (int i = 0; i < item.getProduct().size(); i++) {
+            ProductItem productItem = item.getProduct().get(i);
+            if (temp2.isEmpty()) {
+                temp2 = temp;
+                stringBuilder.append(item.getOrderid() + "\n" + (i + 1) + ". " + productItem.getProductName() + " จำนวน " + productItem.getProductQty() + " เครื่อง/ชิ้น");
+            } else if (temp2.equals(temp)) {
+                stringBuilder.append("\n" + (i + 1) + ". " + productItem.getProductName() + " จำนวน " + productItem.getProductQty() + " เครื่อง/ชิ้น");
+            }
         }
+
+        holder.textViewProduct.setText(stringBuilder.toString());
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
         Date date = null;
@@ -84,8 +96,7 @@ public class JobUnFinishAdapter extends RecyclerView.Adapter<JobUnFinishAdapter.
         holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
         holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
 
-        List<AddressItem> addressItems = new ArrayList<AddressItem>();
-        addressItems = item.getAddress();
+        List<AddressItem> addressItems = item.getAddress();
         for (int i = 0; i < addressItems.size(); i++) {
             AddressItem addressItem = addressItems.get(i);
             if (addressItem.getAddressType().equals("AddressInstall")) {
@@ -104,6 +115,9 @@ public class JobUnFinishAdapter extends RecyclerView.Adapter<JobUnFinishAdapter.
         }
 
         changeTintColor.setTextViewDrawableColor(holder.textViewDistanceTitle, R.color.colorPrimaryDark);
+
+        holder.textViewDistance.setVisibility(View.GONE);
+        holder.textViewDistanceTitle.setVisibility(View.GONE);
     }
 
     @Override

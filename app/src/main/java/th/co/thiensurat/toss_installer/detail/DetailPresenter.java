@@ -13,7 +13,7 @@ import java.util.List;
 
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
@@ -25,10 +25,12 @@ import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 public class DetailPresenter extends BaseMvpPresenter<DetailInterface.View> implements DetailInterface.Presenter {
 
     private DBHelper dbHelper;
+    private static Context context;
     private ServiceManager serviceManager;
     private List<AddressItem> addressItems;
 
-    public static DetailInterface.Presenter create() {
+    public static DetailInterface.Presenter create(Context activity) {
+        context = activity;
         return new DetailPresenter();
     }
 
@@ -51,7 +53,7 @@ public class DetailPresenter extends BaseMvpPresenter<DetailInterface.View> impl
     }
 
     @Override
-    public void setAddressDetail(Context context, String orderid, List<AddressItem> addressItemList) {
+    public void setAddressDetail(String orderid, List<AddressItem> addressItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         if (dbHelper.isTableExists(Constance.TABLE_ADDRESS)) {
             dbHelper.emptyTable(Constance.TABLE_ADDRESS);
@@ -61,21 +63,10 @@ public class DetailPresenter extends BaseMvpPresenter<DetailInterface.View> impl
     }
 
     @Override
-    public void getAddressDetail(Context context, String orderid) {
+    public void getAddressDetail(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.addressItems = dbHelper.getAllAddress(orderid);
         getView().setAddressDetail(addressItems);
-    }
-
-    @Override
-    public void setCancelJob(Context context, String orderid, String cancelnote) {
-        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.setCancelJob(orderid, cancelnote)) {
-            //getView().setCancelSuccess();
-            requestUpdate(cancelnote, "91", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), orderid);
-        } else {
-            getView().onFail("ยกเลิกไม่สำเร็จ กรุณาติดต่อผู้พัฒนา");
-        }
     }
 
     public void requestUpdate(String note, String status, String empid, String orderid) {
@@ -103,5 +94,11 @@ public class DetailPresenter extends BaseMvpPresenter<DetailInterface.View> impl
                 Log.e("fail", t.getLocalizedMessage());
             }
         });
+    }
+
+    @Override
+    public void setTableStep(String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.setTableStep(orderid);
     }
 }

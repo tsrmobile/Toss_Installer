@@ -11,7 +11,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/bottom">
 
@@ -30,9 +30,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="เชื่อมต่อกับปริ้นท์เตอร์แล้ว"
+                android:text="กำลังเชื่อมต่อปริ้นท์เตอร์"
                 android:textColor="@color/white"
-                android:background="@color/LimeGreen"
+                android:background="@color/Orange"
                 android:padding="2dp"/>
 
             <android.support.v4.widget.NestedScrollView
@@ -67,9 +67,7 @@
             android:background="@android:color/transparent"
             android:drawableLeft="@drawable/ic_print_white_24dp"
             android:visibility="gone"/>
-
     </RelativeLayout>
-
 
     <RelativeLayout
         android:id="@+id/bottom"
@@ -86,11 +84,13 @@
             android:id="@+id/floating_print"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="พิมพ์สัญญา"
-            android:textColor="@color/white"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:background="@android:color/transparent"
             android:drawableLeft="@drawable/ic_print_white_24dp"
-            android:visibility="visible"/>
+            android:text="พิมพ์สัญญา"
+            android:textColor="@color/white"
+            android:visibility="visible" />
 
     </RelativeLayout>
 

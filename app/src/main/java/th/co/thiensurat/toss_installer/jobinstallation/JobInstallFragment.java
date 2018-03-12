@@ -24,6 +24,7 @@ import th.co.thiensurat.toss_installer.jobinstallation.unfinish.JobUnFinishFragm
 import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
 import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.CustomDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +32,7 @@ import th.co.thiensurat.toss_installer.utils.Constance;
 public class JobInstallFragment extends BaseMvpFragment<JobInstallInterface.Presenter> implements JobInstallInterface.View {
 
     private JobViewAdapter adapter;
+    private CustomDialog customDialog;
 
     public JobInstallFragment() {
         // Required empty public constructor
@@ -42,7 +44,7 @@ public class JobInstallFragment extends BaseMvpFragment<JobInstallInterface.Pres
 
     @Override
     public JobInstallInterface.Presenter createPresenter() {
-        return JobInstallPresenter.create();
+        return JobInstallPresenter.create(getActivity());
     }
 
     @Override
@@ -59,18 +61,18 @@ public class JobInstallFragment extends BaseMvpFragment<JobInstallInterface.Pres
 
     @Override
     public void setupInstance() {
+        customDialog = new CustomDialog(getActivity());
         adapter = new JobViewAdapter(getFragmentManager());
     }
 
     @Override
     public void setupView() {
         ((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง");
-
     }
 
     @Override
     public void initialize() {
-        setTabLayout();
+        getPresenter().getAllJob();
     }
 
     private void setTabLayout() {
@@ -126,5 +128,25 @@ public class JobInstallFragment extends BaseMvpFragment<JobInstallInterface.Pres
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ActivityResultBus.getInstance().postQueue(new ActivityResultEvent(requestCode, resultCode, data));
+    }
+
+    @Override
+    public void onLoading() {
+        customDialog.dialogLoading();
+    }
+
+    @Override
+    public void onFail(String fail) {
+        customDialog.dialogFail(fail);
+    }
+
+    @Override
+    public void onDimiss() {
+        customDialog.dialogDimiss();
+    }
+
+    @Override
+    public void onSuccess() {
+        setTabLayout();
     }
 }

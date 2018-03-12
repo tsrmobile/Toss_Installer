@@ -34,6 +34,24 @@ public class ExDBHelper extends SQLiteOpenHelper {
         this.context = context;
     }
 
+    public int getId(String table, String colName, String whereName) {
+        int id = 0;
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query
+                (table, null, colName + " = ?",
+                        new String[] { whereName }, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        if (!cursor.isAfterLast()) {
+            id = cursor.getInt(0);
+            return id;
+        }
+        return id;
+    }
+
     public List<DataItem> getAllProvince() {
         sqlite = this.getReadableDatabase();
         Cursor cursor = sqlite.query

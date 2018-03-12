@@ -23,14 +23,14 @@ public class ItemlistInterface {
         void setInstallItemToAdapter(List<InstallItem> installItemList);
     }
 
-    public interface Presenter extends BaseMvpInterface.Presenter<ItemlistInterface.View> {
+    public interface Presenter extends BaseMvpInterface.Presenter<View> {
         void requestInstallItem(String data, String action);
         void requestApplyItem(String data, String action);
         void setInstallItemGroup(InstallItemGroup itemGroup);
         InstallItemGroup getInstallItemGroup();
         void setInstallItemToAdapter(InstallItemGroup installGroup);
 
-        void insertDataToSQLite(Context context, List<InstallItem> installItemList);
-        boolean checkStockID(Context context, String number);
+        void insertDataToSQLite(List<InstallItem> installItemList);
+        boolean checkStockID(String number);
     }
 }

@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,14 +35,13 @@ import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.detail.edit.EditActivity;
-import th.co.thiensurat.toss_installer.detail.edit.addresscard.CardAddressFragment;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
@@ -61,7 +61,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     @Override
     public DetailInterface.Presenter createPresenter() {
-        return DetailPresenter.create();
+        return DetailPresenter.create(DetailActivity.this);
     }
 
     @Override
@@ -98,11 +98,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     public void initialize() {
         getItemFromIntent();
         textViewTitle.setText(jobItem.getTitle() + "" + jobItem.getFirstName() + " " + jobItem.getLastName());
-        getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
-
-        /*if (jobItem.getStatus().equals("01")) {
-            buttonCancel.setVisibility(View.GONE);
-        }*/
+        getPresenter().getAddressDetail(jobItem.getOrderid());
     }
 
     @Override
@@ -121,14 +117,14 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            //setResult(RESULT_CANCELED);
-            startActivity(new Intent(this, MainActivity.class));
+        if (item.getItemId() == android.R.id.home || item.getItemId() == R.id.menu_home) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
+            /*setResult(RESULT_OK);
+            finish();*/
         } else if (item.getItemId() == R.id.menu_edit) {
+            MyApplication.getInstance().getPrefManager().setPreferrence("ORDERID", jobItem.getOrderid());
             Intent intent = new Intent(DetailActivity.this, EditActivity.class);
-            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
             startActivityForResult(intent, Constance.REQUEST_EDIT_DETAIL);
         }
         return super.onOptionsItemSelected(item);
@@ -136,6 +132,8 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     @Override
     public void setCancelSuccess() {
+        /*startActivity(new Intent(DetailActivity.this, MainActivity.class));
+        finish();*/
         setResult(RESULT_OK);
         finish();
     }
@@ -158,22 +156,22 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constance.REQUEST_EDIT_DETAIL) {
-            if (resultCode == RESULT_CANCELED) {
-                getPresenter().getAddressDetail(DetailActivity.this, jobItem.getOrderid());
+        if (resultCode == RESULT_CANCELED) {
+            if (requestCode == Constance.REQUEST_EDIT_DETAIL) {
+                getPresenter().getAddressDetail(jobItem.getOrderid());
             }
         }
     }
 
     private void getItemFromIntent() {
-        JobItem jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-
+        JobItem jitem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
         AddressItemGroup addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
         List<AddressItem> addressItemList = addressItemGroup.getData();
 
-        setJobItem(jobItem, addressItemGroup);
+        setJobItem(jitem, addressItemGroup);
 
-        getPresenter().setAddressDetail(DetailActivity.this, jobItem.getOrderid(), addressItemList);
+        getPresenter().setAddressDetail(jobItem.getOrderid(), addressItemList);
+        getPresenter().setTableStep(jobItem.getOrderid());
     }
 
     private void setJobItem(JobItem item, AddressItemGroup addressItemGroup) {
@@ -186,9 +184,8 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
             @Override
             public void onClick(View view) {
                 buttonNext.startAnimation(new AnimateButton().animbutton());
-                Intent intent = new Intent(getApplicationContext(), InstallationActivity.class);
+                Intent intent = new Intent(DetailActivity.this, InstallationActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-                intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
                 startActivityForResult(intent, Constance.REQUEST_INSTALLATION);
             }
         };
@@ -221,7 +218,8 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (!input.getText().toString().isEmpty()) {
-                                    getPresenter().setCancelJob(DetailActivity.this, jobItem.getOrderid(), input.getText().toString());
+                                    //getPresenter().setCancelJob(DetailActivity.this, jobItem.getOrderid(), input.getText().toString());
+                                    getPresenter().requestUpdate(input.getText().toString(), "91", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), jobItem.getOrderid());
                                 } else {
                                     dialog.dismiss();
                                     customDialog.dialogFail("การยกเลิกไม่สำเร็จ กรุณาระบุเหตุผลการยกเเลิก");

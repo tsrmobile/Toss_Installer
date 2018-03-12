@@ -18,9 +18,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.unfinish.adapter.JobUnFinishAdapter;
-import th.co.thiensurat.toss_installer.step.TimeLineActivity;
+import th.co.thiensurat.toss_installer.stepview.StepViewActivity;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
@@ -31,8 +32,9 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
 public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Presenter>
         implements JobUnFinishInterface.View, JobUnFinishAdapter.ClickListener, SwipeRefreshLayout.OnRefreshListener {
 
-    private JobUnFinishAdapter adapter;
+    private List<JobItem> jobItemList;
     private CustomDialog customDialog;
+    private JobUnFinishAdapter adapter;
     private LinearLayoutManager layoutManager;
 
     public JobUnFinishFragment() {
@@ -45,7 +47,7 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
 
     @Override
     public JobUnFinishInterface.Presenter createPresenter() {
-        return JobUnFinishPresenter.create();
+        return JobUnFinishPresenter.create(getActivity());
     }
 
     @Override
@@ -133,6 +135,7 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
 
     @Override
     public void setJobItemToAdapter(List<JobItem> jobItemList) {
+        this.jobItemList = jobItemList;
         swipeRefreshLayout.setRefreshing(false);
         adapter.setJobUnFinishItem(jobItemList);
         adapter.setItemClick(this);
@@ -149,6 +152,16 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
 
     @Override
     public void itemClick(View view, int position) {
-        startActivityForResult(new Intent(getActivity(), TimeLineActivity.class), Constance.REQUEST_TIMELINE);
+        JobItem jobItem = jobItemList.get(position);
+
+        getPresenter().setProductToTable(jobItem.getOrderid(), jobItem.getProduct());
+
+        AddressItemGroup addressItemGroup = new AddressItemGroup();
+        addressItemGroup.setData(jobItem.getAddress());
+
+        Intent intent = new Intent(getActivity(), StepViewActivity.class);
+        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+        startActivityForResult(intent, Constance.REQUEST_STEPVIEW);
     }
 }

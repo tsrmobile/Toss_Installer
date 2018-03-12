@@ -15,8 +15,8 @@ import java.util.List;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.api.request.UploadImage;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
@@ -28,12 +28,14 @@ import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.View> implements TakePictureInterface.Presenter {
 
     private DBHelper dbHelper;
+    private static Context context;
     private List<ImageItem> imageItemList;
     private ProductItemGroup productItemGroup;
 
     private ServiceManager serviceManager;
 
-    public static TakePictureInterface.Presenter create() {
+    public static TakePictureInterface.Presenter create(Context activity) {
+        context = activity;
         return new TakePicturePresenter();
     }
 
@@ -56,48 +58,53 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
     }
 
     @Override
-    public void saveImageUrl(Context context, String orderid, String serial, String type, String url, String productcode) {
+    public void saveImageUrl(String orderid, String serial, String type, String url, String productcode) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.addImage(orderid, serial, type, url, productcode);
         getView().refresh();
     }
 
     @Override
-    public void getImage(Context context, String orderid, String serial, String type) {
-        getView().onLoading();
+    public void getImage(String orderid, String type) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.imageItemList = dbHelper.getImage(orderid, type);
         getView().setImageToAdapter(imageItemList);
     }
 
     @Override
-    public void editImageUrl(Context context, String id, String url) {
+    public void editImageUrl(String id, String url) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.editImage(id, url);
         getView().refresh();
     }
 
     @Override
-    public void delImage(Context context, String id) {
+    public void delImage(String id) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.deleteImage(id);
         getView().refresh();
     }
 
     @Override
-    public boolean getItemInstalled(Context context, String orderid) {
+    public boolean getItemInstalled(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         return dbHelper.getProductNotInstall(orderid);
     }
 
     @Override
-    public List<ProductItem> getAllItem(Context context, String orderid) {
+    public List<ProductItem> getAllItem(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         productItemGroup = dbHelper.getProductByID(orderid);
         return productItemGroup.getProduct();
     }
 
     @Override
+    public void updateStep(String orderid, String step) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.updateStep(orderid, step);
+    }
+
+    /*@Override
     public void uploadImageToServer(String action, String orderid, String image64, String imageType, String productcode) {
         List<UploadImage.uploadBody> uploadBodies = new ArrayList<>();
         uploadBodies.add(new UploadImage.uploadBody()
@@ -134,5 +141,5 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
                 Log.e("upload failure", t.getLocalizedMessage());
             }
         });
-    }
+    }*/
 }

@@ -5,5 +5,12 @@
         android:id="@+id/menu_print"
         app:showAsAction="always"
         android:icon="@drawable/ic_print_white_24dp"
+        android:title=""
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/menu_home"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_home_white_36dp"
         android:title=""/>
 </menu>

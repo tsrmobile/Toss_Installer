@@ -81,7 +81,7 @@
                 android:gravity="left|center"
                 android:layout_weight="1"
                 android:textSize="16sp"
-                android:text="เลขที่ใบสั่งจอง"/>
+                android:text="เลขที่อ้างอิง"/>
 
             <TextView
                 android:id="@+id/order_id"
@@ -242,12 +242,36 @@
 
         <View
             android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:text="รายการสินค้า"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <View
+            android:layout_width="match_parent"
             android:layout_height="10dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_product_name"
@@ -276,7 +300,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_product_model"
@@ -305,7 +330,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_product_serial"
@@ -336,7 +362,8 @@
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_odd"
             android:padding="4dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_price"
@@ -351,8 +378,8 @@
                 android:id="@+id/contract_product_price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="right|center"
                 android:layout_weight="1.5"
+                android:gravity="right|center"
                 android:textSize="16sp"
                 android:text="18,400 บาท"/>
 
@@ -363,7 +390,8 @@
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_even"
             android:padding="4dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_discount"
@@ -390,7 +418,8 @@
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_odd"
             android:padding="4dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_net_price"
@@ -418,7 +447,8 @@
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_even"
             android:padding="4dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_month"
@@ -446,7 +476,8 @@
             android:layout_height="wrap_content"
             android:background="@color/table_data_row_even"
             android:padding="4dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/title_per_month"
@@ -512,6 +543,7 @@
                         android:text="(นายวิรัช วงศ์นิรันดร์)"/>
 
                     <TextView
+                        android:id="@+id/textview_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
@@ -570,6 +602,7 @@
                         android:text="(คุณลูกค้า)"/>
 
                     <TextView
+                        android:id="@+id/textview_2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"

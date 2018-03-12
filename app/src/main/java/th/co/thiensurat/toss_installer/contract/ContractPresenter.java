@@ -11,13 +11,13 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
-import th.co.thiensurat.toss_installer.api.result.ContactResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobFinishItem;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.contract.item.JobSuccessItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
@@ -27,13 +27,14 @@ import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
 public class ContractPresenter extends BaseMvpPresenter<ContractInterface.View> implements ContractInterface.Presenter {
 
+    private static Context context;
     private DBHelper dbHelper;
     private ServiceManager serviceManager;
-    private JobFinishItem jobFinishItem;
     private List<AddressItem> addressItems;
     private ProductItemGroup productItemGroup;
 
-    public static ContractInterface.Presenter create() {
+    public static ContractInterface.Presenter create(Context activity) {
+        context = activity;
         return new ContractPresenter();
     }
 
@@ -56,75 +57,30 @@ public class ContractPresenter extends BaseMvpPresenter<ContractInterface.View> 
     }
 
     @Override
-    public void getAddressFromSQLite(Context context, String orderid) {
+    public void getAddressFromSQLite(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.addressItems = dbHelper.getAllAddress(orderid);
         getView().setAddessFromSQLite(addressItems);
     }
 
     @Override
-    public void getProductFromSQLite(Context context, String orderid) {
+    public void getProductFromSQLite(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.productItemGroup = dbHelper.getProductByID(orderid);
         getView().setProductFromSQLite(productItemGroup.getProduct());
     }
 
     @Override
-    public void getContactNumber() {
-        serviceManager.requestContact(new ServiceManager.ServiceManagerCallback<ContactResultGroup>() {
-            @Override
-            public void onSuccess(ContactResultGroup result) {
-                if (result.getStatus().equals("SUCCESS")) {
-                    getView().setContactNumber(result.getData());
-                } else if (result.getStatus().equals("FAIL")) {
-
-                } else if (result.getStatus().equals("ERROR")) {
-
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        });
-    }
-
-    @Override
-    public void updatejobFinish(Context context, String orderid, String contno) {
-        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.setJobFinish(orderid, contno)) {
-            getView().updatejobFinishSuccess(true);
-        } else {
-            getView().updatejobFinishSuccess(false);
-        }
-    }
-
-    @Override
-    public JobFinishItem getFinishData(Context context, String orderid, String contno) {
-        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        jobFinishItem = dbHelper.getFinishData(orderid, contno);
-        return jobFinishItem;
-    }
-
-    @Override
-    public void requestUpdateJobFinish(JobFinishItem jobFinishItem) {
-        getView().onLoad();
-        serviceManager.requestUpdateJobFinish("finish", jobFinishItem.getOrderid(), jobFinishItem.getInstallstart(),
-                jobFinishItem.getInstallend(), jobFinishItem.getUsercode(), new ServiceManager.ServiceManagerCallback() {
+    public void getContactNumber(String orderid) {
+        serviceManager.requestContact(orderid, new ServiceManager.ServiceManagerCallback() {
             @Override
             public void onSuccess(Object result) {
                 Gson gson = new Gson();
                 try {
                     JSONObject jsonObject = new JSONObject(gson.toJson(result));
                     if ("SUCCESS".equals(jsonObject.getString("status"))) {
-                        getView().onDismiss();
-                        getView().onSuccess(jsonObject.getString("message"));
+                        getView().setContactNumber(jsonObject.getString("message"));
                     } else if ("FAIL".equals(jsonObject.getString("status"))) {
-                        getView().onDismiss();
-                        getView().onFail(jsonObject.getString("message"));
-                    } else {
-                        getView().onDismiss();
                         getView().onFail(jsonObject.getString("message"));
                     }
                 } catch (JSONException e) {
@@ -140,14 +96,97 @@ public class ContractPresenter extends BaseMvpPresenter<ContractInterface.View> 
     }
 
     @Override
-    public String getContno(Context context, String orderid) {
+    public void updateContactNumber(String orderid, String contactnumber) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        return dbHelper.checkContno(orderid);
+        dbHelper.updateContactNumberToProduct(orderid, contactnumber);
     }
 
     @Override
-    public List<JobSuccessItem> getDataSuccess(Context context, String orderid) {
+    public void updateStep(String orderid, String step) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        return dbHelper.getDataSuccess(orderid);
+        dbHelper.updateStep(orderid, step);
+        getView().onJobClosed();
+    }
+
+    @Override
+    public void getAllImage(String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        getView().setImageToContactBody(dbHelper.getAllImageURI(orderid));
+    }
+
+    @Override
+    public void uploadImageToServer(RequestBody requestBody, List<MultipartBody.Part> body) {
+        getView().onLongLoad();
+        serviceManager.requestUpload(requestBody, body, new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
+                        getView().uploadData();
+                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onFail(jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    getView().onDismiss();
+                    Log.e("json obj", e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                getView().onDismiss();
+                Log.e("fail", t.getLocalizedMessage());
+            }
+        });
+    }
+
+    @Override
+    public String getInstallDate(String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        return dbHelper.getInstallDate(orderid);
+    }
+
+    @Override
+    public String getInstallEnd(String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        return dbHelper.getInstallEnd(orderid);
+    }
+
+    @Override
+    public void updatePrintStatus(String orderid, String print) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.updatePrintStatus(orderid, print);
+    }
+
+    @Override
+    public void uploadDataToServer(RequestBody requestBody) {
+        serviceManager.requestUploadData(requestBody, new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onUploadSuccess(jsonObject.getString("message"));
+                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onFail(jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    getView().onDismiss();
+                    Log.e("json obj", e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                getView().onDismiss();
+                Log.e("fail", t.getLocalizedMessage());
+            }
+        });
     }
 }

@@ -38,11 +38,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.BuildConfig;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.takepicture.adapter.TakePictureAdapter;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 import th.co.thiensurat.toss_installer.takepicturecard.TakeIDCardActivity;
@@ -50,6 +52,7 @@ import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.PermissionUtil;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_CAMERA;
@@ -66,17 +69,20 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private String action;
     private String id = "-1";
     private String serial;
-    private JobItem jobItem;
     private String productcode;
     private TakePictureAdapter adapter;
     private List<ImageItem> imageItemList;
     private LinearLayoutManager layoutManager;
 
+    private JobItem jobItem;
+    private ProductItemGroup productItemGroup;
+    private List<ProductItem> productItemList;
+
     private File image;
 
     @Override
     public TakePictureInterface.Presenter createPresenter() {
-        return TakePicturePresenter.create();
+        return TakePicturePresenter.create(TakePictureActivity.this);
     }
 
     @Override
@@ -114,7 +120,6 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             @Override
             public void onClick(View view) {
                 floatingActionButton.startAnimation(new AnimateButton().animbutton());
-                action = "upload";
                 id = "-1";
                 try {
                     imageChooser();
@@ -132,15 +137,9 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        productcode = getIntent().getStringExtra(Constance.KEY_PRODUCT_CODE);
-
-        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), "", Constance.IMAGE_TYPE_INSTALL);
-        /*Log.e("serial number", serial);
-        if (serial.equals("000")) {
-            getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), "", Constance.IMAGE_TYPE_INSTALL);
-        } else {
-            getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
-        }*/
+        serial = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL);
+        productcode = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_PRODUCT_CODE);
+        getPresenter().getImage(jobItem.getOrderid(), Constance.IMAGE_TYPE_INSTALL);
     }
 
     private void setRecyclerView() {
@@ -165,7 +164,6 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             relativeLayoutFail.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         }
-        onDismiss();
     }
 
     @Override
@@ -185,13 +183,12 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void onSuccess(String success) {
-        Log.e("success msg", success);
         refresh();
     }
 
     @Override
     public void refresh() {
-        getPresenter().getImage(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
+        getPresenter().getImage(jobItem.getOrderid(), Constance.IMAGE_TYPE_INSTALL);
     }
 
     private void setToolbar() {
@@ -213,11 +210,14 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            //setResult(RESULT_CANCELED);
+            setResult(RESULT_OK);
             finish();
         } else if (item.getItemId() == R.id.menu_gallery) {
-            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            this.startActivityForResult(pickPhoto, Constance.REQUEST_GALLERY);
+            Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(pickPhoto, Constance.REQUEST_GALLERY);
+        } else if (item.getItemId() == R.id.menu_home) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -227,9 +227,8 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             @Override
             public void onClick(View view) {
                 buttonNext.startAnimation(new AnimateButton().animbutton());
-                uploadImage();
-                if (getPresenter().getAllItem(TakePictureActivity.this, jobItem.getOrderid()).size() > 1) {
-                    if (getPresenter().getItemInstalled(TakePictureActivity.this, jobItem.getOrderid())) {
+                if (getPresenter().getAllItem(jobItem.getOrderid()).size() > 1) {
+                    if (getPresenter().getItemInstalled(jobItem.getOrderid())) {
                         onNextInstall();
                     } else {
                         onNextStep();
@@ -243,7 +242,7 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     private void imageChooser() throws IOException {
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImage(jobItem.getOrderid(), serial);
+        file = imageConfiguration.createImageByType(jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);
@@ -252,13 +251,11 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constance.REQUEST_GALLERY) {
-            if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == Constance.REQUEST_GALLERY) {
                 Uri selectedImage = data.getData();
                 setImage(new File(imageConfiguration.getRealPathFromURI(selectedImage)));
-            }
-        } else if (requestCode == REQUEST_CAMERA) {
-            if (resultCode == RESULT_OK) {
+            } else if (requestCode == REQUEST_CAMERA) {
                 setImage(file);
             }
         }
@@ -266,11 +263,10 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void itemClicked(View view, int position) {
-        action = "edit";
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImage(jobItem.getOrderid(), serial);
+        file = imageConfiguration.createImageByType(jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);
@@ -278,10 +274,9 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
 
     @Override
     public void delClicked(View view, int position) {
-        action = "delete";
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
-        getPresenter().delImage(TakePictureActivity.this, id);
+        getPresenter().delImage(id);
         imageConfiguration.removeImage(item.getImageUrl());
     }
 
@@ -289,16 +284,21 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
         image = new File(file.getAbsolutePath());
         String url = file.getPath().toString();
         if (id.equals("-1")) {
-            getPresenter().saveImageUrl(TakePictureActivity.this, jobItem.getOrderid(), serial, Constance.IMAGE_TYPE_INSTALL, url, productcode);
+            getPresenter().saveImageUrl(jobItem.getOrderid()
+                    , serial
+                    , Constance.IMAGE_TYPE_INSTALL, url, productcode);
         } else {
-            getPresenter().editImageUrl(TakePictureActivity.this, id, url);
+            getPresenter().editImageUrl(id, url);
         }
+
+        floatingActionButton.setVisibility(View.GONE);
     }
 
     private void onNextStep() {
+        getPresenter().updateStep(jobItem.getOrderid(), Constance.STEP_2);
+        getPresenter().updateStep(jobItem.getOrderid(), Constance.STEP_3);
         Intent intent = new Intent(TakePictureActivity.this, TakeIDCardActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
         startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
     }
 
@@ -306,26 +306,5 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
         Intent intent = new Intent(getApplicationContext(), InstallationActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         startActivity(intent);
-    }
-
-    private void uploadImage() {
-        String img64 = encodeImage(image);
-        String orderid = jobItem.getOrderid();
-        getPresenter().uploadImageToServer(action, orderid, img64, "install", productcode);
-    }
-
-    private String encodeImage(File imagefile) {
-        FileInputStream fis = null;
-        try{
-            fis = new FileInputStream(imagefile);
-        }catch(FileNotFoundException e){
-            e.printStackTrace();
-        }
-        Bitmap bm = BitmapFactory.decodeStream(fis);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-        byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
-        return encImage;
     }
 }

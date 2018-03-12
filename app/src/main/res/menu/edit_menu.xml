@@ -6,4 +6,10 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_mode_edit_white_24dp"
         android:title="ตรวจสอบแก้ไข" />
+
+    <item
+        android:id="@+id/menu_home"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_home_white_36dp"
+        android:title="" />
 </menu>

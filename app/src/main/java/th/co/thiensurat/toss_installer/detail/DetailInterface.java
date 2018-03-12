@@ -5,8 +5,7 @@ import android.content.Context;
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.base.BaseMvpInterface;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 
 /**
  * Created by teerayut.k on 11/10/2017.
@@ -22,9 +21,10 @@ public class DetailInterface {
         void onDismiss();
     }
 
-    public interface Presenter extends BaseMvpInterface.Presenter<DetailInterface.View> {
-        void setAddressDetail(Context context, String orderid, List<AddressItem> addressItemList);
-        void getAddressDetail(Context context, String orderid);
-        void setCancelJob(Context context, String orderid, String cancelnote);
+    public interface Presenter extends BaseMvpInterface.Presenter<View> {
+        void setAddressDetail(String orderid, List<AddressItem> addressItemList);
+        void getAddressDetail(String orderid);
+        void requestUpdate(String note, String status, String empid, String orderid);
+        void setTableStep(String orderid);
     }
 }

@@ -12,7 +12,7 @@ public class SettingInterface {
 
     }
 
-    public interface Presenter extends BaseMvpInterface.Presenter<SettingInterface.View> {
+    public interface Presenter extends BaseMvpInterface.Presenter<View> {
 
     }
 }

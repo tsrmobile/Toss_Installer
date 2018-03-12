@@ -2,7 +2,9 @@ package th.co.thiensurat.toss_installer.utils.helper;
 
 import java.util.List;
 
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+
+//import th.co.thiensurat.toss_installer.job.item.JobItem;
 
 /**
  * Created by teerayut.k on 11/10/2017.

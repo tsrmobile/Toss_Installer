@@ -7,13 +7,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +35,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.datecs.api.emsr.EMSR;
 import com.datecs.api.printer.Printer;
 import com.datecs.api.printer.ProtocolAdapter;
+import com.google.gson.Gson;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,17 +52,21 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.api.result.JobFinishItem;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
+import th.co.thiensurat.toss_installer.contract.adapter.ContactItemAdapter;
+import th.co.thiensurat.toss_installer.contract.item.ContactItem;
+import th.co.thiensurat.toss_installer.contract.item.ObjectImage;
 import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.DocumentController;
 import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.PrintTextInfo;
 import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.ThemalPrintController;
 import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServer;
 import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServerListener;
 import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
-import th.co.thiensurat.toss_installer.contract.utils.ReceiptConfiguration;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
@@ -69,6 +81,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         implements ContractInterface.View {
 
     private JobItem jobItem;
+    private ContactItem contactItem;
     private List<ProductItem> productItemList = new ArrayList<ProductItem>();
     private List<AddressItem> addressItemList = new ArrayList<AddressItem>();
 
@@ -101,12 +114,15 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     private static OutputStream outputStream = null;
 
     private String empid;
-    private File signPath;
+    private File empSign;
+    private File witnessPath;
     private File customerPath;
-    private StringBuilder sb1;
+    /*private StringBuilder sb1;
     private StringBuilder sb2;
     private StringBuilder sb3;
-    private DecimalFormat df = new DecimalFormat("#,###.00");
+    private DecimalFormat df = new DecimalFormat("#,###.00");*/
+    private ContactItemAdapter adapter;
+    private LinearLayoutManager layoutManager;
 
     public static ContractActivity getInstance() {
         return new ContractActivity();
@@ -114,7 +130,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     @Override
     public ContractInterface.Presenter createPresenter() {
-        return ContractPresenter.create();
+        return ContractPresenter.create(ContractActivity.this);
     }
 
     @Override
@@ -170,10 +186,11 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @BindView(R.id.signature_k_viruch) ImageView imageViewSignatureKViruch;
     @BindView(R.id.layout_periods) LinearLayout linearLayoutPeriods;
     @BindView(R.id.layout_permonth) LinearLayout linearLayoutPermonth;
+
+    @BindView(R.id.recyclerview) RecyclerView recyclerView;
     @Override
     public void bindView() {
         ButterKnife.bind(this);
-        buttonPrintContact.setVisibility(View.GONE);
         buttonFinish.setOnClickListener( onFinish() );
         buttonPrintContact.setOnClickListener( onPrint() );
         imageViewCustomerSignature.setOnClickListener( onSign() );
@@ -182,6 +199,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     @Override
     public void setupInstance() {
+        adapter = new ContactItemAdapter(this);
+        layoutManager = new LinearLayoutManager(this);
         customDialog = new CustomDialog(ContractActivity.this);
         imageConfiguration = new ImageConfiguration(ContractActivity.this);
         documentController = new DocumentController(ContractActivity.this);
@@ -190,6 +209,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @Override
     public void setupView() {
         setToolbar();
+        setRecyclerView();
     }
 
     @Override
@@ -197,7 +217,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         getDataFromIntent();
         setUpContract();
 
-        connectBluetoothPaired();
+        //connectBluetoothPaired();
         filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
@@ -213,8 +233,14 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    private void setRecyclerView() {
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
+    }
+
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+
         try {
             File signFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + jobItem.getOrderid(), "signature_" + jobItem.getOrderid() + ".jpg");
             if (signFile.exists()) {
@@ -222,9 +248,35 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                 pathCustomer = signFile.getAbsolutePath();
                 setSignToImageView(pathCustomer);
             }
-        } catch (Exception e) {
+
+
+            empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
+            empSign = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
+            Glide.clear(imageViewSignature1);
+            Glide.with(ContractActivity.this)
+                    .load(empSign.getAbsolutePath())
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .into(imageViewSignature1);
+
+            witnessPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_witness.jpg"));
+
+            textViewSignature1.setText("(" +
+                    MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_TITLE) + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRSTNAME)
+                    + " " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_LASTNAME) + ")");
+
+            textViewSignature2.setText("(" +jobItem.getPresale() + ")");
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = true;
+            AssetManager assetManager = getAssets();
+            Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("witness.png"), null, options);
+            imageViewSignature2.setImageBitmap(bitmap);
+
+        } catch (IOException e) {
             Log.e("sign path", e.getMessage());
         }
+
 
         getPresenter().getContactNumber(jobItem.getOrderid());
     }
@@ -236,8 +288,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         textViewID.setText(jobItem.getIDCard());
         textViewSignature2.setText(jobItem.getPresale());
 
-        getPresenter().getAddressFromSQLite(ContractActivity.this, jobItem.getOrderid());
-        getPresenter().getProductFromSQLite(ContractActivity.this, jobItem.getOrderid());
+        getPresenter().getAddressFromSQLite(jobItem.getOrderid());
+        getPresenter().getProductFromSQLite(jobItem.getOrderid());
     }
 
     @Override
@@ -291,9 +343,6 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         textViewPhone.setText(phone);
 
         textViewCustomerName.setText("(" + jobItem.getTitle() + jobItem.getFirstName() + " " + jobItem.getLastName() + ")");
-        textViewSignature1.setText("(" + jobItem.getPresale() + ")");
-        textViewSignature2.setText(
-                "(" + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRSTNAME) + " " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_LASTNAME) + ")");
     }
 
     @Override
@@ -306,20 +355,26 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         } catch (Exception ex) {
             Log.e("get contact", ex.getMessage());
         }
-        getPresenter().updateContactNumber(ContractActivity.this, jobItem.getOrderid(), number);
+        getPresenter().updateContactNumber(jobItem.getOrderid(), number);
     }
 
     @Override
     public void setProductFromSQLite(List<ProductItem> productItemList) {
         this.productItemList = productItemList;
-        String temp = "";
+        adapter.setContactItem(productItemList);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        /*String temp = "";
         String temp2 = "";
         sb1 = new StringBuilder();
         sb2 = new StringBuilder();
-        sb3 = new StringBuilder();
+        sb3 = new StringBuilder();*/
 
+        /*StringBuilder stringBuilder = new StringBuilder();
+        int i = 0;*/
         for (ProductItem item : productItemList) {
-            if (temp.isEmpty()) {
+
+            /*if (temp.isEmpty()) {
                 temp = item.getProductName();
             } else {
                 temp2 = temp;
@@ -340,7 +395,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                 sb2.append("\n");
                 sb3.append(item.getProductSerial());
                 sb3.append("\n");
-            }
+            }*/
 
             if (item.getProductPayType().equals("1")) {
                 textView1.setText("ผู้ขาย");
@@ -352,12 +407,41 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                 textView1.setText("ผู้ให้เช่าซื้อ");
                 textView2.setText("ผู้เช่าซื้อ");
             }
+
+            try {
+                if (item.getProductPrintContact().equals("0")
+                        && item.getProductPrintInstall().equals("0") && jobItem.getStatus().equals("22")) {
+                    buttonPrintContact.setVisibility(View.VISIBLE);
+                    buttonInstallReceipt.setVisibility(View.GONE);
+                    buttonFinish.setVisibility(View.GONE);
+                } else if (item.getProductPrintContact().equals("1")
+                        && item.getProductPrintInstall().equals("0") && jobItem.getStatus().equals("22")) {
+                    buttonInstallReceipt.setVisibility(View.VISIBLE);
+                    buttonFinish.setVisibility(View.GONE);
+                } else if (item.getProductPrintContact().equals("1")
+                        && item.getProductPrintInstall().equals("1") && jobItem.getStatus().equals("22")) {
+                    buttonPrintContact.setVisibility(View.GONE);
+                    buttonInstallReceipt.setVisibility(View.GONE);
+                    buttonFinish.setVisibility(View.VISIBLE);
+                } else if (item.getProductPrintContact().equals("1")
+                        && item.getProductPrintInstall().equals("1") && jobItem.getStatus().equals("01")) {
+                    buttonPrintContact.setVisibility(View.VISIBLE);
+                    buttonInstallReceipt.setVisibility(View.GONE);
+                    buttonFinish.setVisibility(View.GONE);
+                }
+            } catch (Exception e) {
+                connectBluetoothPaired();
+            }
+
+            //i++;
         }
 
-        textViewProductName.setText(sb1.toString());
+        /*textViewProductName.setText(sb1.toString());
         textViewProductModel.setText(sb2.toString());
         textViewProductSerial.setText(sb3.toString());
 
+        String preriod = "";
+        String permonth = "";
         float qty = 0;
         float normalPrice = 0;
         float discountPrice = 0;
@@ -367,19 +451,30 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             qty += Float.parseFloat(item.getProductQty());
             normalPrice = Float.parseFloat(item.getProductPrice());
             discountPrice = Float.parseFloat(item.getProductDiscount());
+            preriod = item.getProductPayPeriods();
+            permonth = item.getProductPayPerPeriods();
         }
-        grandTotalPrice = (qty * normalPrice) - (qty * discountPrice);
-        textViewPrice.setText(df.format((qty * normalPrice)) + " บาท");
+        grandTotalPrice = (qty * normalPrice) - (qty * discountPrice);*/
+
+
+        /*textViewPrice.setText(df.format((qty * normalPrice)) + " บาท");
         textViewDiscount.setText(df.format((qty * discountPrice)) + " บาท");
         textViewNetPrice.setText(df.format(grandTotalPrice) + " บาท");
+        textViewMonth.setText(preriod + " บาท");
+        textViewPerMonth.setText(permonth + " บาท");*/
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            setResult(RESULT_OK);
             finish();
         } else if (item.getItemId() == R.id.menu_bt) {
             connectBluetoothPaired();
+        } else if (item.getItemId() == R.id.menu_home) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -387,6 +482,11 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @Override
     public void onLoad() {
         customDialog.dialogLoading();
+    }
+
+    @Override
+    public void onLongLoad() {
+        customDialog.dialogLongLoading();
     }
 
     @Override
@@ -401,12 +501,34 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     @Override
     public void onSuccess(String success) {
-        if (buttonInstallReceipt.isShown()) {
-            buttonInstallReceipt.setVisibility(View.GONE);
-            buttonFinish.setVisibility(View.VISIBLE);
-        } else {
-            buttonInstallReceipt.setVisibility(View.VISIBLE);
+        try {
+            if (printType.equals("contact") && !jobItem.getStatus().equals("01")) {
+                getPresenter().updatePrintStatus(jobItem.getOrderid(), Constance.printContactStatus);
+                buttonInstallReceipt.setVisibility(View.VISIBLE);
+            } else if (printType.equals("installreceipt")) {
+                getPresenter().updatePrintStatus(jobItem.getOrderid(), Constance.printInstallStatus);
+                buttonInstallReceipt.setVisibility(View.GONE);
+                buttonFinish.setVisibility(View.VISIBLE);
+            }
+        } catch (Exception e) {
+            Log.e("job finish exception", e.getMessage());
         }
+    }
+
+    @Override
+    public void onJobClosed() {
+        startActivity(new Intent(ContractActivity.this, MainActivity.class));
+        finish();
+    }
+
+    @Override
+    public void onUploadSuccess(String updated) {
+        customDialog.dialogSuccess(updated);
+
+    }
+
+    public void addStep() {
+        getPresenter().updateStep(jobItem.getOrderid(), Constance.STEP_7);
     }
 
     @Override
@@ -479,7 +601,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             @Override
             public void onClick(View view) {
                 buttonFinish.startAnimation(new AnimateButton().animbutton());
-                getPresenter().updateStep(ContractActivity.this, jobItem.getOrderid(), Constance.STEP_7);
+                onGetImage(jobItem.getOrderid());
             }
         };
     }
@@ -561,6 +683,8 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                             themalPrintController.printSignatureKViruchWithCustomer(path);
                         } else if (info.text.equals("customerWithInstaller")) {
                             themalPrintController.printSignatureInstallerWithCustomer(generateSignForPrintReceiptInstallation());
+                        } else if (info.text.equals("signatureWitness")) {
+                            themalPrintController.printSignatureKViruchWithCustomer(witnessPath.getAbsolutePath());
                         } else {
                             if (info.language.equals("TH")) {
                                 themalPrintController.sendThaiMessage(info.text);
@@ -576,16 +700,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                 printer.flush();
                 ContractActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
-                        try {
-                            if (jobItem.getOrderid().equals("01")) {
-                                startActivity(new Intent(ContractActivity.this, MainActivity.class));
-                                finish();
-                            } else {
-                                onSuccess("");
-                            }
-                        } catch (Exception e) {
-                            Log.e("job finish exception", e.getMessage());
-                        }
+                        onSuccess("");
                     }
                 });
             }
@@ -600,14 +715,13 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 textViewPrintStatus.setText("เชื่อมต่อปริ้นท์เตอร์ " + bluetoothDevice.getName() + " แล้ว");
                 textViewPrintStatus.setBackgroundColor(getResources().getColor(R.color.LimeGreen));
-                buttonPrintContact.setVisibility(View.VISIBLE);
             }  else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
                 Log.e("Bluetooth connection", action);
                 textViewPrintStatus.setText("ไม่ได้เชื่อมต่อปริ้นท์เตอร์");
                 textViewPrintStatus.setBackgroundColor(getResources().getColor(R.color.Orange));
-                buttonPrintContact.setVisibility(View.GONE);
-                buttonInstallReceipt.setVisibility(View.GONE);
-                buttonFinish.setVisibility(View.GONE);
+                closePrinterServer();
+                closePrinterConnection();
+                closeBluetoothConnection();
                 waitForConnection();
             }
         }
@@ -627,6 +741,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         return true;
     }
 
+    /*********************************Connection bluetooth device**********************************/
     private synchronized void waitForConnection() {
         try {
             mPrinterServer = new PrinterServer(new PrinterServerListener() {
@@ -655,7 +770,6 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         mProtocolAdapter = new ProtocolAdapter(inputStream, outputStream);
         if (mProtocolAdapter.isProtocolEnabled()) {
             Log.e("Protocol", "Protocol mode is enabled");
-
             mPrinterChannel = mProtocolAdapter.getChannel(ProtocolAdapter.CHANNEL_PRINTER);
             mPrinter = new Printer(mPrinterChannel.getInputStream(), mPrinterChannel.getOutputStream());
         } else {
@@ -687,6 +801,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             pairedDevices = bluetoothAdapter.getBondedDevices();
             if (pairedDevices.size() > 0) {
                 for (final BluetoothDevice device : pairedDevices) {
+                    Log.e("device name", device.getName());
                     final Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -707,6 +822,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
                                 try {
                                     initPrinter(inputStream, outputStream);
+                                    customDialog.dialogDimiss();
                                 } catch (IOException e) {
                                     Log.e("FAILED to initiallize: ", e.getMessage());
                                     return;
@@ -728,7 +844,9 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             startActivityForResult(intentOpenBluetoothSettings, Constance.REQUEST_BLUETOOTH_SETTINGS);
         }
     }
+    /***********************************************************************************************/
 
+    /************************************Clear device connection***********************************/
     private synchronized void closeBluetoothConnection() {
         BluetoothSocket s = mBtSocket;
         mBtSocket = null;
@@ -761,17 +879,26 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         if (mProtocolAdapter != null) {
             mProtocolAdapter.close();
         }
-    }
 
+        try {
+            inputStream = null;
+            outputStream = null;
+        } catch (Exception ex) {
+            Log.e("closePrinterConnection", ex.getMessage());
+        }
+    }
+    /***********************************************************************************************/
+
+    /*********************************Generate signature installer with customer**********************************/
     private String generateSignForPrintReceiptInstallation() {
         File installationPath = new File(imageConfiguration.getAlbumStorageDir(jobItem.getOrderid()), String.format("signature_%s_install.jpg", jobItem.getOrderid()));
         try {
             empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
-            signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
+            empSign = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
             customerPath = new File(imageConfiguration.getAlbumStorageDir(jobItem.getOrderid()), String.format("signature_%s.jpg", jobItem.getOrderid()));
 
             Bitmap bmp1 = BitmapFactory.decodeFile(customerPath.getAbsolutePath());
-            Bitmap bmp2 = BitmapFactory.decodeFile(signPath.getAbsolutePath());
+            Bitmap bmp2 = BitmapFactory.decodeFile(empSign.getAbsolutePath());
             createSingleImageFromMultipleImages(getResizedBitmap(bmp1, 210, 71), getResizedBitmap(bmp2, 210, 71), installationPath);
         } catch (Exception e) {
         }
@@ -801,4 +928,55 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         bm.recycle();
         return resizedBitmap;
     }
+    /***********************************************************************************************/
+
+    /***********************************Upload to server********************************************/
+    @Override
+    public void onGetImage(String orderid) {
+        getPresenter().getAllImage(orderid);
+    }
+
+    @Override
+    public void setImageToContactBody(List<ObjectImage> objectImages) {
+        List<MultipartBody.Part> parts = new ArrayList<>();
+        List<ObjectImage> objectImageList = new ArrayList<>();
+        for (int i = 0; i < objectImages.size(); i++) {
+            ObjectImage image = objectImages.get(i);
+            File f = new File(image.getImageName());
+            Uri uri = Uri.fromFile(f);
+            File file = FileUtils.getFile(ContractActivity.this, uri);
+            RequestBody requestFile =
+                    RequestBody.create(MediaType.parse("multipart/form-data"), file);
+            MultipartBody.Part body =
+                    MultipartBody.Part.createFormData("file[]", file.getName(), requestFile);
+            parts.add(body);
+
+            objectImageList.add(new ObjectImage()
+                    .setType(image.getType())
+                    .setImageName(file.getName())
+                    .setProductCode(image.getProductCode())
+            );
+        }
+
+        contactItem = new ContactItem()
+                .setOrderid(jobItem.getOrderid())
+                .setEmpid(MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID))
+                .setInstalldate(getPresenter().getInstallDate(jobItem.getOrderid()))
+                .setInstallend(getPresenter().getInstallEnd(jobItem.getOrderid()))
+                .setImages(objectImageList);
+
+        String patientData = jobItem.getOrderid();
+        RequestBody requestBody = RequestBody.create(okhttp3.MultipartBody.FORM, patientData);
+
+        getPresenter().uploadImageToServer(requestBody, parts);
+    }
+
+    @Override
+    public void uploadData() {
+        Gson gson = new Gson();
+        String patientData = gson.toJson(contactItem);
+        RequestBody requestBody = RequestBody.create(okhttp3.MultipartBody.FORM, patientData);
+        getPresenter().uploadDataToServer(requestBody);
+    }
+    /***********************************************************************************************/
 }

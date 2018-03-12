@@ -26,14 +26,14 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.installation.adapter.InstallationAdapter;
 import th.co.thiensurat.toss_installer.installation.camera.CaptureActivityPortrait;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.JobItemGroup;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.takepicture.TakePictureActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
@@ -53,11 +53,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     private LinearLayoutManager layoutManager;
 
     private String productcode;
+    private ProductItemGroup productItemGroup;
     private List<ProductItem> productItemList;
 
     @Override
     public InstallationInterface.Presenter createPresenter() {
-        return InstallationPresenter.create();
+        return InstallationPresenter.create(InstallationActivity.this);
     }
 
     @Override
@@ -91,19 +92,14 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     @Override
     public void initialize() {
         getDataFromIntent();
-        if (getPresenter().checkItem(InstallationActivity.this)) {
-            getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
-        } else {
-            customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
-        }
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.print_menu, menu);
         return true;
-    }
+    }*/
 
     @Override
     public void onLoad() {
@@ -122,8 +118,8 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
 
     @Override
     public void onSuccess(String success) {
-        Log.e("update serial", jobItem.getOrderid() + ", " + productcode + ", " + success);
-        getPresenter().updateProduct(InstallationActivity.this, id, success);
+        Log.e("success", success);
+        getPresenter().updateProduct(id, success);
     }
 
     private void setRecyclerView() {
@@ -153,8 +149,8 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
 
     @Override
     public void refreshProduct() {
-        if (getPresenter().checkItem(InstallationActivity.this)) {
-            getPresenter().getProductDetail(InstallationActivity.this, jobItem.getOrderid());
+        if (getPresenter().checkItem()) {
+            getPresenter().getProductDetail(jobItem.getOrderid());
         } else {
             customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
             return;
@@ -172,6 +168,29 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        if (getPresenter().checkItem()) {
+            getPresenter().getProductDetail(jobItem.getOrderid());
+        } else {
+            customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
+        }
+        /*try {
+            if (jobItem.getStatus().equals("22")) {
+                getPresenter().getProductDetail(jobItem.getOrderid());
+            } else {
+                if (getPresenter().checkItem()) {
+                    getPresenter().getProductDetail(jobItem.getOrderid());
+                } else {
+                    customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
+                }
+            }
+        } catch (Exception e) {
+            Log.e("installation", e.getMessage() + "\n" + jobItem.getStatus());
+            if (getPresenter().checkItem()) {
+                getPresenter().getProductDetail(jobItem.getOrderid());
+            } else {
+                customDialog.dialogWarning("กรุณาเบิกสินค้า\nก่อนทำการติดตั้ง");
+            }
+        }*/
     }
 
     @Override
@@ -179,12 +198,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
             serial = result.getContents();
+            MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_SERIAL, serial);
             if(result.getContents() == null) {
                 relativeLayoutNext.setVisibility(View.GONE);
             } else {
-                //Log.e("Product serial", result.getContents());
-                if (getPresenter().checkSerial(InstallationActivity.this, serial, productcode)) {
-                    getPresenter().updateSerialToServer(jobItem.getOrderid(), productcode, serial);
+                if (getPresenter().checkSerial(MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL), productcode)) {
+                    getPresenter().updateSerialToServer(jobItem.getOrderid(), productcode, MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL));
                     for (ProductItem item : productItemList) {
                         if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
                             relativeLayoutNext.setVisibility(View.VISIBLE);
@@ -194,7 +213,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
                         }
                     }
                 } else {
-                    customDialog.dialogFail("serial สินค้าไม่ถูกต้อง!");
+                    customDialog.dialogFail("รหัสสินค้าไม่ถูกต้อง!");
                 }
             }
         } else {
@@ -205,10 +224,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            //setResult(RESULT_CANCELED);
             finish();
         } else if (item.getItemId() == R.id.menu_print) {
 
+        } else if (item.getItemId() == R.id.menu_home) {
+            startActivity(new Intent(InstallationActivity.this, MainActivity.class));
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -218,16 +239,14 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
             @Override
             public void onClick(View view) {
                 buttonNext.startAnimation(new AnimateButton().animbutton());
-                Intent intent = new Intent(getApplicationContext(), TakePictureActivity.class);
-                intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-                intent.putExtra(Constance.KEY_JOB_PRODUCT, productcode);
-                startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
+                onNextStep();
             }
         };
     }
 
     public void onNextStep() {
-        Intent intent = new Intent(getApplicationContext(), TakePictureActivity.class);
+        //getPresenter().updateStatus("status", jobItem.getOrderid());
+        Intent intent = new Intent(InstallationActivity.this, TakePictureActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
     }
@@ -237,13 +256,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         ProductItem item = productItemList.get(position);
         id = item.getProductID();
         productcode = item.getProductCode();
-        /*IntentIntegrator integrator = new IntentIntegrator(InstallationActivity.this);
-        integrator.setOrientationLocked(true);
-        integrator.setCaptureActivity(CaptureActivityPortrait.class);
-        integrator.initiateScan();*/
-
-        //serial = item.getProductSerial();
-
+        MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_PRODUCT_CODE, item.getProductCode());
         if (item.getProductStatus().equals("พร้อมติดตั้ง")) {
             onNextStep();
         } else {
@@ -259,10 +272,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         ProductItem item = productItemList.get(position);
         id = item.getProductID();
         productcode = item.getProductCode();
+        MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_PRODUCT_CODE, item.getProductCode());
         final CharSequence choice[] = new CharSequence[] {"สแกนใหม่", "พิมพ์สัญญา"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("เลือกรายการ");
+        builder.setTitle("เลือก");
+        builder.setIcon(getResources().getDrawable(R.drawable.ic_info_outline_white_24dp));
         builder.setItems(choice, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

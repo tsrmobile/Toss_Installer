@@ -61,6 +61,7 @@ public class SignatureActivity extends AppCompatActivity {
     private String orderid;
     private File mergeSignPath;
     private File customerSignPath;
+    private File installationPath;
     private ImageConfiguration imageConfiguration;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -78,7 +79,7 @@ public class SignatureActivity extends AppCompatActivity {
         WindowManager.LayoutParams params = this.getWindow().getAttributes();
         params.alpha = 1.0f;
         params.dimAmount = 0.5f;
-        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        getWindow().setAttributes((WindowManager.LayoutParams) params);
         getWindow().setLayout(((WindowManager.LayoutParams) params).WRAP_CONTENT, ((WindowManager.LayoutParams) params).WRAP_CONTENT);
         setFinishOnTouchOutside(false);
         setContentView(R.layout.activity_signature);
@@ -125,7 +126,6 @@ public class SignatureActivity extends AppCompatActivity {
     }
 
     private void getDataFromIntent() {
-        key = getIntent().getStringExtra("KEY");
         orderid = getIntent().getStringExtra(Constance.KEY_ORDER_ID);
         try {
             customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
@@ -134,20 +134,6 @@ public class SignatureActivity extends AppCompatActivity {
             bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(),true);
             signaturePad.setSignatureBitmap(bitmap);
         } catch (Exception ex) {}
-        /*if (key.equals("contact")) {
-            try {
-                customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
-                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                Bitmap bitmap = BitmapFactory.decodeFile(customerSignPath.getAbsolutePath(), bmOptions);
-                bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(),true);
-                signaturePad.setSignatureBitmap(bitmap);
-            } catch (Exception ex) {}
-        } else {
-            customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            bitmap2 = BitmapFactory.decodeFile(customerSignPath.getAbsolutePath(), bmOptions);
-            bitmap2 = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(),true);
-        }*/
     }
 
     private View.OnClickListener onClear() {
@@ -176,7 +162,6 @@ public class SignatureActivity extends AppCompatActivity {
                 intent.putExtra("status", "done");
                 intent.putExtra("pathSignContact", mergeSignPath.getAbsolutePath().toString());
                 intent.putExtra("pathCustomer", customerSignPath.getAbsolutePath().toString());
-                intent.putExtra("pathSignInstall", "");
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -218,6 +203,24 @@ public class SignatureActivity extends AppCompatActivity {
         }
     }
 
+    public boolean addJpgSignatureToGallery(Bitmap signature) {
+        boolean result = false;
+        try {
+            customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
+            mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_contact.jpg", orderid));
+            /*if (key.equals("contact")) {
+                mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_contact.jpg", orderid));
+            } else {
+                mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_install_receipt.jpg", orderid));
+            }*/
+            saveBitmapToJPG(signature, customerSignPath);
+            result = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public void saveBitmapToJPG(Bitmap bitmap, File photo) throws IOException {
         Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(newBitmap);
@@ -227,32 +230,10 @@ public class SignatureActivity extends AppCompatActivity {
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         stream.close();
 
-        /*if (key.equals("contact")) {
-            try {
-                AssetManager assetManager = this.getAssets();
-                bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch2.png"), null, null);
-                createSingleImageFromMultipleImages(bitmap, getResizedBitmap(newBitmap, 210, 71));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            createSingleImageFromMultipleImages(getResizedBitmap(bitmap2, 210, 71)
-                    , getResizedBitmap(newBitmap, 210, 71));
-        }*/
         try {
             AssetManager assetManager = this.getAssets();
             bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch2.png"), null, null);
             createSingleImageFromMultipleImages(bitmap, getResizedBitmap(newBitmap, 210, 71));
-
-
-            empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
-            signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
-            if (signPath.exists()) {
-                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                Bitmap bitmapEmp = BitmapFactory.decodeFile(signPath.getAbsolutePath(), bmOptions);
-                bitmapEmp = Bitmap.createScaledBitmap(bitmapEmp, bitmapEmp.getWidth(), bitmapEmp.getHeight(), true);
-                createSingleImageFromMultipleImages(getResizedBitmap(newBitmap, 210, 71), getResizedBitmap(bitmapEmp, 210, 71));
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -267,23 +248,6 @@ public class SignatureActivity extends AppCompatActivity {
         OutputStream stream = new FileOutputStream(mergeSignPath);
         result.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         stream.close();
-    }
-
-    public boolean addJpgSignatureToGallery(Bitmap signature) {
-        boolean result = false;
-        try {
-            customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
-            if (key.equals("contact")) {
-                mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_contact.jpg", orderid));
-            } else {
-                mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_install_receipt.jpg", orderid));
-            }
-            saveBitmapToJPG(signature, customerSignPath);
-            result = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {

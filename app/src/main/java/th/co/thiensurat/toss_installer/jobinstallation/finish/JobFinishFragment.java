@@ -18,9 +18,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.jobinstallation.finish.adapter.JobFinishAdapter;
-import th.co.thiensurat.toss_installer.step.TimeLineActivity;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
@@ -34,6 +34,7 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
     private JobFinishAdapter adapter;
     private CustomDialog customDialog;
     private LinearLayoutManager layoutManager;
+    private List<JobItem> jobItemList;
 
     public JobFinishFragment() {
         // Required empty public constructor
@@ -132,6 +133,7 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
 
     @Override
     public void setJobItemToAdapter(List<JobItem> jobItemList) {
+        this.jobItemList = jobItemList;
         swipeRefreshLayout.setRefreshing(false);
         adapter.setJobItem(jobItemList);
         adapter.setItemClick(this);
@@ -148,6 +150,9 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
 
     @Override
     public void itemClick(View view, int position) {
-
+        JobItem jobItem = jobItemList.get(position);
+        Intent intent = new Intent(getActivity(), ContractActivity.class);
+        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+        getActivity().startActivityForResult(intent, Constance.REQUEST_PRINT_CONTRACT);
     }
 }

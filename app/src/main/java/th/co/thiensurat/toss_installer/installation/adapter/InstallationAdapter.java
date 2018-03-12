@@ -13,8 +13,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.job.adapter.JobAdapter;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 
 /**
@@ -37,13 +36,13 @@ public class InstallationAdapter extends RecyclerView.Adapter<InstallationAdapte
 
 
     @Override
-    public InstallationAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cardview_installation, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(InstallationAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         ProductItem item = productItemList.get(position);
         holder.textViewName.setText((item.getProductItemCode().equals("-")) ? item.getProductName() : item.getProductItemName());
         if (item.getProductItemQty().equals("0")) {

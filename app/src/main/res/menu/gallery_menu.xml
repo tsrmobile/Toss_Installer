@@ -6,4 +6,10 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_insert_photo_white_24dp"
         android:title=""/>
+
+    <item
+        android:id="@+id/menu_home"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_home_white_36dp"
+        android:title=""/>
 </menu>

@@ -15,9 +15,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.detail.edit.adapter.DetailTabAdapter;
-import th.co.thiensurat.toss_installer.job.item.AddressItem;
-import th.co.thiensurat.toss_installer.job.item.AddressItemGroup;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
 
 public class EditActivity extends AppCompatActivity {
@@ -41,30 +40,6 @@ public class EditActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setToolbar();
         setTabLayout();
-        getItemFromIntent();
-    }
-
-    private void getItemFromIntent() {
-        JobItem jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        AddressItemGroup addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
-        setJobItem(jobItem);
-        setAddressGroup(addressItemGroup);
-    }
-
-    public void setJobItem(JobItem jobItem) {
-        this.jobItem = jobItem;
-    }
-
-    public JobItem getJobItem() {
-        return jobItem;
-    }
-
-    public void setAddressGroup(AddressItemGroup addressGroup) {
-        this.addressItemGroup = addressGroup;
-    }
-
-    public AddressItemGroup getAddressItemGroup() {
-        return addressItemGroup;
     }
 
     private void setToolbar() {

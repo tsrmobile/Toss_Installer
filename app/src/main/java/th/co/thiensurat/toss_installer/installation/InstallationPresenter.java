@@ -13,9 +13,8 @@ import java.util.List;
 
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItem;
-import th.co.thiensurat.toss_installer.job.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
@@ -26,6 +25,7 @@ import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 public class InstallationPresenter extends BaseMvpPresenter<InstallationInterface.View> implements InstallationInterface.Presenter {
 
     private DBHelper dbHelper;
+    private static Context context;
     private ProductItemGroup productItemGroup;
     private List<ProductItem> productItemList;
 
@@ -49,12 +49,13 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
         RxBus.get().unregister( this );
     }
 
-    public static InstallationInterface.Presenter create() {
+    public static InstallationInterface.Presenter create(Context activity) {
+        context = activity;
         return new InstallationPresenter();
     }
 
     @Override
-    public void getProductDetail(Context context, String orderid) {
+    public void getProductDetail(String orderid) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         this.productItemGroup = dbHelper.getProductByID(orderid);
         setProductItemGroup(productItemGroup);
@@ -99,14 +100,9 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
     }
 
     @Override
-    public boolean checkSerial(Context context, String serial, String productcode) {
+    public boolean checkSerial(String serial, String productcode) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         return dbHelper.checkItemSerial(serial, productcode);
-        /*if (dbHelper.checkItemSerial(serial, productcode)) {
-            return true;
-        } else {
-            return false;
-        }*/
     }
 
     @Override
@@ -120,7 +116,7 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
     }
 
     @Override
-    public boolean checkItem(Context context) {
+    public boolean checkItem() {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         if (dbHelper.checkItemExisting()) {
             return true;
@@ -129,29 +125,45 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
         }
     }
     @Override
-    public void updateProduct(Context context, String id, String serial) {
+    public void updateProduct(String id, String serial) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.updateSerialToTableProduct(id, serial);
         getView().refreshProduct();
     }
 
-    /*@Override
-    public boolean checkSerial(Context context, String serial, String productcode) {
+    @Override
+    public void updateStep(String orderid, String step) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.checkItemSerial(serial, productcode)) {
-            return true;
-        } else {
-            return false;
-        }
+        dbHelper.updateStep(orderid, step);
     }
 
-    @Override
-    public boolean checkPackageInstall(Context context, String orderid, String productcode) {
-        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.getProductPackage(orderid, productcode)) {
-            return true;
-        } else {
-            return false;
-        }
+    /*@Override
+    public void updateStatus(String action, String orderid) {
+        serviceManager.requestUPdateStatus(action, orderid, new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onSuccess(jsonObject.getString("message"));
+                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
+                        getView().onDismiss();
+                        getView().onFail(jsonObject.getString("message"));
+                    } else {
+                        getView().onDismiss();
+                        getView().onFail(jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("json obj", e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("fail", t.getLocalizedMessage());
+            }
+        });
     }*/
 }

@@ -19,4 +19,8 @@
     <string name="spinner_sub_district">กรุณาเลือกตำบล</string>
     <string name="spinner_district">กรุณาเลือกอำเภอ</string>
     <string name="spinner_province">กรุณาเลือกจังหวัด</string>
+
+    <string name="printing">Printing...</string>
+
+    <string name="date_format">dd/MM/yyyy</string>
 </resources>

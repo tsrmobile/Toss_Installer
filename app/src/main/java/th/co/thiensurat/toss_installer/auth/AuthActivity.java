@@ -1,16 +1,8 @@
 package th.co.thiensurat.toss_installer.auth;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -20,21 +12,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
-import th.co.thiensurat.toss_installer.api.result.data.DataResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
@@ -146,37 +132,9 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
 
     @Override
     public void onSuccess() {
-        //getPresenter().Jobrequest("dayjob", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
         onNextPage();
     }
 
-    @Override
-    public void onInstall() {
-        //getPresenter().Jobrequest("job", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
-    }
-
-    @Override
-    public void onPayment() {
-        onNextPage();
-    }
-
-    @Override
-    public void insertToSqlite(final List<JobItem> jobItemList) {
-        if (jobItemList.size() > 0) {
-            createDB(jobItemList);
-        } else {
-            onNextPage();
-        }
-    }
-
-    private synchronized void createDB(final List<JobItem> jobItemList) {
-        new Thread() {
-            @Override
-            public void run() {
-                getPresenter().insetToSqlite(AuthActivity.this, jobItemList);
-            }
-        }.start();
-    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -186,7 +144,7 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
                 return true;
             }
             this.clickBackAain = true;
-            Toast.makeText(AuthActivity.this, "คลิกอีกครั้งเพื่อออก", Toast.LENGTH_LONG).show();
+            Toast.makeText(AuthActivity.this, "กด BACK อีกครั้งเพื่อออกจากแอพ", Toast.LENGTH_LONG).show();
 
             new Handler().postDelayed(new Runnable() {
 

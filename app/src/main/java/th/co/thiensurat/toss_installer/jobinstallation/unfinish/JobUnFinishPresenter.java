@@ -1,5 +1,7 @@
 package th.co.thiensurat.toss_installer.jobinstallation.unfinish;
 
+import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.hwangjr.rxbus.RxBus;
@@ -10,8 +12,11 @@ import java.util.List;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.job.item.ConvertJobList;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertJobList;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.db.DBHelper;
 
 /**
  * Created by teerayut.k on 1/25/2018.
@@ -19,6 +24,8 @@ import th.co.thiensurat.toss_installer.job.item.JobItem;
 
 public class JobUnFinishPresenter extends BaseMvpPresenter<JobUnFinishInterface.View> implements JobUnFinishInterface.Presenter {
 
+    private DBHelper dbHelper;
+    private static Context context;
     private ServiceManager serviceManager;
     private List<JobItem> jobItemList = new ArrayList<JobItem>();
 
@@ -40,34 +47,36 @@ public class JobUnFinishPresenter extends BaseMvpPresenter<JobUnFinishInterface.
         RxBus.get().unregister( this );
     }
 
-    public static JobUnFinishInterface.Presenter create() {
+    public static JobUnFinishInterface.Presenter create(FragmentActivity fragmentActivity) {
+        context = fragmentActivity;
         return new JobUnFinishPresenter();
     }
 
     @Override
     public void getJobUnFinish(String data, String empid) {
-        //getView().onLoad();
-        serviceManager.requestJobUnSuccess(data, empid, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
+        serviceManager.requestJob(data, empid, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
             @Override
             public void onSuccess(JobItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
-                    //getView().onDismiss();
                     jobItemList = ConvertJobList.creatJobItemList(result.getData());
                     getView().setJobItemToAdapter(jobItemList);
                 } else if (result.getStatus().equals("FAIL")) {
-                    //getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 } else if (result.getStatus().equals("ERROR")) {
-                    //getView().onDismiss();
                     getView().onFail(result.getMessage().toString());
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
-                //getView().onDismiss();
                 Log.e("Failure un success", t.getLocalizedMessage());
             }
         });
+    }
+
+    @Override
+    public void setProductToTable(String orderid, List<ProductItem> productItems) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper.setTableProductByOrderid(orderid, productItems);
     }
 }

@@ -4,9 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -24,17 +21,18 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
-import th.co.thiensurat.toss_installer.job.item.JobItem;
-import th.co.thiensurat.toss_installer.mapcheckin.MapCheckinActivity;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.takepicturecheckin.MapCheckinActivity;
 import th.co.thiensurat.toss_installer.takepicture.adapter.TakePictureAdapter;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
-import th.co.thiensurat.toss_installer.takepicturecard.TakeIDCardActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.PermissionUtil;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_CAMERA;
@@ -59,7 +57,7 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
 
     @Override
     public TakeHomeInterface.Presenter createPresenter() {
-        return TakeHomePresenter.create();
+        return TakeHomePresenter.create(TakeHomeActivity.this);
     }
 
     @Override
@@ -111,7 +109,7 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
     @Override
     public void initialize() {
         getDataFromIntent();
-        getPresenter().getImage(TakeHomeActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME);
+        getPresenter().getImage(jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME);
     }
 
     @Override
@@ -127,8 +125,11 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
             setResult(RESULT_CANCELED);
             finish();
         } else if (item.getItemId() == R.id.menu_gallery) {
-            Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             this.startActivityForResult(pickPhoto, Constance.REQUEST_GALLERY);
+        } else if (item.getItemId() == R.id.menu_home) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -138,10 +139,9 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
             @Override
             public void onClick(View view) {
                 buttonNext.startAnimation(new AnimateButton().animbutton());
+                getPresenter().updateStep(jobItem.getOrderid(), Constance.STEP_5);
                 Intent intent = new Intent(TakeHomeActivity.this, MapCheckinActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-                intent.putExtra(Constance.KEY_SERIAL_ITEM, serial);
-                intent.putExtra(Constance.KEY_PRODUCT_CODE, productcode);
                 startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
             }
         };
@@ -178,17 +178,15 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
 
     @Override
     public void refresh() {
-        getPresenter().getImage(TakeHomeActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME);
+        getPresenter().getImage(jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME);
     }
 
     private void imageChooser() throws IOException {
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImageFile(jobItem.getOrderid());
+        file = imageConfiguration.createImageByType(jobItem.getOrderid(), "", Constance.IMAGE_TYPE_HOME);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);
-        //Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        //customDialog.dialogChooser(pickPhoto, Constance.REQUEST_GALLERY, takePicture, REQUEST_CAMERA);
     }
 
     @Override
@@ -208,8 +206,7 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        serial = getIntent().getStringExtra(Constance.KEY_SERIAL_ITEM);
-        productcode = getIntent().getStringExtra(Constance.KEY_PRODUCT_CODE);
+        productcode = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_PRODUCT_CODE);
     }
 
     private void setRecyclerView() {
@@ -231,7 +228,7 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
         Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = imageConfiguration.createImageFile(jobItem.getOrderid());
+        file = imageConfiguration.createImageByType(jobItem.getOrderid(), "", Constance.IMAGE_TYPE_HOME);
         pictureUri = Uri.fromFile( file );
         takePicture.putExtra( MediaStore.EXTRA_OUTPUT, pictureUri );
         startActivityForResult(takePicture, REQUEST_CAMERA);
@@ -241,16 +238,16 @@ public class TakeHomeActivity extends BaseMvpActivity<TakeHomeInterface.Presente
     public void delClicked(View view, int position) {
         ImageItem item = imageItemList.get(position);
         id = item.getImageId();
-        getPresenter().delImage(TakeHomeActivity.this, id);
+        getPresenter().delImage(id);
         imageConfiguration.removeImage(item.getImageUrl());
     }
 
     private void setImage(File file) {
         String url = file.getPath().toString();
         if (id.equals("-1")) {
-            getPresenter().saveImageUrl(TakeHomeActivity.this, jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME, url, productcode);
+            getPresenter().saveImageUrl(jobItem.getOrderid(), Constance.IMAGE_TYPE_HOME, url, productcode);
         } else {
-            getPresenter().editImageUrl(TakeHomeActivity.this, id, url);
+            getPresenter().editImageUrl(id, url);
         }
     }
 }

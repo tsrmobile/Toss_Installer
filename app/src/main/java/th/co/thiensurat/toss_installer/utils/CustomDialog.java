@@ -14,7 +14,6 @@ import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
-import th.co.thiensurat.toss_installer.mapcheckin.MapCheckinActivity;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_SETTINGS;
 
@@ -42,6 +41,15 @@ public class CustomDialog {
         sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
         sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
         sweetAlertDialog.setTitleText("กำลังโหลด...");
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.show();
+    }
+
+    public static void dialogLongLoading() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        sweetAlertDialog.setTitleText("กำลังอัพโหลดข้อมูล...");
         sweetAlertDialog.setCancelable(false);
         sweetAlertDialog.show();
     }
@@ -102,7 +110,7 @@ public class CustomDialog {
                     public void onClick(SweetAlertDialog dialog) {
                         dialog.dismiss();
                         if (context instanceof ContractActivity) {
-                            context.startActivity(new Intent(context, MainActivity.class));
+                            ((ContractActivity)context).addStep();
                         }
                     }
                 }).show();

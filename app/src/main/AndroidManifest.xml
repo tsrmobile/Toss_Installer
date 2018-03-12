@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <permission
         android:name="th.co.thiensurat.toss_installer.permission.MAPS_RECEIVE"
@@ -104,10 +105,10 @@
             android:name=".takepicturhome.TakeHomeActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name=".mapcheckin.MapCheckinActivity"
+            android:name=".takepicturecheckin.MapCheckinActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
-            android:name=".mapcheckin.result.CheckinResultActivity"
+            android:name=".takepicturecheckin.result.CheckinResultActivity"
             android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".contract.ContractActivity"
@@ -118,19 +119,42 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".printer.bluetoothDevice.BluetoothDeviceActivity"
-            android:screenOrientation="sensorPortrait" />
-        <activity
             android:name=".contract.signaturepad.SignatureActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/PopupTheme" />
         <activity
-            android:name=".step.TimeLineActivity"
-            android:screenOrientation="sensorPortrait" />
-        <activity
             android:name=".detail.edit.EditActivity"
             android:screenOrientation="sensorPortrait" />
-        <activity android:name=".contract.installReceipt.InstallReceiptActivity" />
+        <activity android:name=".stepview.StepViewActivity" />
+
+
+        <activity
+            android:name="com.ipaulpro.afilechooser.FileChooserActivity"
+            android:icon="@drawable/ic_chooser"
+            android:enabled="@bool/use_activity"
+            android:exported="true"
+            android:label="@string/choose_file" >
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+        <provider
+            android:name="com.ianhanniballake.localstorage.LocalStorageProvider"
+            android:authorities="com.ianhanniballake.localstorage.documents"
+            android:enabled="@bool/use_provider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+
     </application>
 
 </manifest>

@@ -4,10 +4,12 @@ package th.co.thiensurat.toss_installer.setting;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -47,6 +49,7 @@ public class SettingFragment extends BaseMvpFragment<SettingInterface.Presenter>
 
     private String empid;
     private File signPath;
+    private File witness;
     private ImageConfiguration imageConfiguration;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -112,6 +115,9 @@ public class SettingFragment extends BaseMvpFragment<SettingInterface.Presenter>
     public void initialize() {
         try {
             empid = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID);
+
+            witness = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_witness.jpg"));
+
             signPath = new File(imageConfiguration.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             Bitmap bitmap = BitmapFactory.decodeFile(signPath.getAbsolutePath(), bmOptions);
@@ -202,5 +208,36 @@ public class SettingFragment extends BaseMvpFragment<SettingInterface.Presenter>
         OutputStream stream = new FileOutputStream(photo);
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         stream.close();
+
+        try {
+            AssetManager assetManager = getActivity().getAssets();
+            bitmap = BitmapFactory.decodeStream(assetManager.open("witness.png"), null, null);
+            createSingleImageFromMultipleImages(getResizedBitmap(newBitmap, 210, 71), bitmap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage) throws IOException {
+        Bitmap result = Bitmap.createBitmap((firstImage.getWidth() + secondImage.getWidth()), firstImage.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        canvas.drawColor(Color.WHITE);
+        canvas.drawBitmap(firstImage, 0, 0, null);
+        canvas.drawBitmap(secondImage, firstImage.getWidth(), 0, null);
+        OutputStream stream = new FileOutputStream(witness);
+        result.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        stream.close();
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        bm.recycle();
+        return resizedBitmap;
     }
 }

@@ -17,7 +17,7 @@ public class ItemBalanceInterface {
         void setItemBalanceToAdapter(List<InstallItem> installItemList);
     }
 
-    public interface Presenter extends BaseMvpInterface.Presenter<ItemBalanceInterface.View> {
+    public interface Presenter extends BaseMvpInterface.Presenter<View> {
         void getItemBalance(Context context);
     }
 }

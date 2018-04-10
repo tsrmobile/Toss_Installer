@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    <uses-permission android:name="android.permission.CPAYSDK_PRINTER_MODULE"/>
+
     <permission
         android:name="th.co.thiensurat.toss_installer.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
@@ -30,6 +32,7 @@
     <application
         android:name=".utils.MyApplication"
         android:allowBackup="true"
+        android:largeHeap="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -126,14 +129,12 @@
             android:name=".detail.edit.EditActivity"
             android:screenOrientation="sensorPortrait" />
         <activity android:name=".stepview.StepViewActivity" />
-
-
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
-            android:icon="@drawable/ic_chooser"
             android:enabled="@bool/use_activity"
             android:exported="true"
-            android:label="@string/choose_file" >
+            android:icon="@drawable/ic_chooser"
+            android:label="@string/choose_file">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
 
@@ -143,6 +144,7 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="com.ianhanniballake.localstorage.LocalStorageProvider"
             android:authorities="com.ianhanniballake.localstorage.documents"
@@ -155,6 +157,22 @@
             </intent-filter>
         </provider>
 
+        <activity
+            android:name=".setting.ConfigurationActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".setting.signature.SignActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity
+            android:name=".setting.backupandrestore.BackupAndRestoreActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity android:name=".jobinstallation.JobActivity" />
+        <activity android:name=".productwithdraw.WithdrawProductActivity" />
+        <activity android:name=".productbalance.activity.ProductBalanceActivity" />
+        <activity android:name=".payment.activity.PaymentActivity" />
+        <activity android:name=".payment.detail.CustomerPaymentDetailActivity" />
+        <activity android:name=".payment.paymentpage.PaymentPageActivity"></activity>
+        <service android:name=".setting.backupandrestore.utils.DownloadService"/>
     </application>
 
 </manifest>

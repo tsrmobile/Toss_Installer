@@ -216,7 +216,9 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
             Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(pickPhoto, Constance.REQUEST_GALLERY);
         } else if (item.getItemId() == R.id.menu_home) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            Intent intent = new Intent(TakePictureActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         }
         return super.onOptionsItemSelected(item);

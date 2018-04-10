@@ -61,14 +61,19 @@ public class Constance {
     public static int REQUEST_CHECKIN_RESULT = 14;
     public static int REQUEST_PRINT_CONTRACT = 15;
     public static int REQUEST_BLUETOOTH_SETTINGS = 16;
-    public static final int REQUEST_CONNECT_BT = 0*2300;
-    public static final int REQUEST_CONNECT_DEVICE = 17;
-    public static final int REQUEST_SIGNATURE = 18;
+    public static int REQUEST_SIGNATURE = 18;
     public static int REQUEST_EDIT_DETAIL = 19;
     public static int REQUEST_LOCATION = 20;
     public static int REQUEST_STEPVIEW= 21;
     public static int REQUEST_TIMELINE = 22;
     public static int REQUEST_BACKUP = 23;
+    public static int REQUEST_APP_SETTINGS = 24;
+    public static int REQUEST_JOB = 25;
+    public static int REQUEST_IMPORT_ITEM = 26;
+    public static int REQUEST_ITEM_BALANCE = 27;
+    public static int REQUEST_PAYMENT = 28;
+    public static int REQUEST_PAYMENT_PAGE = 29;
+    public static int REQUEST_PAYMENT_DETAIL = 30;
 
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
@@ -89,6 +94,7 @@ public class Constance {
     public static final String KEY_POSITION = "POSITION";
     public static final String KEY_DEPARTMENT = "DEPARTMENT";
 
+    public static final String KEY_SESSION = "SESSION";
     public static final String KEY_SERIAL = "SERIAL";
     public static final String KEY_PRODUCT_CODE = "PRODUCT_CODE";
 

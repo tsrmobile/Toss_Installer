@@ -117,6 +117,7 @@
                     android:paddingLeft="4dp">
 
                     <TextView
+                        android:id="@+id/title_begin"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.5"
@@ -155,6 +156,7 @@
                     android:paddingLeft="4dp">
 
                     <TextView
+                        android:id="@+id/title_until"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.5"

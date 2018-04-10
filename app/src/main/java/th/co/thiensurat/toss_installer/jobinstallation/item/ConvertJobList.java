@@ -29,7 +29,6 @@ public class ConvertJobList {
                     .setTitle(jobResult.getTitle())
                     .setFirstName(jobResult.getFirstName())
                     .setLastName(jobResult.getLastName())
-                    .setContactphone(jobResult.getContactphone())
                     .setInstallStartDate(jobResult.getInstallStartDate())
                     .setInstallEndDate(jobResult.getInstallEndDate())
                     .setInstallStart(jobResult.getInstallStart())
@@ -39,7 +38,8 @@ public class ConvertJobList {
                     .setContno(jobResult.getContno())
                     .setCloseDate(jobResult.getCloseDate())
                     .setProduct(jobResult.getProduct())
-                    .setAddress(jobResult.getAddress());
+                    .setAddress(jobResult.getAddress())
+                    .setDuedate(jobResult.getDuedate());
             items.add(jobItem);
         }
         return items;

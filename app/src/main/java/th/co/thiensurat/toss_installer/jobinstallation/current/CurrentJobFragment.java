@@ -4,6 +4,7 @@ package th.co.thiensurat.toss_installer.jobinstallation.current;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Parcelable;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
@@ -53,7 +55,7 @@ import th.co.thiensurat.toss_installer.utils.helper.SimpleItemTouchHelperCallbac
  * A simple {@link Fragment} subclass.
  */
 public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Presenter>
-        implements CurrentJobInterface.View, SwipeRefreshLayout.OnRefreshListener, OnStartDragListener
+        implements CurrentJobInterface.View, WaveSwipeRefreshLayout.OnRefreshListener, OnStartDragListener
         , OnCustomerListChangedListener, CurrentJobAdapter.ClickListener {
 
     private GPSTracker gps;
@@ -90,7 +92,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
     @BindView(R.id.textview_fail) TextView textViewFail;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
-    @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.waveSwipRefresh) WaveSwipeRefreshLayout waveSwipeRefreshLayout;
     @Override
     public void bindView(View view) {
         ButterKnife.bind(this, view);
@@ -134,11 +136,8 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
     private void setRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(
-                R.color.colorPrimary,
-                R.color.colorAccent,
-                R.color.Purple);
+        waveSwipeRefreshLayout.setOnRefreshListener(this);
+        waveSwipeRefreshLayout.setColorSchemeColors(Color.WHITE, Color.WHITE);
     }
 
     @Override
@@ -169,7 +168,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
         relativeLayoutFail.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
 
-        swipeRefreshLayout.setRefreshing(false);
+        waveSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -181,7 +180,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
     public void setJobItemToAdapter(List<JobItem> ItemList) {
         jobItemList = new ArrayList<>();
         jobItemList = getOrderItem(ItemList);
-        swipeRefreshLayout.setRefreshing(false);
+        waveSwipeRefreshLayout.setRefreshing(false);
 
         adapter.setJobItemList(jobItemList, origins);
         recyclerView.setAdapter(adapter);
@@ -217,7 +216,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
-        getActivity().startActivityForResult(intent, Constance.REQUEST_JOB_DETAIL);
+        startActivityForResult(intent, Constance.REQUEST_JOB_DETAIL);
     }
 
     @Override

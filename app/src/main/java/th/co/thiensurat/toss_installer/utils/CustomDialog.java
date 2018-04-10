@@ -14,6 +14,9 @@ import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
+import th.co.thiensurat.toss_installer.productwithdraw.WithdrawProductActivity;
+import th.co.thiensurat.toss_installer.setting.ConfigurationActivity;
+import th.co.thiensurat.toss_installer.setting.backupandrestore.BackupAndRestoreActivity;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_SETTINGS;
 
@@ -111,6 +114,9 @@ public class CustomDialog {
                         dialog.dismiss();
                         if (context instanceof ContractActivity) {
                             ((ContractActivity)context).addStep();
+                        }else if (context instanceof BackupAndRestoreActivity) {
+                            ((BackupAndRestoreActivity) context).setResult(Activity.RESULT_OK);
+                            ((BackupAndRestoreActivity) context).finish();
                         }
                     }
                 }).show();
@@ -214,8 +220,12 @@ public class CustomDialog {
                     public void onClick(SweetAlertDialog dialog) {
                         dialog.dismiss();
                         if (context instanceof InstallationActivity) {
-                            Intent intent = new Intent(context, MainActivity.class);
+                            Intent intent = new Intent(context, WithdrawProductActivity.class);
                             ((InstallationActivity)context).startActivity(intent);
+                            ((InstallationActivity) context).finish();
+                        } else if (context instanceof MainActivity) {
+                            Intent intent = new Intent(context, ConfigurationActivity.class);
+                            ((MainActivity) context).startActivityForResult(intent, Constance.REQUEST_APP_SETTINGS);
                         }
                     }
                 }).show();

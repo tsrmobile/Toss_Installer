@@ -25,6 +25,7 @@ public class JobUnFinishInterface {
 
     public interface Presenter extends BaseMvpInterface.Presenter<View> {
         void getJobUnFinish(String data, String empid);
+        boolean checkStep(String orderid);
         void setProductToTable(String orderid, List<ProductItem> productItems);
     }
 }

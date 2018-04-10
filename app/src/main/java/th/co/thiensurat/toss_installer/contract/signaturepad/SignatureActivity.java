@@ -16,11 +16,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -115,7 +117,9 @@ public class SignatureActivity extends AppCompatActivity {
             @Override
             public void onSigned() {
                 buttonSave.setEnabled(true);
-                buttonSave.setBackground(getResources().getDrawable(R.drawable.background_rounded_green));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    buttonSave.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.LimeGreen));
+                }
             }
 
             @Override
@@ -129,11 +133,21 @@ public class SignatureActivity extends AppCompatActivity {
         orderid = getIntent().getStringExtra(Constance.KEY_ORDER_ID);
         try {
             customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(customerSignPath.getAbsolutePath(), bmOptions);
-            bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(),true);
-            signaturePad.setSignatureBitmap(bitmap);
-        } catch (Exception ex) {}
+            if (customerSignPath.exists()) {
+                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                Bitmap bitmap = BitmapFactory.decodeFile(customerSignPath.getAbsolutePath(), bmOptions);
+                bitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+                signaturePad.setSignatureBitmap(bitmap);
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    buttonSave.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.DarkGray));
+                }
+            }
+        } catch (Exception ex) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                buttonSave.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.DarkGray));
+            }
+        }
     }
 
     private View.OnClickListener onClear() {
@@ -142,7 +156,11 @@ public class SignatureActivity extends AppCompatActivity {
             public void onClick(View view) {
                 signaturePad.clear();
                 buttonSave.setEnabled(false);
-                buttonSave.setBackground(getResources().getDrawable(R.drawable.background_rounded_gray));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    buttonSave.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.DarkGray));
+                }
+
+                imageConfiguration.removeImage(customerSignPath.getAbsolutePath());
             }
         };
     }
@@ -172,7 +190,11 @@ public class SignatureActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setResult(RESULT_CANCELED);
+                /*setResult(RESULT_CANCELED);
+                finish();*/
+                Intent intent = new Intent();
+                intent.putExtra("status", "cancel");
+                setResult(RESULT_OK, intent);
                 finish();
             }
         };
@@ -208,11 +230,6 @@ public class SignatureActivity extends AppCompatActivity {
         try {
             customerSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s.jpg", orderid));
             mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_contact.jpg", orderid));
-            /*if (key.equals("contact")) {
-                mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_contact.jpg", orderid));
-            } else {
-                mergeSignPath = new File(imageConfiguration.getAlbumStorageDir(orderid), String.format("signature_%s_install_receipt.jpg", orderid));
-            }*/
             saveBitmapToJPG(signature, customerSignPath);
             result = true;
         } catch (IOException e) {
@@ -233,57 +250,9 @@ public class SignatureActivity extends AppCompatActivity {
         try {
             AssetManager assetManager = this.getAssets();
             bitmap = BitmapFactory.decodeStream(assetManager.open("k_viruch2.png"), null, null);
-            createSingleImageFromMultipleImages(bitmap, getResizedBitmap(newBitmap, 210, 71));
+            imageConfiguration.createSingleImageFromMultipleImages(bitmap, imageConfiguration.getResizedBitmap(newBitmap, 250, 60), mergeSignPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    private void createSingleImageFromMultipleImages(Bitmap firstImage, Bitmap secondImage) throws IOException {
-        Bitmap result = Bitmap.createBitmap((firstImage.getWidth() + secondImage.getWidth()), firstImage.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(result);
-        canvas.drawColor(Color.WHITE);
-        canvas.drawBitmap(firstImage, 0, 0, null);
-        canvas.drawBitmap(secondImage, firstImage.getWidth(), 0, null);
-        OutputStream stream = new FileOutputStream(mergeSignPath);
-        result.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        stream.close();
-    }
-
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-        bm.recycle();
-        return resizedBitmap;
-    }
-
-    /*private void scanMediaFile(File photo) {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        Uri contentUri = Uri.fromFile(photo);
-        mediaScanIntent.setData(contentUri);
-        SignatureActivity.this.sendBroadcast(mediaScanIntent);
-    }
-
-    public boolean addSvgSignatureToGallery(String signatureSvg) {
-        boolean result = false;
-        try {
-            fileSVG = new File(getAlbumStorageDir(dirname), String.format("Signature_%s.svg", imagename));
-            OutputStream stream = new FileOutputStream(fileSVG);
-            OutputStreamWriter writer = new OutputStreamWriter(stream);
-            writer.write(signatureSvg);
-            writer.close();
-            stream.flush();
-            stream.close();
-            scanMediaFile(fileSVG);
-            result = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }*/
 }

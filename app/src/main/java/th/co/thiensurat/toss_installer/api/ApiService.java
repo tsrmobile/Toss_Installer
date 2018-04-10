@@ -1,5 +1,6 @@
 package th.co.thiensurat.toss_installer.api;
 
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,6 +30,8 @@ import static th.co.thiensurat.toss_installer.api.ApiURL.BACKUP_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.CONTACT_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_MAP_API_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.ITEM_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_PAYMENT_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_UPDATE_DUEDATE;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.UPDATE_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.UPLOAD_URL;
@@ -76,11 +79,20 @@ public interface ApiService {
 
     @Multipart
     @POST( BACKUP_URL )
-    Call<Object> requestBackup(@Part("description") RequestBody description, @Part MultipartBody.Part file);
+    Call<Object> requestBackup(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Part MultipartBody.Part filezip);
 
     @Streaming
     @GET
     Call<ResponseBody> downloadFileWithDynamicUrlAsync(@Url String fileUrl);
+
+    @GET( BACKUP_URL )
+    Call<Object> checkDataBackup(@Query("data") String data, @Query("description") String description);
+
+    @GET( JOB_PAYMENT_URL )
+    Call<JobItemResultGroup> getJobPayment(@Query("data") String data, @Query("empid") String id);
+
+    @GET( JOB_UPDATE_DUEDATE )
+    Call<Object> updateDueDate(@Query("orderid") String orderid, @Query("duedate") String duedate);
 
     /*@POST( UPDATE_URL )
     Call<Object> requestJobFinish(@Body ContactItem body);

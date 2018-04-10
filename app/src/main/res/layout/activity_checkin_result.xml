@@ -21,7 +21,7 @@
 
             <include
                 android:id="@+id/toolbar"
-                layout="@layout/toolbar"/>
+                layout="@layout/toolbar_2"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view"
@@ -45,8 +45,7 @@
             android:id="@+id/button_next"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_margin="16dp"
-            android:background="@drawable/background_rounded_colorprimarydark"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:text="ถัดไป"
             android:textSize="12sp"
             android:textColor="@color/White"

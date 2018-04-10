@@ -53,7 +53,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionNext"/>
 
             </LinearLayout>
 
@@ -217,7 +219,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:inputType="number"
+                    android:maxLength="5"
+                    android:imeOptions="actionNext"/>
 
             </LinearLayout>
 
@@ -258,7 +263,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:imeOptions="actionNext"/>
 
             </LinearLayout>
 
@@ -299,7 +307,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:imeOptions="actionNext"/>
 
             </LinearLayout>
 
@@ -340,7 +351,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:imeOptions="actionNext"/>
 
             </LinearLayout>
 
@@ -381,7 +395,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionDone"/>
 
             </LinearLayout>
 
@@ -395,14 +411,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:gravity="center"
-        android:padding="8dp">
+        android:gravity="center">
 
         <Button
             android:id="@+id/button_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_rounded_accent"
+            android:backgroundTint="@color/colorAccent"
             android:drawableRight="@drawable/ic_send_white_18dp"
             android:text="อัพเดท"
             android:textColor="@color/white" />

@@ -20,7 +20,7 @@
 
             <include
                 android:id="@+id/toolbar"
-                layout="@layout/toolbar"/>
+                layout="@layout/toolbar_2"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view"

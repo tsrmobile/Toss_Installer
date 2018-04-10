@@ -82,7 +82,7 @@
                     android:text="IL11600026"/>
             </LinearLayout>
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:id="@+id/layout_installment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -136,9 +136,9 @@
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </LinearLayout>-->
 
-            <LinearLayout
+            <!--<LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -189,6 +189,102 @@
                         android:gravity="right|center"/>
                 </LinearLayout>
 
+            </LinearLayout>-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:background="@color/table_data_row_even">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left|center"
+                    android:text="ราคา"/>
+
+                <TextView
+                    android:id="@+id/normal_price"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right|center"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_installment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:background="@color/table_data_row_even">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ผ่อน"/>
+
+                    <TextView
+                        android:id="@+id/textview_preriod"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:text="12 งวด"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:background="@color/table_data_row_even">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="งวดละ"/>
+
+                    <TextView
+                        android:id="@+id/textview_perpreriod"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:text="3000"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:background="@color/table_data_row_even">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left|center"
+                    android:text="ส่วนลด"/>
+
+                <TextView
+                    android:id="@+id/discount_price"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right|center"/>
+
             </LinearLayout>
 
             <LinearLayout
@@ -207,7 +303,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="left|center"
-                        android:text="ราคา"
+                        android:text="ราคาสุทธิ"
                         android:textStyle="bold"/>
 
                     <TextView

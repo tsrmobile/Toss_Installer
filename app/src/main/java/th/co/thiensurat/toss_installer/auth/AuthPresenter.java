@@ -7,6 +7,7 @@ import android.util.Log;
 import com.hwangjr.rxbus.RxBus;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.api.ServiceManager;
@@ -66,6 +67,7 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
                     AuthenItemGroup authenItemGroup = ConvertAuthItem.createAuthItemGroupFromResult(result);
                     authenItems = authenItemGroup.getData();
                     MyApplication.getInstance().getPrefManager().setProfile(authenItemGroup);
+                    MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_SESSION, new Date().getTime() + "");
                     getView().onDismiss();
                     getView().onSuccess();
                 } else if (result.getStatus().equals("FAIL")) {

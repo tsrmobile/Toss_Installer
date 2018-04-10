@@ -206,8 +206,7 @@ public class ThemalPrintController {
             options.inScaled = false;
 
             final AssetManager assetManager = context.getAssets();
-            final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("tsr_header.png"),
-                    null, options);
+            final Bitmap bitmap = BitmapFactory.decodeStream(assetManager.open("tsr_header.png"), null, options);
             final int width = bitmap.getWidth();
             final int height = bitmap.getHeight();
             final int[] argb = new int[width * height];
@@ -511,7 +510,7 @@ public class ThemalPrintController {
         Bitmap img = Bitmap.createBitmap(374, 50, Bitmap.Config.ARGB_8888);
         img.setHasAlpha(true);
         Canvas cv = new Canvas(img);
-        Bitmap signature = BitmapFactory.decodeResource(context.getResources(), R.drawable.sample_signature);
+        Bitmap signature = BitmapFactory.decodeResource(context.getResources(), R.drawable.k_viruch);
         cv.drawBitmap(scaleBitmapByHeight(signature, 50), 0, 2, null);
 
         if (img != null) {

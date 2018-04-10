@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:fitsSystemWindows="true"
+    android:windowSoftInputMode="adjustPan|adjustResize"
+    tools:context="th.co.thiensurat.toss_installer.payment.paymentpage.PaymentPageActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_above="@+id/bottom"
+        android:layout_alignParentTop="true">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar_2"/>
+
+        <TextView
+            android:id="@+id/printer_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="กำลังเชื่อมต่อปริ้นท์เตอร์"
+            android:textColor="@color/white"
+            android:background="@color/Orange"
+            android:padding="2dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:text="จำนวนเงินที่ชำระ"
+                    android:textSize="16sp"
+                    android:textColor="@color/Black"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingLeft="8dp"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_border"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/border_rounded_colorprimarydark">
+
+                <EditText
+                    android:id="@+id/total_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:inputType="numberDecimal"
+                    android:textDirection="rtl"
+                    android:imeOptions="actionDone"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:minWidth="0dp"
+                android:layout_weight="1">
+
+                <RadioButton
+                    android:id="@+id/normal_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center|left"
+                    android:paddingLeft="4dp"
+                    android:text="ชำระเต็ม"
+                    style="@style/radionbutton"/>
+
+                <RadioButton
+                    android:id="@+id/some_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center|left"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    style="@style/radionbutton"
+                    android:text="บางส่วน/เกินจำนวน"/>
+
+                <RadioButton
+                    android:id="@+id/cut_loss"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center|left"
+                    android:paddingLeft="4dp"
+                    style="@style/radionbutton"
+                    android:text="ตัดสด"/>
+
+            </RadioGroup>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp"/>
+
+            <RadioGroup
+                android:id="@+id/radio_cash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/cash"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/table_data_row_odd"
+                    android:gravity="left"
+                    android:paddingLeft="4dp"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/radiobutton_drawable"
+                    android:text="เงินสด"
+                    android:button="@null"/>
+
+                <RadioButton
+                    android:id="@+id/creditcard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/table_data_row_even"
+                    android:gravity="left"
+                    android:paddingLeft="4dp"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/radiobutton_drawable"
+                    android:text="บัตรเครดิต"
+                    android:button="@null"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <RadioButton
+                    android:id="@+id/check"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/table_data_row_odd"
+                    android:gravity="left"
+                    android:paddingLeft="4dp"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/radiobutton_drawable"
+                    android:text="เช็ค"
+                    android:button="@null"/>
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/creditcard_layout"
+                android:visibility="gone"
+                layout="@layout/creditcard_layout"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/button_payment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ชำระเงิน"
+            android:textColor="@color/white"
+            android:drawableTop="@drawable/ic_money"
+            android:backgroundTint="@color/colorPrimaryDark"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

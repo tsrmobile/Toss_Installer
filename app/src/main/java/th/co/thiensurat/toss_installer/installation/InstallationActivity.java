@@ -228,7 +228,9 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         } else if (item.getItemId() == R.id.menu_print) {
 
         } else if (item.getItemId() == R.id.menu_home) {
-            startActivity(new Intent(InstallationActivity.this, MainActivity.class));
+            Intent intent = new Intent(InstallationActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -249,6 +251,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         Intent intent = new Intent(InstallationActivity.this, TakePictureActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
+        finish();
     }
 
     @Override

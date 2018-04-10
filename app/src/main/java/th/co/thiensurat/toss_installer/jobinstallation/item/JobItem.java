@@ -19,7 +19,6 @@ public class JobItem extends BaseItem implements Parcelable {
     private String title;
     private String firstName;
     private String lastName;
-    private String contactphone;
     private String installStartDate;
     private String installEndDate;
     private String installStart;
@@ -28,6 +27,7 @@ public class JobItem extends BaseItem implements Parcelable {
     private String presale;
     private String contno;
     private String closeDate;
+    private String duedate;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -41,7 +41,6 @@ public class JobItem extends BaseItem implements Parcelable {
         title               = in.readString();
         firstName           = in.readString();
         lastName            = in.readString();
-        contactphone        = in.readString();
         installStartDate    = in.readString();
         installEndDate      = in.readString();
         installStart        = in.readString();
@@ -50,6 +49,7 @@ public class JobItem extends BaseItem implements Parcelable {
         presale             = in.readString();
         contno              = in.readString();
         closeDate           = in.readString();
+        duedate             = in.readString();
     }
 
     public String getOrderid() {
@@ -94,15 +94,6 @@ public class JobItem extends BaseItem implements Parcelable {
 
     public JobItem setLastName(String lastName) {
         this.lastName = lastName;
-        return this;
-    }
-
-    public String getContactphone() {
-        return contactphone;
-    }
-
-    public JobItem setContactphone(String contactphone) {
-        this.contactphone = contactphone;
         return this;
     }
 
@@ -196,6 +187,15 @@ public class JobItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getDuedate() {
+        return duedate;
+    }
+
+    public JobItem setDuedate(String duedate) {
+        this.duedate = duedate;
+        return this;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -209,7 +209,6 @@ public class JobItem extends BaseItem implements Parcelable {
         dest.writeString(title);
         dest.writeString(firstName);
         dest.writeString(lastName);
-        dest.writeString(contactphone);
         dest.writeString(installStartDate);
         dest.writeString(installEndDate);
         dest.writeString(installStart);
@@ -218,6 +217,7 @@ public class JobItem extends BaseItem implements Parcelable {
         dest.writeString(presale);
         dest.writeString(contno);
         dest.writeString(closeDate);
+        dest.writeString(duedate);
     }
 
     public static final Creator<JobItem> CREATOR = new Creator<JobItem>() {
@@ -240,7 +240,6 @@ public class JobItem extends BaseItem implements Parcelable {
                 .setTitle(title)
                 .setFirstName(firstName)
                 .setLastName(lastName)
-                .setContactphone(contactphone)
                 .setInstallStartDate(installStartDate)
                 .setInstallEndDate(installEndDate)
                 .setInstallStart(installStart)
@@ -250,7 +249,8 @@ public class JobItem extends BaseItem implements Parcelable {
                 .setContno(contno)
                 .setCloseDate(closeDate)
                 .setProduct(product)
-                .setAddress(address);
+                .setAddress(address)
+                .setDuedate(duedate);
         return jobItem;
     }
 }

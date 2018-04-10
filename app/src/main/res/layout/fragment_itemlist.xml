@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="th.co.thiensurat.toss_installer.itemlist.ItemlistFragment">
+    tools:context="th.co.thiensurat.toss_installer.productwithdraw.fragment.WithdrawProductFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -39,7 +39,7 @@
                     android:id="@+id/button_search"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2"
+                    android:layout_weight="0.4"
                     android:src="@drawable/ic_search_white_24dp"
                     android:background="@drawable/background_rounded_colorprimarydark"/>
 

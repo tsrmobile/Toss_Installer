@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:windowSoftInputMode="adjustPan|adjustResize"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_above="@+id/bottom"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar_2"/>
+
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp">
+
+            <include
+                layout="@layout/payment_detail"/>
+
+        </android.support.v4.widget.NestedScrollView>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/button_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="นัดวันชำระ"
+            android:textColor="@color/white"
+            android:drawableTop="@drawable/ic_date_range_white_18dp"
+            android:backgroundTint="@color/colorAccent"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/button_payment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ชำระเงิน"
+            android:textColor="@color/white"
+            android:drawableTop="@drawable/ic_money"
+            android:backgroundTint="@color/colorPrimaryDark"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

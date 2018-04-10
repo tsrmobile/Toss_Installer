@@ -1077,7 +1077,7 @@ public class DocumentController {
             listText.add(new PrintTextInfo(""));
             listText.add(new PrintTextInfo("k_viruchWithCustomer"));
             listText.addAll(getTextLeftRightAlignCenter("......................", ".....................", "EN"));
-            listText.addAll(getTextLeftRightAlignCenter("           ผู้ขาย       ", "          ผู้ซื้อ        "));
+            listText.addAll(getTextLeftRightAlignCenter("           ผู้ขาย         ", "          ผู้ซื้อ        "));
             String TSR = "(นายวิรัช วงศ์นิรันดร์)";
             listText.addAll(getTextLeftRightAlignCenter(TSR, customer));
 
@@ -1857,7 +1857,7 @@ public class DocumentController {
     }*/
 
 
-    /*public static List<PrintTextInfo> getTextReceiptNew(PaymentInfo paymentInfo, DebtorCustomerInfo debtorCustomerInfo, AddressInfo addressInfo) {
+    public static List<PrintTextInfo> getTextReceiptNew(/*PaymentInfo paymentInfo, DebtorCustomerInfo debtorCustomerInfo, AddressInfo addressInfo*/) {
         List<PrintTextInfo> listText = new ArrayList<>();
 
         listText.addAll(getTextShortHeader());
@@ -1869,20 +1869,20 @@ public class DocumentController {
         listText.add(new PrintTextInfo("beginPage(0, 66)"));
         listText.add(new PrintTextInfo("printFrame(0, 0, 570, 650)"));
         // [Start] Fixed - [BHPROJ-0026-3267][Android-ใบเสร็จรับเงินที่พิมพ์ออกมา] ปรับรูปแบบใบเสร็จตามรายละเอียดที่แจ้งมาในรูป
-        listText.addAll(getTextAlignLeftByOffSetLeft(" วันที่รับเงิน", BHUtilities.dateFormat(paymentInfo.PayDate) + " เวลา " + BHUtilities.dateFormat(paymentInfo.PayDate, "HH:mm") + " น."));
+        /*listText.addAll(getTextAlignLeftByOffSetLeft(" วันที่รับเงิน", BHUtilities.dateFormat(paymentInfo.PayDate) + " เวลา " + BHUtilities.dateFormat(paymentInfo.PayDate, "HH:mm") + " น."));
         listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่", paymentInfo.ReceiptCode));
         listText.addAll(getTextAlignLeftByOffSetLeft(" เลขที่สัญญา", paymentInfo.CONTNO));
-        listText.addAll(getTextAlignLeft(" ชื่อลูกค้า " + debtorCustomerInfo.CustomerFullName()));
+        listText.addAll(getTextAlignLeft(" ชื่อลูกค้า " + debtorCustomerInfo.CustomerFullName()));*/
 
 
-        if (paymentInfo.ManualVolumeNo != null && paymentInfo.ManualRunningNo > 0) {
+        /*if (paymentInfo.ManualVolumeNo != null && paymentInfo.ManualRunningNo > 0) {
             String ManualDocumentBookRunningNo = String.format("%s/%d", BHUtilities.trim(paymentInfo.ManualVolumeNo), paymentInfo.ManualRunningNo).replace(' ', '0');
             listText.addAll(getTextAlignLeftByOffSetLeft(" อ้างอิงสัญญาเลขที่", ManualDocumentBookRunningNo));
-        }
+        }*/
 
-        listText.addAll(getTextAlignLeft(" " + paymentInfo.ProductName));
+        //listText.addAll(getTextAlignLeft(" " + paymentInfo.ProductName));
 
-        if (paymentInfo.MODE == 1) {
+        /*if (paymentInfo.MODE == 1) {
             if (paymentInfo.BalancesOfPeriod == 0) {
                 listText.addAll(getTextAlignLeftRight(BHUtilities.trim(" งวด 1 (ชำระครบ)"), "ราคา " + BHUtilities.numericFormat(paymentInfo.Amount) + " บาท"));
             } else {
@@ -1911,9 +1911,9 @@ public class DocumentController {
                 }
                 //listText.addAll(getTextAlignLeftRight("", "รวม " + BHUtilities.numericFormat(paymentInfo.Amount) + " บาท"));
             }
-        }
+        }*/
 
-        if (paymentInfo.CloseAccountPaymentPeriodNumber == paymentInfo.PaymentPeriodNumber && paymentInfo.BalancesOfPeriod == 0) {
+        /*if (paymentInfo.CloseAccountPaymentPeriodNumber == paymentInfo.PaymentPeriodNumber && paymentInfo.BalancesOfPeriod == 0) {
             listText.addAll(getTextAlignLeftRight(" ส่วนลดตัดสด", BHUtilities.numericFormat(paymentInfo.CloseAccountDiscountAmount) + " บาท"));
             listText.addAll(getTextAlignLeftRight(" จำนวนที่ชำระ", BHUtilities.numericFormat(paymentInfo.CloseAccountOutstandingAmount - paymentInfo.CloseAccountDiscountAmount) + " บาท"));
         } else{
@@ -1932,20 +1932,20 @@ public class DocumentController {
                     }
                 }
             }
-        }
+        }*/
 
-        String sale = String.format("%s", paymentInfo.SaleEmployeeName != null ? paymentInfo.SaleEmployeeName : "");
+        //String sale = String.format("%s", paymentInfo.SaleEmployeeName != null ? paymentInfo.SaleEmployeeName : "");
         //String team = String.format("%s", paymentInfo.TeamCode != null ? paymentInfo.TeamCode : "");
 
         listText.addAll(getTextAlignCenter("  "));
         listText.addAll(getTextAlignCenter(" ____________________________ผู้รับเงิน"));
-        listText.addAll(getTextAlignCenter(String.format(" (%s) %s", sale, paymentInfo.CashCode)));
+        //listText.addAll(getTextAlignCenter(String.format(" (%s) %s", sale, paymentInfo.CashCode)));
         // [End] Fixed - [BHPROJ-0026-3267][Android-ใบเสร็จรับเงินที่พิมพ์ออกมา] ปรับรูปแบบใบเสร็จตามรายละเอียดที่แจ้งมาในรูป
 
         listText.add(new PrintTextInfo("endPage"));
         listText.add(new PrintTextInfo("selectStandardMode"));
         return listText;
-    }*/
+    }
 
     /*public static Bitmap getImageReceiptNew(PaymentInfo paymentInfo, DebtorCustomerInfo debtorCustomerInfo, AddressInfo addressInfo) {
 

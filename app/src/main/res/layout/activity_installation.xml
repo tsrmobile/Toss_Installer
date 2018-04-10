@@ -18,7 +18,7 @@
 
             <include
                 android:id="@+id/toolbar"
-                layout="@layout/toolbar"/>
+                layout="@layout/toolbar_2"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -44,17 +44,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <Button
             android:id="@+id/button_next"
             android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_margin="16dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@drawable/background_rounded_colorprimarydark"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:text="ถัดไป"
-            android:textSize="12sp"
             android:textColor="@color/white"
             android:drawableRight="@drawable/ic_chevron_right_white_24dp"/>
 

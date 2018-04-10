@@ -13,12 +13,13 @@
 
         <include
             android:id="@+id/toolbar"
-            layout="@layout/toolbar"/>
+            layout="@layout/toolbar_2"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/background"
             app:tabMode="fixed"
             app:tabMaxWidth="0dp"/>
 

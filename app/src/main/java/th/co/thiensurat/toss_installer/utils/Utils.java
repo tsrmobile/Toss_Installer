@@ -236,5 +236,9 @@ public class Utils {
         return simpleDateFormat.format(new Date(date));
     }
 
+    public static int getTimeout(long sessionTime) {
+        return Math.abs((int) ((new Date().getTime() - sessionTime) / 1000) / 60);
+    }
+
 
 }

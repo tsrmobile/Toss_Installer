@@ -173,7 +173,9 @@ public class MapCheckinActivity extends BaseMvpActivity<MapCheckinInterface.Pres
                 displayLocationSettingsRequest();
             }
         } else if (item.getItemId() == R.id.menu_home) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            Intent intent = new Intent(MapCheckinActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         }
         return super.onOptionsItemSelected(item);

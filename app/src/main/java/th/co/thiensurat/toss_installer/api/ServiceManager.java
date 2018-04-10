@@ -441,14 +441,14 @@ public class ServiceManager {
     /*****************************************************End***********************************************************/
 
     /*********************************************Back up or restore****************************************************/
-    public Call backup(RequestBody requestBody, MultipartBody.Part file) {
+    public Call backup(RequestBody requestBody, MultipartBody.Part file, MultipartBody.Part filezip) {
         return Service.newInstance( BASE_URL )
                 .getApi( api )
-                .requestBackup(requestBody, file);
+                .requestBackup(requestBody, file, filezip);
     }
 
-    public void requestBackup(RequestBody requestBody, MultipartBody.Part file, final ServiceManagerCallback callback) {
-        backup(requestBody, file).enqueue(new Callback() {
+    public void requestBackup(RequestBody requestBody, MultipartBody.Part file, MultipartBody.Part filezip, final ServiceManagerCallback callback) {
+        backup(requestBody, file, filezip).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
                 Log.e("request Back up", response + "");
@@ -495,4 +495,83 @@ public class ServiceManager {
         });
     }
     /****************************************************End************************************************************/
+
+    public Call<Object> check(String data, String description) {
+        return Service.newInstance(BASE_URL)
+                .getApi(api)
+                .checkDataBackup(data, description);
+    }
+
+    public void requestCheckBackup(String data, String description, final ServiceManagerCallback<Object> callback) {
+        check(data, description).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request Check data", response + "");
+                if( callback != null ){
+                    Log.e("response body", response.body() + "");
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+
+    /*************************************************Load Job list**********************************************/
+    public Call<JobItemResultGroup> jobPayment(String data, String id) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .getJobPayment(data, id);
+    }
+
+    public void requestJobPayment(String data, String id, final ServiceManagerCallback<JobItemResultGroup> callback) {
+        jobPayment(data, id).enqueue(new Callback<JobItemResultGroup>() {
+            @Override
+            public void onResponse(Call<JobItemResultGroup> call, Response<JobItemResultGroup> response) {
+                Log.e("request Job payment", response + ", " + response.body().getStatus());
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JobItemResultGroup> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /*************************************************End********************************************************/
+
+    public Call<Object> dueDate(String orderid, String duedate) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .updateDueDate(orderid, duedate);
+    }
+
+    public void requestUpdateDueDate(String orderid, String duedate, final ServiceManagerCallback<Object> callback) {
+        dueDate(orderid, duedate).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request duedate", response + "");
+                if( callback != null ){
+                    Log.e("response body", response.body() + "");
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
 }

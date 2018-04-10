@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.jobinstallation.finish;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,11 +17,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
 import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.jobinstallation.finish.adapter.JobFinishAdapter;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
@@ -29,7 +32,7 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
  * A simple {@link Fragment} subclass.
  */
 public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presenter>
-        implements JobFinishInterface.View, SwipeRefreshLayout.OnRefreshListener, JobFinishAdapter.ClickListener {
+        implements JobFinishInterface.View, WaveSwipeRefreshLayout.OnRefreshListener, JobFinishAdapter.ClickListener {
 
     private JobFinishAdapter adapter;
     private CustomDialog customDialog;
@@ -58,7 +61,7 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
     @BindView(R.id.textview_fail) TextView textViewFail;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
-    @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.waveSwipRefresh) WaveSwipeRefreshLayout waveSwipeRefreshLayout;
     @Override
     public void bindView(View view) {
         ButterKnife.bind(this, view);
@@ -93,16 +96,18 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
     private void setRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(
-                R.color.colorPrimary,
-                R.color.colorAccent,
-                R.color.Purple);
+        waveSwipeRefreshLayout.setOnRefreshListener(this);
+        waveSwipeRefreshLayout.setColorSchemeColors(Color.WHITE, Color.WHITE);
     }
 
     @Override
     public void onRefresh() {
-        getPresenter().getJobFinish("success", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+        if (!isNetworkAvailable) {
+
+        } else {
+            getPresenter().getJobFinish("success", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        }
     }
 
     @Override
@@ -123,7 +128,7 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
         relativeLayoutFail.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
 
-        swipeRefreshLayout.setRefreshing(false);
+        waveSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
     @Override
     public void setJobItemToAdapter(List<JobItem> jobItemList) {
         this.jobItemList = jobItemList;
-        swipeRefreshLayout.setRefreshing(false);
+        waveSwipeRefreshLayout.setRefreshing(false);
         adapter.setJobItem(jobItemList);
         adapter.setItemClick(this);
         recyclerView.setAdapter(adapter);

@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.contract.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,19 +48,19 @@ public class ContactItemAdapter extends RecyclerView.Adapter<ContactItemAdapter.
         holder.textViewName.setText(item.getProductName());
         holder.textViewModel.setText(item.getProductModel());
         holder.textViewSerial.setText(item.getProductSerial());
-        holder.textViewPrice.setText(df.format(Float.parseFloat(item.getProductPrice())));
+        holder.textViewPrice.setText(df.format(Float.parseFloat(item.getProductPrice())) + " บาท");
 
         if (!item.getProductDiscount().equals("0")) {
-            holder.textViewDiscount.setText(item.getProductDiscount());
+            holder.textViewDiscount.setText(item.getProductDiscount() + " บาท");
             float discount = Float.parseFloat(item.getProductDiscountPercent());
-            holder.textViewTotal.setText(df.format(Float.parseFloat(item.getProductPrice()) - discount));
+            holder.textViewTotal.setText(df.format(Float.parseFloat(item.getProductPrice()) - discount) + " บาท");
         } else if (!item.getProductDiscountPercent().equals("0")) {
             holder.textViewDiscount.setText(item.getProductDiscountPercent() + "%");
             float discount = Float.parseFloat(item.getProductDiscountPercent()) / 100;
-            holder.textViewTotal.setText(df.format(Float.parseFloat(item.getProductPrice()) * discount));
+            holder.textViewTotal.setText(df.format(Float.parseFloat(item.getProductPrice()) * discount) + " บาท");
         } else {
-            holder.textViewDiscount.setText("0");
-            holder.textViewTotal.setText(df.format(Float.parseFloat(item.getProductPrice())));
+            holder.textViewDiscount.setText("0 บาท");
+            holder.textViewTotal.setText(df.format(Float.parseFloat(item.getProductPrice())) + " บาท");
         }
 
         try {
@@ -68,9 +69,10 @@ public class ContactItemAdapter extends RecyclerView.Adapter<ContactItemAdapter.
             } else {
                 holder.linearLayout.setVisibility(View.VISIBLE);
                 holder.textViewPreriod.setText(item.getProductPayPeriods() + " งวด");
-                holder.textViewPerPreriod.setText(df.format(item.getProductPayPerPeriods()) + " บาท");
+                holder.textViewPerPreriod.setText(df.format(Float.parseFloat(item.getProductPayPerPeriods())) + " บาท");
             }
         } catch(Exception e) {
+            Log.e("Adapter exception", e.getMessage());
             holder.linearLayout.setVisibility(View.GONE);
         }
     }

@@ -14,7 +14,7 @@ public class MainInterface {
 
     public interface View extends BaseMvpInterface.View {
         void onSuccess();
-        void showNotificationSyncIcon();
+        //void showNotificationSyncIcon();
         void setAddressSync(List<RequestUpdateAddress.updateBody> updateBodyList);
     }
 

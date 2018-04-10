@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="th.co.thiensurat.toss_installer.itemlist.ItemlistFragment">
+    tools:context="th.co.thiensurat.toss_installer.productwithdraw.fragment.WithdrawProductFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"

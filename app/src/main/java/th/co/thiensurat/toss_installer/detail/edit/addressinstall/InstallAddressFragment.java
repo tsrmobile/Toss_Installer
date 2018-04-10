@@ -38,6 +38,7 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
  */
 public class InstallAddressFragment extends BaseMvpFragment<InstallAddressInterface.Presenter> implements InstallAddressInterface.View {
 
+    private String orderid;
     private JobItem jobItem;
     private CustomDialog customDialog;
     private String province, district, subdistrict;
@@ -92,7 +93,8 @@ public class InstallAddressFragment extends BaseMvpFragment<InstallAddressInterf
 
     @Override
     public void initialize() {
-        getPresenter().getAddressDetail(MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID"));
+        orderid = MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID");
+        getPresenter().getAddressDetail(orderid);
     }
 
     @Override
@@ -269,19 +271,20 @@ public class InstallAddressFragment extends BaseMvpFragment<InstallAddressInterf
                 .setMobile(editTextMobile.getText().toString())
                 .setEmail(editTextEmail.getText().toString());
         itemListLocal.add(addressItemLocal);
-        getPresenter().updateData(jobItem.getOrderid(), "AddressInstall", itemListLocal);
+        getPresenter().updateData(orderid, "AddressInstall", itemListLocal);
     }
 
     @Override
     public void updateLocalSuccess(boolean b) {
         if (b) {
+            getPresenter().getAddressDetail(orderid);
             boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
             if (!isNetworkAvailable) {
 
             } else {
                 List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
                 updateBodyList.add(new RequestUpdateAddress.updateBody()
-                        .setOrderid(jobItem.getOrderid())
+                        .setOrderid(orderid)
                         .setAddressType("AddressInstall")
                         .setAddrDetail(editTextDetial.getText().toString())
                         .setProvince(provinceid)
@@ -317,6 +320,6 @@ public class InstallAddressFragment extends BaseMvpFragment<InstallAddressInterf
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
-        getPresenter().updateAddressSync(jobItem.getOrderid());
+        getPresenter().updateAddressSync(orderid);
     }
 }

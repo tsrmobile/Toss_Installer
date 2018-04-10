@@ -124,10 +124,40 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
             ex.printStackTrace();
         }
 
-        holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
-        holder.textViewTime.setText(timeFormat.format(date) + " น.");
-        holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
-        holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
+        try {
+            if (item.getInstallStartDate().isEmpty()) {
+                holder.textViewDate.setVisibility(View.GONE);
+                holder.textViewTime.setVisibility(View.GONE);
+            } else {
+                holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
+                holder.textViewTime.setText(timeFormat.format(date) + " น.");
+            }
+
+            if (item.getInstallEndDate().isEmpty()) {
+                holder.textViewEndDate.setVisibility(View.GONE);
+                holder.textViewEndTime.setVisibility(View.GONE);
+            } else {
+                holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
+                holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
+            }
+
+            if (item.getDuedate().isEmpty()) {
+                holder.textViewBegin.setVisibility(View.GONE);
+                holder.textViewDate.setVisibility(View.GONE);
+                holder.textViewTime.setVisibility(View.GONE);
+            } else {
+                holder.textViewBegin.setText("วันที่นัดชำระ: ");
+                holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
+                holder.textViewTime.setText(timeFormat.format(date) + " น.");
+            }
+        } catch (Exception e) {
+            holder.textViewDate.setVisibility(View.GONE);
+            holder.textViewTime.setVisibility(View.GONE);
+            holder.textViewEndDate.setVisibility(View.GONE);
+            holder.textViewEndTime.setVisibility(View.GONE);
+            holder.textViewBegin.setVisibility(View.GONE);
+            holder.textViewUntil.setVisibility(View.GONE);
+        }
 
         List<AddressItem> addressItems  = item.getAddress();
         for (int i = 0; i < addressItems.size(); i++) {
@@ -254,6 +284,8 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
         @BindView(R.id.textview_phone) TextView textViewPhone;
         @BindView(R.id.textview_mobile) TextView textViewMobile;
         @BindView(R.id.drag_handle) ImageView imageViewDrag;
+        @BindView(R.id.title_until) TextView textViewUntil;
+        @BindView(R.id.title_begin) TextView textViewBegin;
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);

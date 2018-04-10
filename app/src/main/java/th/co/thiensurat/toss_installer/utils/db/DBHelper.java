@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
 import android.util.Log;
 
 import java.sql.SQLException;
@@ -17,7 +16,7 @@ import java.util.List;
 import th.co.thiensurat.toss_installer.api.request.RequestUpdateAddress;
 import th.co.thiensurat.toss_installer.api.result.data.DataItem;
 import th.co.thiensurat.toss_installer.contract.item.ObjectImage;
-import th.co.thiensurat.toss_installer.itemlist.item.InstallItem;
+import th.co.thiensurat.toss_installer.productwithdraw.item.InstallItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;

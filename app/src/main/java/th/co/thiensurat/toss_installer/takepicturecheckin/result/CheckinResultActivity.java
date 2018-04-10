@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +17,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.contract.ContractActivity;
@@ -114,9 +117,21 @@ public class CheckinResultActivity extends BaseMvpActivity<CheckinResultInterfac
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_CANCELED);
+            finish();
+        } else if (item.getItemId() == R.id.menu_home) {
+            Intent intent = new Intent(CheckinResultActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         }
         return super.onOptionsItemSelected(item);

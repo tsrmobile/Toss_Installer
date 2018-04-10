@@ -2,6 +2,7 @@ package th.co.thiensurat.toss_installer.jobinstallation.unfinish;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,11 +17,14 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
+import th.co.thiensurat.toss_installer.detail.DetailActivity;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.unfinish.adapter.JobUnFinishAdapter;
+import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.stepview.StepViewActivity;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
@@ -30,7 +34,7 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
  * A simple {@link Fragment} subclass.
  */
 public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Presenter>
-        implements JobUnFinishInterface.View, JobUnFinishAdapter.ClickListener, SwipeRefreshLayout.OnRefreshListener {
+        implements JobUnFinishInterface.View, JobUnFinishAdapter.ClickListener, WaveSwipeRefreshLayout.OnRefreshListener {
 
     private List<JobItem> jobItemList;
     private CustomDialog customDialog;
@@ -60,7 +64,7 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
     @BindView(R.id.textview_fail) TextView textViewFail;
     @BindView(R.id.layout_fail) RelativeLayout relativeLayoutFail;
-    @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.waveSwipRefresh) WaveSwipeRefreshLayout waveSwipeRefreshLayout;
     @Override
     public void bindView(View view) {
         ButterKnife.bind(this, view);
@@ -95,16 +99,18 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
     private void setRecyclerView() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(
-                R.color.colorPrimary,
-                R.color.colorAccent,
-                R.color.Purple);
+        waveSwipeRefreshLayout.setOnRefreshListener(this);
+        waveSwipeRefreshLayout.setColorSchemeColors(Color.WHITE, Color.WHITE);
     }
 
     @Override
     public void onRefresh() {
-        getPresenter().getJobUnFinish("unsuccess", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
+        if (!isNetworkAvailable) {
+
+        } else {
+            getPresenter().getJobUnFinish("unsuccess", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
+        }
     }
 
     @Override
@@ -125,7 +131,7 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
         relativeLayoutFail.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
 
-        swipeRefreshLayout.setRefreshing(false);
+        waveSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -136,7 +142,7 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
     @Override
     public void setJobItemToAdapter(List<JobItem> jobItemList) {
         this.jobItemList = jobItemList;
-        swipeRefreshLayout.setRefreshing(false);
+        waveSwipeRefreshLayout.setRefreshing(false);
         adapter.setJobUnFinishItem(jobItemList);
         adapter.setItemClick(this);
         recyclerView.setAdapter(adapter);
@@ -154,14 +160,21 @@ public class JobUnFinishFragment extends BaseMvpFragment<JobUnFinishInterface.Pr
     public void itemClick(View view, int position) {
         JobItem jobItem = jobItemList.get(position);
 
-        getPresenter().setProductToTable(jobItem.getOrderid(), jobItem.getProduct());
-
         AddressItemGroup addressItemGroup = new AddressItemGroup();
         addressItemGroup.setData(jobItem.getAddress());
+        getPresenter().setProductToTable(jobItem.getOrderid(), jobItem.getProduct());
 
-        Intent intent = new Intent(getActivity(), StepViewActivity.class);
-        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
-        startActivityForResult(intent, Constance.REQUEST_STEPVIEW);
+        if (getPresenter().checkStep(jobItem.getOrderid())) {
+            Intent intent = new Intent(getActivity(), StepViewActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+            startActivityForResult(intent, Constance.REQUEST_STEPVIEW);
+        } else {
+            Intent intent = new Intent(getActivity(), DetailActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+            startActivityForResult(intent, Constance.REQUEST_EDIT_DETAIL);
+        }
+
     }
 }

@@ -16,11 +16,18 @@ public class BackupAndRestoreInterface {
         void onDismiss();
         void onFail(String fail);
         void onSuccess(String success);
+        void onBackupExist();
+        void onNotBackup();
+        void onDeleteFileZip();
+        void downloadFile();
         boolean writeResponseBodyToDisk(ResponseBody body);
+        void extractFileToDevice();
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<BackupAndRestoreInterface.View> {
-        void backup(RequestBody requestBody, MultipartBody.Part file);
+        void backup(RequestBody requestBody, MultipartBody.Part file, MultipartBody.Part filezip);
         void restore(String url);
+        void checkBackup(String description);
+        void extractFile();
     }
 }

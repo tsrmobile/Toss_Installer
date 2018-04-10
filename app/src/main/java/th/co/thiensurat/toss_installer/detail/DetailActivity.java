@@ -13,7 +13,9 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.InflateException;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+
+import com.thefinestartist.finestwebview.FinestWebView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +81,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     @BindView(R.id.textview_email) TextView textViewEmail;
     @BindView(R.id.button_next) Button buttonNext;
     @BindView(R.id.button_cancel) Button buttonCancel;
+    @BindView(R.id.button_assessment) Button buttonAssessment;
     @Override
     public void bindView() {
         ButterKnife.bind(this);
@@ -90,6 +95,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     @Override
     public void setupView() {
         setToolbar();
+        buttonAssessment.setVisibility(View.GONE);
         buttonNext.setOnClickListener( onNext() );
         buttonCancel.setOnClickListener( onCancel() );
     }
@@ -117,15 +123,18 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home || item.getItemId() == R.id.menu_home) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        if (item.getItemId() == android.R.id.home) {
+            setResult(RESULT_OK);
             finish();
-            /*setResult(RESULT_OK);
-            finish();*/
         } else if (item.getItemId() == R.id.menu_edit) {
             MyApplication.getInstance().getPrefManager().setPreferrence("ORDERID", jobItem.getOrderid());
             Intent intent = new Intent(DetailActivity.this, EditActivity.class);
             startActivityForResult(intent, Constance.REQUEST_EDIT_DETAIL);
+        } else if (item.getItemId() == R.id.menu_home) {
+            Intent intent = new Intent(DetailActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -239,6 +248,36 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         };
     }
 
+    private View.OnClickListener onAssessment() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String url = "";
+                new FinestWebView.Builder(DetailActivity.this).theme(R.style.FinestWebViewTheme)
+                        .titleDefault("Vimeo")
+                        .showUrl(false)
+                        .statusBarColorRes(R.color.colorPrimaryDark)
+                        .toolbarColorRes(R.color.colorPrimary)
+                        .titleColorRes(R.color.finestWhite)
+                        .urlColorRes(R.color.colorAccent)
+                        .iconDefaultColorRes(R.color.finestWhite)
+                        .progressBarColorRes(R.color.colorAccent)
+                        .stringResCopiedToClipboard(R.string.copied_to_clipboard)
+                        .stringResCopiedToClipboard(R.string.copied_to_clipboard)
+                        .stringResCopiedToClipboard(R.string.copied_to_clipboard)
+                        .showSwipeRefreshLayout(true)
+                        .swipeRefreshColorRes(R.color.colorPrimaryDark)
+                        .menuSelector(R.drawable.selector_light_theme)
+                        .menuTextGravity(Gravity.CENTER)
+                        .menuTextPaddingRightRes(R.dimen.defaultMenuTextPaddingLeft)
+                        .dividerHeight(0)
+                        .gradientDivider(false)
+                        .setCustomAnimations(R.anim.slide_up, R.anim.hold, R.anim.hold, R.anim.slide_down)
+                        .show(url);
+            }
+        };
+    }
+
     @Override
     public void setAddressDetail(List<AddressItem> addressDetail) {
         for (int i = 0; i < addressDetail.size(); i++) {
@@ -259,5 +298,14 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                 textViewEmail.setText((item.getEmail().equals("")) ? "-" : item.getEmail());
             }
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)){
+            setResult(RESULT_OK);
+            finish();
+        }
+        return true;
     }
 }

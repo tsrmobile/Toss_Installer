@@ -37,6 +37,7 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
  */
 public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterface.Presenter> implements PaymentAddressInterface.View {
 
+    private String orderid;
     private JobItem jobItem;
     private CustomDialog customDialog;
     private String province, district, subdistrict;
@@ -91,7 +92,8 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
 
     @Override
     public void initialize() {
-        getPresenter().getAddressDetail(MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID"));
+        orderid = MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID");
+        getPresenter().getAddressDetail(orderid);
     }
 
     @Override
@@ -276,13 +278,14 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
     @Override
     public void updateLocalSuccess(boolean b) {
         if (b) {
+            getPresenter().getAddressDetail(orderid);
             boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
             if (!isNetworkAvailable) {
 
             } else {
                 List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
                 updateBodyList.add(new RequestUpdateAddress.updateBody()
-                        .setOrderid(jobItem.getOrderid())
+                        .setOrderid(orderid)
                         .setAddressType("AddressPayment")
                         .setAddrDetail(editTextDetial.getText().toString())
                         .setProvince(provinceid)
@@ -318,6 +321,6 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
-        getPresenter().updateAddressSync(jobItem.getOrderid());
+        getPresenter().updateAddressSync(orderid);
     }
 }

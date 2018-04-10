@@ -40,6 +40,8 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
  */
 public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Presenter> implements CardAddressInterface.View {
 
+    private String orderid;
+
     private JobItem jobItem;
     private CustomDialog customDialog;
     private String province, district, subdistrict;
@@ -94,7 +96,8 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
 
     @Override
     public void initialize() {
-        getPresenter().getAddressDetail(MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID"));
+        orderid = MyApplication.getInstance().getPrefManager().getPreferrence("ORDERID");
+        getPresenter().getAddressDetail(orderid);
     }
 
     @Override
@@ -115,7 +118,7 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
-        getPresenter().updateAddressSync(jobItem.getOrderid());
+        getPresenter().updateAddressSync(orderid);
     }
 
     @Override
@@ -290,20 +293,22 @@ public class CardAddressFragment extends BaseMvpFragment<CardAddressInterface.Pr
                 .setOffice(editTextWork.getText().toString())
                 .setMobile(editTextMobile.getText().toString())
                 .setEmail(editTextEmail.getText().toString());
+
         itemListLocal.add(addressItemLocal);
-        getPresenter().updateData(jobItem.getOrderid(), "AddressIDCard", itemListLocal);
+        getPresenter().updateData(orderid, "AddressIDCard", itemListLocal);
     }
 
     @Override
     public void updateLocalSuccess(boolean b) {
         if (b) {
+            getPresenter().getAddressDetail(orderid);
             boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
             if (!isNetworkAvailable) {
 
             } else {
                 List<RequestUpdateAddress.updateBody> updateBodyList = new ArrayList<>();
                 updateBodyList.add(new RequestUpdateAddress.updateBody()
-                        .setOrderid(jobItem.getOrderid())
+                        .setOrderid(orderid)
                         .setAddressType("AddressIDCard")
                         .setAddrDetail(editTextDetial.getText().toString())
                         .setProvince(provinceid)

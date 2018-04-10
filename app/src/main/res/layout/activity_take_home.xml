@@ -21,7 +21,7 @@
 
             <include
                 android:id="@+id/toolbar"
-                layout="@layout/toolbar"/>
+                layout="@layout/toolbar_2"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view"
@@ -38,30 +38,16 @@
         android:id="@+id/bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/background_rounded_accent"
         android:layout_centerHorizontal="true"
-        android:layout_margin="8dp"
-        android:paddingRight="4dp"
-        android:paddingLeft="8dp"
         android:layout_alignParentBottom="true">
 
-        <!--<android.support.design.widget.FloatingActionButton
-            android:id="@+id/floating_camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/ic_photo_camera_white_48dp"
-            app:elevation="8dp"
-            app:fabSize="normal"
-            app:backgroundTint="@color/colorAccent"/>-->
         <Button
             android:id="@+id/floating_camera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ถ่ายรูป"
             android:textColor="@color/white"
-            android:background="@android:color/transparent"
+            android:backgroundTint="@color/colorAccent"
             android:drawableLeft="@drawable/ic_photo_camera_white_24dp"/>
 
     </RelativeLayout>
@@ -77,11 +63,9 @@
         <Button
             android:id="@+id/button_next"
             android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_margin="8dp"
-            android:background="@drawable/background_rounded_colorprimarydark"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:text="ถัดไป"
-            android:textSize="12sp"
             android:textColor="@color/White"
             android:drawableRight="@drawable/ic_chevron_right_white_24dp"/>
 

@@ -18,7 +18,6 @@ public class JobItemResult {
     private String title;
     private String firstName;
     private String lastName;
-    private String contactphone;
     private String installStartDate;
     private String installEndDate;
     private String installStart;
@@ -27,6 +26,7 @@ public class JobItemResult {
     private String presale;
     private String contno;
     private String closeDate;
+    private String duedate;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -68,14 +68,6 @@ public class JobItemResult {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getContactphone() {
-        return contactphone;
-    }
-
-    public void setContactphone(String contactphone) {
-        this.contactphone = contactphone;
     }
 
     public String getInstallStartDate() {
@@ -156,5 +148,13 @@ public class JobItemResult {
 
     public void setCloseDate(String closeDate) {
         this.closeDate = closeDate;
+    }
+
+    public String getDuedate() {
+        return duedate;
+    }
+
+    public void setDuedate(String duedate) {
+        this.duedate = duedate;
     }
 }

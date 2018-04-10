@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="2dp"
-                android:background="@drawable/background_rounded_red"
+                android:backgroundTint="@color/Red"
                 android:textColor="@color/white"
                 android:text="Cancel" />
 
@@ -44,7 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="2dp"
-                android:background="@drawable/background_rounded_colorprimarydark"
+                android:backgroundTint="@color/colorPrimaryDark"
                 android:textColor="@color/white"
                 android:text="Clear" />
 
@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="2dp"
-                android:background="@drawable/background_rounded_green"
+                android:backgroundTint="@color/LimeGreen"
                 android:textColor="@color/white"
                 android:text="Save" />
 

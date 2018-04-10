@@ -110,11 +110,7 @@ public class CardAddressPresenter extends BaseMvpPresenter<CardAddressInterface.
     @Override
     public void updateData(String orderid, String type, List<AddressItem> addressItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.updateAddress(orderid, type, addressItemList)) {
-            getView().updateLocalSuccess(true);
-        } else {
-            getView().updateLocalSuccess(false);
-        }
+        getView().updateLocalSuccess(dbHelper.updateAddress(orderid, type, addressItemList));
     }
 
     @Override

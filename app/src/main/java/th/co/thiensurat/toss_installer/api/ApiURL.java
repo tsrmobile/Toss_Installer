@@ -18,6 +18,9 @@ public class ApiURL {
     public static final String UPLOAD_URL = "/android/api/v1.0/installer/image/";
     public static final String BACKUP_URL = "/android/api/v1.0/installer/backup/";
 
+    public static final String JOB_PAYMENT_URL = "/android/api/v1.0/payment/job/";
+    public static final String JOB_UPDATE_DUEDATE = "/android/api/v1.0/payment/update/";
+
     public static final String GOOGLE_BASE_URL = "https://maps.googleapis.com";
     public static final String GOOGLE_MAP_API_URL = "/maps/api/distancematrix/json";
 }

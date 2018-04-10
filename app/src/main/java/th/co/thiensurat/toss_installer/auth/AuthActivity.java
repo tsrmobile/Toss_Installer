@@ -47,13 +47,10 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
         return R.layout.activity_auth;
     }
 
-    @BindView(R.id.edt_user)
-    EditText username;
-    @BindView(R.id.edt_pwd)
-    EditText password;
-    @BindView(R.id.button_login)
-    Button buttonLogin;
-
+    @BindView(R.id.edt_user) EditText username;
+    @BindView(R.id.edt_pwd) EditText password;
+    @BindView(R.id.button_login) Button buttonLogin;
+    @BindView(R.id.button_forget) Button buttonForget;
     @Override
     public void bindView() {
         ButterKnife.bind(this);
@@ -69,6 +66,7 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     @Override
     public void setupView() {
         buttonLogin.setOnClickListener(onLogin());
+        buttonForget.setOnClickListener(onForget());
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -102,6 +100,15 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
             public void onClick(View view) {
                 buttonLogin.startAnimation(new AnimateButton().animbutton());
                 getUsernamePassword();
+            }
+        };
+    }
+
+    private View.OnClickListener onForget() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonForget.startAnimation(new AnimateButton().animbutton());
             }
         };
     }

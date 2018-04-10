@@ -4,10 +4,10 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/waveSwipRefresh">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview"
@@ -16,7 +16,7 @@
 
         </android.support.v7.widget.RecyclerView>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout>
 
     <RelativeLayout
         android:id="@+id/layout_fail"

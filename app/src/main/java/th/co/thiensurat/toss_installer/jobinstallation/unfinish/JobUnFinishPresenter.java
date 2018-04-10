@@ -79,4 +79,10 @@ public class JobUnFinishPresenter extends BaseMvpPresenter<JobUnFinishInterface.
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         dbHelper.setTableProductByOrderid(orderid, productItems);
     }
+
+    @Override
+    public boolean checkStep(String orderid) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        return dbHelper.checkStepCreate(orderid);
+    }
 }

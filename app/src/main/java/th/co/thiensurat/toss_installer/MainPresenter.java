@@ -58,7 +58,7 @@ public class MainPresenter extends BaseMvpPresenter<MainInterface.View> implemen
 
     @Override
     public void requestAddressSync(List<RequestUpdateAddress.updateBody> updateBodyList) {
-        getView().showNotificationSyncIcon();
+        //getView().showNotificationSyncIcon();
         serviceManager.requestUpdateAddr(updateBodyList, new ServiceManager.ServiceManagerCallback() {
             @Override
             public void onSuccess(Object result) {

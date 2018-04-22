@@ -31,6 +31,7 @@ import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.installation.adapter.InstallationAdapter;
 import th.co.thiensurat.toss_installer.installation.camera.CaptureActivityPortrait;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertItemToGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
@@ -94,12 +95,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
         getDataFromIntent();
     }
 
-    /*@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.print_menu, menu);
+        inflater.inflate(R.menu.home_menu, menu);
         return true;
-    }*/
+    }
 
     @Override
     public void onLoad() {
@@ -202,8 +203,12 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
             if(result.getContents() == null) {
                 relativeLayoutNext.setVisibility(View.GONE);
             } else {
-                if (getPresenter().checkSerial(MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL), productcode)) {
-                    getPresenter().updateSerialToServer(jobItem.getOrderid(), productcode, MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL));
+                if (getPresenter().checkSerial(MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL),
+                        productcode)) {
+                    getPresenter().updateSerialToServer(
+                            jobItem.getOrderid(),
+                            MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_PRODUCT_CODE),
+                            MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SERIAL));
                     for (ProductItem item : productItemList) {
                         if (item.getProductStatus().equals(Constance.PRODUCT_STATUS_READY)) {
                             relativeLayoutNext.setVisibility(View.VISIBLE);
@@ -224,9 +229,10 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(InstallationActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
-        } else if (item.getItemId() == R.id.menu_print) {
-
         } else if (item.getItemId() == R.id.menu_home) {
             Intent intent = new Intent(InstallationActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -247,11 +253,9 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     }
 
     public void onNextStep() {
-        //getPresenter().updateStatus("status", jobItem.getOrderid());
         Intent intent = new Intent(InstallationActivity.this, TakePictureActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         startActivityForResult(intent, Constance.REQUEST_TAKE_PICTURE);
-        finish();
     }
 
     @Override

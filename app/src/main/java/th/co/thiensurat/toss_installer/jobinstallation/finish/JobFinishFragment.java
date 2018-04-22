@@ -145,12 +145,9 @@ public class JobFinishFragment extends BaseMvpFragment<JobFinishInterface.Presen
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-        if (jobItemList.size() == 0) {
-            relativeLayoutFail.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        }
-
+        recyclerView.setVisibility(View.VISIBLE);
         relativeLayoutFail.setVisibility(View.GONE);
+        circularProgressView.setVisibility(View.GONE);
     }
 
     @Override

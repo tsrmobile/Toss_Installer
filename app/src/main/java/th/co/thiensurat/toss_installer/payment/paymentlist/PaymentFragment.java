@@ -1,4 +1,4 @@
-package th.co.thiensurat.toss_installer.payment.fragment;
+package th.co.thiensurat.toss_installer.payment.paymentlist;
 
 
 import android.Manifest;
@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -27,16 +26,16 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
-import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpFragment;
-import th.co.thiensurat.toss_installer.detail.DetailActivity;
-import th.co.thiensurat.toss_installer.jobinstallation.current.adapter.CurrentJobAdapter;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.payment.detail.CustomerPaymentDetailActivity;
-import th.co.thiensurat.toss_installer.payment.paymentpage.PaymentPageActivity;
+import th.co.thiensurat.toss_installer.payment.paymentitem.PaymentItemActivity;
+import th.co.thiensurat.toss_installer.payment.paymentlist.adapter.PaymentAdapter;
 import th.co.thiensurat.toss_installer.utils.ActivityResultBus;
 import th.co.thiensurat.toss_installer.utils.ActivityResultEvent;
 import th.co.thiensurat.toss_installer.utils.Constance;
@@ -52,11 +51,11 @@ import th.co.thiensurat.toss_installer.utils.helper.SimpleItemTouchHelperCallbac
  */
 public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
         implements PaymentInterface.View, WaveSwipeRefreshLayout.OnRefreshListener, OnStartDragListener
-        , OnCustomerListChangedListener, CurrentJobAdapter.ClickListener {
+        , OnCustomerListChangedListener, PaymentAdapter.ClickListener {
 
     private GPSTracker gps;
     private CustomDialog customDialog;
-    private CurrentJobAdapter adapter;
+    private PaymentAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
     private LinearLayoutManager layoutManager;
 
@@ -98,8 +97,8 @@ public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
         checkLocationPermission();
         gps = new GPSTracker(getActivity());
         customDialog = new CustomDialog(getActivity());
-        adapter = new CurrentJobAdapter(getActivity(), PaymentFragment.this, PaymentFragment.this);
         layoutManager = new LinearLayoutManager(getActivity());
+        adapter = new PaymentAdapter(getActivity(), PaymentFragment.this, PaymentFragment.this);
     }
 
     @Override
@@ -136,12 +135,7 @@ public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
 
     @Override
     public void onRefresh() {
-        boolean isNetworkAvailable = ConnectionDetector.isConnectingToInternet(getActivity());
-        if (!isNetworkAvailable) {
-            //getPresenter().getCurrentJobLocalDB();
-        } else {
-            getPresenter().requestJobPayment("firstpayment", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
-        }
+        getPresenter().requestJobPayment("firstpayment", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
     }
 
     @Override
@@ -187,25 +181,22 @@ public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
     public void setJobPaymentToAdapter(List<JobItem> ItemList) {
         jobItemList = new ArrayList<>();
         jobItemList = getOrderItem(ItemList);
-        waveSwipeRefreshLayout.setRefreshing(false);
 
         adapter.setJobItemList(jobItemList, origins);
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
         adapter.setItemClick(this);
 
-        if (jobItemList.size() == 0) {
-            relativeLayoutFail.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        }
-
+        recyclerView.setVisibility(View.VISIBLE);
         relativeLayoutFail.setVisibility(View.GONE);
+        circularProgressView.setVisibility(View.GONE);
+
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         adapter.stopThread();
+        waveSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -218,7 +209,7 @@ public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
         Gson gson = new Gson();
         String jsonListOfSortedCustomerIds = gson.toJson(listOfSortedCustomerId);
 
-        MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_SORT_ID, jsonListOfSortedCustomerIds);
+        MyApplication.getInstance().getPrefManager().setPreferrence(Constance.KEY_SORT_PAYMENT_ID, jsonListOfSortedCustomerIds);
     }
 
     @Override
@@ -233,10 +224,24 @@ public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
         AddressItemGroup addressItemGroup = new AddressItemGroup();
         addressItemGroup.setData(jobItem.getAddress());
 
-        Intent intent = new Intent(getActivity(), CustomerPaymentDetailActivity.class);
-        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
-        startActivityForResult(intent, Constance.REQUEST_PAYMENT_DETAIL);
+        ProductItemGroup productItemGroup = new ProductItemGroup();
+        productItemGroup.setProduct(jobItem.getProduct());
+
+        if (jobItem.getProduct().size() > 1) {
+            Intent intent = new Intent(getActivity(), PaymentItemActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+            intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
+            startActivityForResult(intent, Constance.REQUEST_PAYMENT_ITEM_LIST);
+        } else {
+            MyApplication.getInstance().getPrefManager().setPreferrence("code", jobItem.getProduct().get(0).getProductCode());
+            Intent intent = new Intent(getActivity(), CustomerPaymentDetailActivity.class);
+            //Intent intent = new Intent(getActivity(), PaymentItemActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+            intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
+            startActivityForResult(intent, Constance.REQUEST_PAYMENT_DETAIL);
+        }
 
     }
 
@@ -255,8 +260,7 @@ public class PaymentFragment extends BaseMvpFragment<PaymentInterface.Presenter>
         List<JobItem> sortedJob = new ArrayList<JobItem>();
 
         try {
-            String jsonListOfSortedJobItem = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SORT_ID);
-
+            String jsonListOfSortedJobItem = MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_SORT_PAYMENT_ID);
             if (!jsonListOfSortedJobItem.isEmpty()) {
                 Gson gson = new Gson();
                 List<String> listOfSortedJobID = gson.fromJson(jsonListOfSortedJobItem,

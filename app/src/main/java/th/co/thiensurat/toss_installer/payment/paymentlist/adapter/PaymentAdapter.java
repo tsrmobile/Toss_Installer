@@ -1,4 +1,4 @@
-package th.co.thiensurat.toss_installer.jobinstallation.current.adapter;
+package th.co.thiensurat.toss_installer.payment.paymentlist.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -48,12 +48,7 @@ import static com.google.android.gms.internal.zzagr.runOnUiThread;
 import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_BASE_URL;
 import static th.co.thiensurat.toss_installer.utils.Utils.ConvertDateFormat;
 
-/**
- * Created by teerayut.k on 1/25/2018.
- */
-
-public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.ViewHolder>
-        implements ItemTouchHelperAdapter {
+public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
     private String origins;
     private Context context;
@@ -69,9 +64,9 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
     private String distance;
     private String destination;
     private ApiService service;
-    private List<JobItem> jobItemList = new ArrayList<>();
+    private List<JobItem> jobItemList = new ArrayList<JobItem>();
 
-    public CurrentJobAdapter(FragmentActivity activity, OnStartDragListener dragStartListener,
+    public PaymentAdapter(FragmentActivity activity, OnStartDragListener dragStartListener,
                              OnCustomerListChangedListener listChangedListener) {
         this.context = activity;
         this.dragListener = dragStartListener;
@@ -114,50 +109,19 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
 
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        SimpleDateFormat dateOnly = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
         Date endDate = null;
-        try {
-            date = sdf.parse(item.getInstallStartDate());
-            endDate = sdf.parse(item.getInstallEndDate());
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
-
-        try {
-            if (item.getInstallStartDate().isEmpty()) {
-                holder.textViewDate.setVisibility(View.GONE);
-                holder.textViewTime.setVisibility(View.GONE);
-            } else {
-                holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
-                holder.textViewTime.setText(timeFormat.format(date) + " น.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            holder.textViewDate.setVisibility(View.GONE);
-            holder.textViewTime.setVisibility(View.GONE);
-        }
-
-        try {
-            if (item.getInstallEndDate().isEmpty()) {
-                holder.textViewEndDate.setVisibility(View.GONE);
-                holder.textViewEndTime.setVisibility(View.GONE);
-            } else {
-                holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
-                holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            holder.textViewEndDate.setVisibility(View.GONE);
-            holder.textViewEndTime.setVisibility(View.GONE);
-        }
+        Date today = null;
 
         try {
             if (item.getInstallEnd().isEmpty()) {
                 holder.textViewEndDate.setVisibility(View.GONE);
                 holder.textViewEndTime.setVisibility(View.GONE);
             } else {
-                holder.textViewUntil.setText("วันที่ติดตั้ง: ");
-                holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
+                endDate = sdf.parse(item.getInstallEnd());
+                holder.textViewUntil.setText("ติดตั้งเมื่อ: ");
+                holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEnd()));
                 holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
             }
         } catch (Exception e) {
@@ -173,9 +137,18 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                 holder.textViewTime.setVisibility(View.GONE);
             } else {
                 date = sdf.parse(item.getDuedate());
-                holder.textViewBegin.setText("วันที่นัดชำระ: ");
+                holder.textViewBegin.setText("นัดชำระ: ");
                 holder.textViewDate.setText(ConvertDateFormat(item.getDuedate()));
                 holder.textViewTime.setText(timeFormat.format(date) + " น.");
+
+                today = dateOnly.parse(sdf.format(new Date()));
+                date = dateOnly.parse(item.getDuedate());
+                if (today.after(date)) {
+                    holder.textViewOver.setVisibility(View.VISIBLE);
+                    holder.textViewNumber.setTextColor(context.getResources().getColor(R.color.White));
+                    holder.textViewNumber.setBackgroundColor(context.getResources().getColor(R.color.LightRed));
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,8 +189,6 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                 return false;
             }
         });
-
-
         synchronized (context) {
             thread = new Thread(new Runnable() {
                 public void run(){
@@ -263,15 +234,15 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
         thread.start();
     }
 
+    @Override
+    public int getItemCount() {
+        return jobItemList.size();
+    }
+
     public synchronized void stopThread() {
         if (thread != null) {
             thread.interrupt();
         }
-    }
-
-    @Override
-    public int getItemCount() {
-        return jobItemList.size();
     }
 
     public void setItemClick(ClickListener clickListener) {
@@ -310,6 +281,7 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
         @BindView(R.id.drag_handle) ImageView imageViewDrag;
         @BindView(R.id.title_until) TextView textViewUntil;
         @BindView(R.id.title_begin) TextView textViewBegin;
+        @BindView(R.id.text_over) TextView textViewOver;
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -353,10 +325,12 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
 
         @Override
         public void onItemSelected() {
+
         }
 
         @Override
         public void onItemClear() {
+
         }
     }
 

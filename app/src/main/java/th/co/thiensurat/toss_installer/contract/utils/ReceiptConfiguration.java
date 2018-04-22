@@ -1,39 +1,21 @@
 package th.co.thiensurat.toss_installer.contract.utils;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Environment;
-import android.os.RemoteException;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-import com.centerm.smartpos.aidl.printer.AidlPrinter;
-import com.centerm.smartpos.constant.Constant;
-import com.datecs.api.printer.Printer;
 import com.github.danielfelgar.drawreceiptlib.ReceiptBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 
-import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.PrintTextInfo;
-import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.ThemalPrintController;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
@@ -41,8 +23,6 @@ import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.DateFormateUtilities;
 import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
-
-import static com.thefinestartist.utils.content.ContextUtil.getExternalFilesDir;
 
 /**
  * Created by teerayut.k on 2/12/2018.
@@ -94,7 +74,7 @@ public class ReceiptConfiguration {
 
     private Context context;
     private JobItem jobItem;
-    private String contactNumber;
+    private String number;
     private List<ProductItem> productItemList;
     private List<AddressItem> addressItemList;
 
@@ -120,7 +100,7 @@ public class ReceiptConfiguration {
     public void setReceiptInfoActivity(String printerNameOrMac, JobItem job, String number, List<ProductItem> productList, List<AddressItem> addressItem) {
         this.printerNameOrMac = printerNameOrMac;
         this.jobItem = job;
-        this.contactNumber = number;
+        this.number = number;
         this.productItemList = productList;
         this.addressItemList = addressItem;
         //imgConfig = new ImageConfiguration(context);
@@ -184,14 +164,13 @@ public class ReceiptConfiguration {
         File filEmp = new File(imgConfig.getAlbumStorageDir(empid), String.format("signature_%s.jpg", empid));
         bmpEmployee = BitmapFactory.decodeFile(filEmp.getAbsolutePath(), bmOptions);
         installername = "" + DateFormateUtilities.trim( MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_FIRSTNAME) + " " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_LASTNAME));
-        /*if (printerNameOrMac.equals("DPP-350")) {
+        if (printerNameOrMac.equals("DPP-350")) {
             return datecPrintReceipt();
         } else if (printerNameOrMac.equals("Virtual Bluetooth Printer")) {
             return ePosPrintReceipt();
         } else {
             return anotherPrintReceipt();
-        }*/
-        return ePosPrintReceipt();
+        }
     }
 
     public Bitmap headerPrint() {
@@ -240,7 +219,7 @@ public class ReceiptConfiguration {
             receiptBuilder.setAlign(Paint.Align.LEFT);
             receiptBuilder.addText("เลขที่สัญญา", false);
             receiptBuilder.setAlign(Paint.Align.RIGHT);
-            receiptBuilder.addText(contactNumber);
+            receiptBuilder.addText(number);
             receiptBuilder.addBlankSpace(60);
             receiptBuilder.setAlign(Paint.Align.LEFT);
             receiptBuilder.addText("เลขที่อ้างอิง", false);
@@ -556,7 +535,7 @@ public class ReceiptConfiguration {
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("เลขที่สัญญา", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText(contactNumber);
+        receiptBuilder.addText(number);
         receiptBuilder.addBlankSpace(20);
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("เลขที่อ้างอิง", false);
@@ -856,35 +835,52 @@ public class ReceiptConfiguration {
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("วันที่รับเงิน", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("09/04/2561 11:04");
+        receiptBuilder.addText(DateFormateUtilities.dateFormat(new Date()));
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("เลขที่", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("TSR0000001");
+        receiptBuilder.addText(number);
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("เลขที่สัญญา", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("6104000001");
+        receiptBuilder.addText(jobItem.getContno());
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("ชื่อลูกค้า", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("Thiensurat.co.th");
+        receiptBuilder.addText(jobItem.getTitle() + jobItem.getFirstName() + " " + jobItem.getLastName());
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.LEFT);
-        receiptBuilder.addText("เครื่องกรองน้ำเซฟ (Salf Alkaline)");
+
+        float pricePeriods = 0;
+        float productPrice = 0;
+        String productName = "";
+        String productModel = "";
+        String periodBalance = "";
+        for (ProductItem productItem : productItemList) {
+            if (MyApplication.getInstance().getPrefManager().getPreferrence("code")
+                    .equals(productItem.getProductCode())) {
+                productName = productItem.getProductName();
+                productModel = productItem.getProductModel();
+                periodBalance = productItem.getProductPayPeriods();
+                pricePeriods += Float.parseFloat(productItem.getProductPayPerPeriods());
+                productPrice += Float.parseFloat(productItem.getProductPrice());
+            }
+        }
+
+        receiptBuilder.addText(productName + " (" + productModel + ")");
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.LEFT);
-        receiptBuilder.addText("ชำระงวดที่ 1", false);
+        receiptBuilder.addText("ชำระงวดที่ " + jobItem.getPeriods(), false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("1,000.00");
+        receiptBuilder.addText(df.format(pricePeriods));
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.LEFT);
-        receiptBuilder.addText("คงเหลือ งวดที่ 2" + " ถึง 6", false);
+        receiptBuilder.addText("คงเหลืองวดที่ "+ (Integer.parseInt(jobItem.getPeriods()) + 1) + " ถึง " + periodBalance, false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("5,000.00");
+        receiptBuilder.addText(df.format(productPrice - pricePeriods));
         receiptBuilder.addParagraph();
         receiptBuilder.addBlankSpace(80);
         receiptBuilder.setAlign(Paint.Align.CENTER);
@@ -896,7 +892,7 @@ public class ReceiptConfiguration {
         receiptBuilder.addText("(" + installername + ")");
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.CENTER);
-        receiptBuilder.addText("ผู้รับเงิน");
+        receiptBuilder.addText("ผู้รับเงิน " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
 
         return receiptBuilder.build();
     }
@@ -916,31 +912,48 @@ public class ReceiptConfiguration {
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("วันที่รับเงิน", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("");
+        receiptBuilder.addText(DateFormateUtilities.dateFormat(new Date()));
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("เลขที่", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("");
+        receiptBuilder.addText(number);
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("เลขที่สัญญา", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("");
+        receiptBuilder.addText(jobItem.getContno());
         receiptBuilder.setAlign(Paint.Align.LEFT);
         receiptBuilder.addText("ชื่อลูกค้า", false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("");
+        receiptBuilder.addText(jobItem.getTitle() + jobItem.getFirstName() + " " + jobItem.getLastName());
         receiptBuilder.addParagraph();
         receiptBuilder.setAlign(Paint.Align.LEFT);
-        receiptBuilder.addText("เครื่องกรองน้ำเซฟ (Salf Alkaline)");
+
+        float pricePeriods = 0;
+        float productPrice = 0;
+        String productName = "";
+        String productModel = "";
+        String periodBalance = "";
+        for (ProductItem productItem : productItemList) {
+            if (MyApplication.getInstance().getPrefManager().getPreferrence("code")
+                    .equals(productItem.getProductCode())) {
+                productName = productItem.getProductName();
+                productModel = productItem.getProductModel();
+                periodBalance = productItem.getProductPayPeriods();
+                pricePeriods += Float.parseFloat(productItem.getProductPayPerPeriods());
+                productPrice += Float.parseFloat(productItem.getProductPrice());
+            }
+        }
+
+        receiptBuilder.addText(productName + " (" + productModel + ")");
         receiptBuilder.addParagraph();
         receiptBuilder.setAlign(Paint.Align.LEFT);
-        receiptBuilder.addText("ชำระงวดที่", false);
+        receiptBuilder.addText("ชำระงวดที่ " + jobItem.getPeriods(), false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("");
+        receiptBuilder.addText(df.format(pricePeriods));
         receiptBuilder.setAlign(Paint.Align.LEFT);
-        receiptBuilder.addText("คงเหลือ งวดที่" + "ถึง" + "เป็นเงิน", false);
+        receiptBuilder.addText("คงเหลืองวดที่ "+ (Integer.parseInt(jobItem.getPeriods()) + 1) + " ถึง " + periodBalance, false);
         receiptBuilder.setAlign(Paint.Align.RIGHT);
-        receiptBuilder.addText("");
+        receiptBuilder.addText(df.format(productPrice - pricePeriods));
         receiptBuilder.addParagraph();
         receiptBuilder.setAlign(Paint.Align.CENTER);
         receiptBuilder.addImage(imgConfig.getResizedBitmap(bmpEmployee, 640, 240));
@@ -951,7 +964,7 @@ public class ReceiptConfiguration {
         receiptBuilder.addText("(" + installername + ")");
         receiptBuilder.addBlankSpace(60);
         receiptBuilder.setAlign(Paint.Align.CENTER);
-        receiptBuilder.addText("ผู้รับเงิน");
+        receiptBuilder.addText("ผู้รับเงิน " + MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID));
 
 
         return receiptBuilder.build();

@@ -34,7 +34,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/Orange">
+                    android:background="@drawable/selector_orange">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -57,7 +57,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/colorPrimary">
+                    android:background="@drawable/selector_colorprimary">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -87,7 +87,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/DeepSpringGreen">
+                    android:background="@drawable/selector_springgreen">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -111,7 +111,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/DarkTurquoise">
+                    android:background="@drawable/selector_turquoise">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -142,7 +142,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/Salmon">
+                    android:background="@drawable/selector_salmon">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -166,7 +166,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/Orchid">
+                    android:background="@drawable/selector_orchid">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -197,7 +197,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/DarkViolet">
+                    android:background="@drawable/selector_darkviolet">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -220,7 +220,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@color/FireBrick">
+                    android:background="@drawable/selector_firebrick">
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -10,8 +10,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +21,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,9 +55,16 @@ import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServer;
 import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServerListener;
 import th.co.thiensurat.toss_installer.contract.utils.ReceiptConfiguration;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
+import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
+import th.co.thiensurat.toss_installer.payment.detail.CustomerPaymentDetailActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
+import th.co.thiensurat.toss_installer.utils.MyApplication;
 
 public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Presenter> implements PaymentPageInterface.View {
 
@@ -75,7 +88,21 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
     private AidlPrinter printDev = null;
     public AidlDeviceManager manager = null;
 
+    private JobItem jobItem;
+    private String receiptNumber;
+    private AddressItem addressItem;
+    private ProductItem productItem;
+    private AddressItemGroup addressItemGroup;
+    private ProductItemGroup productItemGroup;
+
+    private List<AddressItem> addressItemList;
+    private List<ProductItem> productItemList;
+
     private ReceiptConfiguration receiptConfiguration;
+
+    private float price = 0;
+    private float periodPrice = 0;
+    private DecimalFormat df = new DecimalFormat("#,###.00");
 
     @Override
     public PaymentPageInterface.Presenter createPresenter() {
@@ -126,10 +153,47 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
         radioButtonCash.setOnClickListener(paymentChannelOptionClickListener);
         radioButtonCheck.setOnClickListener(paymentChannelOptionClickListener);
         radioButtonCredit.setOnClickListener(paymentChannelOptionClickListener);
+
+        radioButtonNormal.setChecked(true);
+
+        if (editTextTotalAmount.getText().toString().isEmpty()) {
+            buttonPayment.setEnabled(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                buttonPayment.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.DarkGray));
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                buttonPayment.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorPrimaryDark));
+            }
+        }
+
+        editTextTotalAmount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(editTextTotalAmount.getWindowToken(), 0);
+                    if (editTextTotalAmount.getText().toString().isEmpty()) {
+                        buttonPayment.setEnabled(false);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            buttonPayment.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.DarkGray));
+                        }
+                    } else {
+                        buttonPayment.setEnabled(true);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            buttonPayment.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorPrimaryDark));
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
     public void initialize() {
+        getItemFromIntent();
         connectBluetoothPaired();
         filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
@@ -147,10 +211,37 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
         setSupportActionBar(toolbar);
     }
 
+    private void getItemFromIntent() {
+        jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
+        productItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_PRODUCT);
+        receiptNumber = getIntent().getStringExtra(Constance.KEY_PAYMENT_RECEIPT_NUMBER);
+
+        addressItemList = addressItemGroup.getData();
+        productItemList = productItemGroup.getProduct();
+
+        setDetial();
+    }
+
+    private void setDetial() {
+        if (productItemList.size() > 1) {
+
+        } else {
+            for (ProductItem productItem : productItemList) {
+                price = Float.parseFloat(productItem.getProductPrice());
+                periodPrice = Float.parseFloat(productItem.getProductPayPerPeriods());
+            }
+
+            editTextTotalAmount.setText(df.format(periodPrice));
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_OK);
+            Intent intent = new Intent(PaymentPageActivity.this, CustomerPaymentDetailActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -159,7 +250,9 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)){
-            setResult(RESULT_OK);
+            Intent intent = new Intent(PaymentPageActivity.this, CustomerPaymentDetailActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
         }
         return true;
@@ -344,13 +437,28 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
         public void onClick(View view) {
             if (radioButtonSome.isChecked()) {
                 editTextTotalAmount.setEnabled(true);
+                editTextTotalAmount.setText("");
+                editTextTotalAmount.requestFocus();
+                if (editTextTotalAmount.getText().toString().isEmpty()) {
+                    buttonPayment.setEnabled(false);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        buttonPayment.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.DarkGray));
+                    }
+                } else {
+                    buttonPayment.setEnabled(true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        buttonPayment.setBackgroundTintList(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorPrimaryDark));
+                    }
+                }
                 linearLayoutBorder.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_rounded_colorprimarydark));
             } else if (radioButtonCut.isChecked()) {
                 // get total price of order
                 editTextTotalAmount.setEnabled(false);
+                editTextTotalAmount.setText(df.format(price));
                 linearLayoutBorder.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_rounded_gray));
             }else {
                 editTextTotalAmount.setEnabled(false);
+                editTextTotalAmount.setText(df.format(periodPrice));
                 linearLayoutBorder.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_rounded_gray));
             }
         }
@@ -381,15 +489,14 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
         printTask(new PrinterRunnable() {
             @Override
             public void print(CustomDialog customDialog, Printer printer) {
-                //receiptConfiguration = new ReceiptConfiguration(PaymentPageActivity.this, bluetoothDevice.getName());
-                /*receiptConfiguration.setPathSignature(empSign.getAbsolutePath(), pathCustomer, path);*/
+                receiptConfiguration.setReceiptInfoActivity(bluetoothDevice.getName(), jobItem, receiptNumber, productItemList, addressItemList);
                 try {
                     if (bluetoothDevice.getName().equals("Virtual Bluetooth Printer")) {
                         printDev.setPrinterGray(0x03);
                         printDev.printBmpFastSync(receiptConfiguration.printReceipt(), Constant.ALIGN.CENTER);
                         printDev.spitPaper(100);
-                    } /*else {
-                        Bitmap bitmap = receiptConfiguration.print(printType);
+                    } else {
+                        Bitmap bitmap = receiptConfiguration.printReceipt();
                         final int width = bitmap.getWidth();
                         final int height = bitmap.getHeight();
                         final int[] argb = new int[width * height];
@@ -400,7 +507,7 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
                         mPrinter.reset();
                         mPrinter.feedPaper(100);
                         mPrinter.flush();
-                    }*/
+                    }
 
                     PaymentPageActivity.this.runOnUiThread(new Runnable() {
                         public void run() {
@@ -410,10 +517,10 @@ public class PaymentPageActivity extends BaseMvpActivity<PaymentPageInterface.Pr
                 } catch (RemoteException e) {
                     e.printStackTrace();
                     Log.e("printText error (TOP)", e.getLocalizedMessage());
-                } /*catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     Log.e("printText error I/O", e.getLocalizedMessage());
-                }*/
+                }
             }
         });
     }

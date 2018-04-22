@@ -849,12 +849,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean checkItemSerial(String serial, String productcode) {
         sqlite = this.getReadableDatabase();
         boolean collect = false;
-        Log.e("check serial", serial + ", " + productcode);
-        String strQuery = "SELECT * FROM " + Constance.TABLE_INSTALL_ITEM + " WHERE " + STOCK_ITEM_SERIAL + " = '" + serial
-                + "' AND " + STOCK_ITEM_CODE + " = '" + productcode + "' AND " + STOCK_ITEM_STATUS + " = '1'";
-        Log.e("query string", strQuery);
-        Cursor cursor = sqlite.rawQuery(strQuery, null);
-        if (cursor.getCount() >= 0) {
+        Cursor cursor = sqlite.query(Constance.TABLE_INSTALL_ITEM, null,
+                        STOCK_ITEM_SERIAL + " = ? AND " + STOCK_ITEM_CODE + " = ? AND " + STOCK_ITEM_STATUS + " = '1'",
+                        new String[] { serial, productcode },
+                        null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        if (!cursor.isAfterLast()) {
             collect = true;
         }
 
@@ -881,6 +885,28 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         sqlite.close();
         return collect;
+    }
+
+    public String getPayType(String orderid, String productCode, String serial) {
+        String payType = "";
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query
+                (Constance.TABLE_PRODUCT, null,
+                        PRODUCT_ORDER_ID + " = ? AND " + PRODUCT_CODE + " = ? AND " + PRODUCT_SERIAL + " = ?",
+                        new String[] { orderid, productCode, serial },
+                        null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        if (!cursor.isAfterLast()) {
+            payType = cursor.getString(cursor.getColumnIndex(PRODUCT_PAYTYPE));
+        }
+
+        Log.e("pay type", payType);
+        cursor.close();
+        sqlite.close();
+        return payType;
     }
 
     public boolean checkItemExisting() {

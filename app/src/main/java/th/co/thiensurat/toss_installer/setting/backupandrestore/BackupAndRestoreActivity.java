@@ -177,16 +177,16 @@ public class BackupAndRestoreActivity extends BaseMvpActivity<BackupAndRestoreIn
     @Override
     public void onFail(String fail) {
         customDialog.dialogFail(fail);
-        if (dialog.isShowing()) {
+        /*if (dialog.isShowing()) {
             dialog.dismiss();
-        }
+        }*/
     }
 
     @Override
     public void onSuccess(String success) {
-        if (dialog.isShowing()) {
+        /*if (dialog.isShowing()) {
             dialog.dismiss();
-        }
+        }*/
         customDialog.dialogSuccess(success);
     }
 

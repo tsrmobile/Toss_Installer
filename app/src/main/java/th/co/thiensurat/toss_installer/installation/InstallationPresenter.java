@@ -70,7 +70,7 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
 
     @Override
     public void updateSerialToServer(String orderid, String productcode, String serial) {
-        getView().onLoad();
+        //getView().onLoad();
         serviceManager.requestUpdateSerial("serial", orderid, productcode, serial, new ServiceManager.ServiceManagerCallback() {
             @Override
             public void onSuccess(Object result) {
@@ -78,13 +78,13 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
                 try {
                     JSONObject jsonObject = new JSONObject(gson.toJson(result));
                     if ("SUCCESS".equals(jsonObject.getString("status"))) {
-                        getView().onDismiss();
+                        //getView().onDismiss();
                         getView().onSuccess(jsonObject.getString("message"));
                     } else if ("FAIL".equals(jsonObject.getString("status"))) {
-                        getView().onDismiss();
+                        //getView().onDismiss();
                         getView().onFail(jsonObject.getString("message"));
                     } else {
-                        getView().onDismiss();
+                        //getView().onDismiss();
                         getView().onFail(jsonObject.getString("message"));
                     }
                 } catch (JSONException e) {
@@ -101,7 +101,7 @@ public class InstallationPresenter extends BaseMvpPresenter<InstallationInterfac
 
     @Override
     public boolean checkSerial(String serial, String productcode) {
-        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        dbHelper = new DBHelper(context, Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
         return dbHelper.checkItemSerial(serial, productcode);
     }
 

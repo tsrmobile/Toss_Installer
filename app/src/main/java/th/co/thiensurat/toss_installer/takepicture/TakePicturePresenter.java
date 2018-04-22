@@ -104,42 +104,10 @@ public class TakePicturePresenter extends BaseMvpPresenter<TakePictureInterface.
         dbHelper.updateStep(orderid, step);
     }
 
-    /*@Override
-    public void uploadImageToServer(String action, String orderid, String image64, String imageType, String productcode) {
-        List<UploadImage.uploadBody> uploadBodies = new ArrayList<>();
-        uploadBodies.add(new UploadImage.uploadBody()
-                .setAction(action)
-                .setOrderid(orderid)
-                .setImage64(image64)
-                .setImageType(imageType)
-                .setProductcode(productcode)
-        );
-        getView().onLoading();
-        serviceManager.requestUpload(uploadBodies, new ServiceManager.ServiceManagerCallback() {
-            @Override
-            public void onSuccess(Object result) {
-                Gson gson = new Gson();
-                try {
-                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
-                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
-                        getView().onDismiss();
-                        getView().onSuccess(jsonObject.getString("message"));
-                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
-                        getView().onDismiss();
-                        getView().onFail(jsonObject.getString("message"));
-                    } else {
-                        getView().onDismiss();
-                        getView().onFail(jsonObject.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e("json obj", e.getLocalizedMessage());
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e("upload failure", t.getLocalizedMessage());
-            }
-        });
-    }*/
+    @Override
+    public String getProductPayType(String orderid, String productCode, String serial) {
+        dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
+        Log.e("pay type", dbHelper.getPayType(orderid, productCode, serial));
+        return dbHelper.getPayType(orderid, productCode, serial);
+    }
 }

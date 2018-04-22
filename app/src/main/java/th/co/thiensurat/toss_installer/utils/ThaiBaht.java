@@ -15,48 +15,48 @@ public class ThaiBaht {
     private static final String[] DIGIT_TH = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
     private static final String[] SYMBOLS_TH = { "ลบ", "บาท", "ถ้วน", "สตางค์" ,"ยี่", "เอ็ด", ",", " ", "฿"};
 
-    private String valueText;
+    private static String valueText;
 
     // ···········Methods··············//
-    public String getText(double amount) {
+    public static String getText(double amount) {
         BigDecimal value = new BigDecimal(amount);
-        this.valueText = getThaiBaht(value);
-        return this.valueText;
+        valueText = getThaiBaht(value);
+        return valueText;
     }
 
-    public String getText(float amount) {
+    public static String getText(float amount) {
         BigDecimal value = new BigDecimal(amount);
-        this.valueText = getThaiBaht(value);
-        return this.valueText;
+        valueText = getThaiBaht(value);
+        return valueText;
     }
 
-    public String getText(int amount) {
+    public static String getText(int amount) {
         BigDecimal value = new BigDecimal(amount);
-        this.valueText = getThaiBaht(value);
-        return this.valueText;
+        valueText = getThaiBaht(value);
+        return valueText;
     }
 
-    public String getText(long amount) {
+    public static String getText(long amount) {
         BigDecimal value = new BigDecimal(amount);
-        this.valueText = getThaiBaht(value);
-        return this.valueText;
+        valueText = getThaiBaht(value);
+        return valueText;
     }
 
-    public String getText(String amount) {
+    public static String getText(String amount) {
         //ไม่ต้องการเครื่องหมายคอมมาร์, ไม่ต้องการช่องว่าง, ไม่ต้องการตัวหนังสือ บาท, ไม่ต้องการสัญลักษณ์สกุลเงินบาท
         for (String element : SYMBOLS_TH) {
             amount = amount.replace (element, "");
         }
 
         BigDecimal value = new BigDecimal(amount.trim());
-        this.valueText = getThaiBaht(value);
-        return this.valueText;
+        valueText = getThaiBaht(value);
+        return valueText;
     }
 
-    public String getText(Number amount) {
+    public static String getText(Number amount) {
         BigDecimal value = new BigDecimal(String.valueOf(amount));
-        this.valueText = getThaiBaht(value);
-        return this.valueText;
+        valueText = getThaiBaht(value);
+        return valueText;
     }
 
     private static String getThaiBaht(BigDecimal amount) {

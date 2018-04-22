@@ -32,6 +32,7 @@ public class TakePictureInterface {
         List<ProductItem> getAllItem(String orderid);
         void updateStep(String orderid, String step);
 
+        String getProductPayType(String orderid, String productCode, String serial);
         //void uploadImageToServer(String action, String orderid, String image64, String imageType, String productcode);
     }
 }

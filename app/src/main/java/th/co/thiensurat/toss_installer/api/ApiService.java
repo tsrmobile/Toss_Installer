@@ -91,8 +91,11 @@ public interface ApiService {
     @GET( JOB_PAYMENT_URL )
     Call<JobItemResultGroup> getJobPayment(@Query("data") String data, @Query("empid") String id);
 
+    @GET( JOB_PAYMENT_URL )
+    Call<Object> getReceiptNumber(@Query("data") String data);
+
     @GET( JOB_UPDATE_DUEDATE )
-    Call<Object> updateDueDate(@Query("orderid") String orderid, @Query("duedate") String duedate);
+    Call<Object> updateDueDate(@Query("orderid") String orderid, @Query("duedate") String duedate, @Query("empid") String id);
 
     /*@POST( UPDATE_URL )
     Call<Object> requestJobFinish(@Body ContactItem body);

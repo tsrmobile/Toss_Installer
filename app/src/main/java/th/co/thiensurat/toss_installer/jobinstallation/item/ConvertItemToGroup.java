@@ -10,13 +10,13 @@ import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
  * Created by teerayut.k on 9/26/2017.
  */
 
-public class ConvertJobList {
+public class ConvertItemToGroup {
 
     public static JobItemGroup creatJobItemGroup(JobItemResultGroup resultGroup) {
         JobItemGroup itemGroup = new JobItemGroup();
         itemGroup.setStatus(resultGroup.getStatus());
         itemGroup.setMessage(resultGroup.getMessage());
-        itemGroup.setData(ConvertJobList.creatJobItemList( resultGroup.getData() ));
+        itemGroup.setData(ConvertItemToGroup.creatJobItemList( resultGroup.getData() ));
         return itemGroup;
     }
 
@@ -39,9 +39,16 @@ public class ConvertJobList {
                     .setCloseDate(jobResult.getCloseDate())
                     .setProduct(jobResult.getProduct())
                     .setAddress(jobResult.getAddress())
-                    .setDuedate(jobResult.getDuedate());
+                    .setDuedate(jobResult.getDuedate())
+                    .setPeriods(jobResult.getPeriods());
             items.add(jobItem);
         }
         return items;
+    }
+
+    public static ProductItemGroup createProductItemGroup(List<ProductItem> productItems) {
+        ProductItemGroup productItemGroup = new ProductItemGroup();
+        productItemGroup.setProduct(productItems);
+        return productItemGroup;
     }
 }

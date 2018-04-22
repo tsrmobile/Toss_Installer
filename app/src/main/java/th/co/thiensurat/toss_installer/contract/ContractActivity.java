@@ -97,6 +97,8 @@ import th.co.thiensurat.toss_installer.contract.utils.ReceiptConfiguration;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
+import th.co.thiensurat.toss_installer.takepicturecheckin.MapCheckinActivity;
+import th.co.thiensurat.toss_installer.takepicturecheckin.result.CheckinResultActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 import th.co.thiensurat.toss_installer.utils.Constance;
@@ -459,7 +461,9 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_OK);
+            Intent intent = new Intent(ContractActivity.this, CheckinResultActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
         } else if (item.getItemId() == R.id.menu_bt) {
             connectBluetoothPaired();

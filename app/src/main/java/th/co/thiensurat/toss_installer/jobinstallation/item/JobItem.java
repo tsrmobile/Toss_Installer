@@ -28,6 +28,7 @@ public class JobItem extends BaseItem implements Parcelable {
     private String contno;
     private String closeDate;
     private String duedate;
+    private String periods;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -50,6 +51,7 @@ public class JobItem extends BaseItem implements Parcelable {
         contno              = in.readString();
         closeDate           = in.readString();
         duedate             = in.readString();
+        periods             = in.readString();
     }
 
     public String getOrderid() {
@@ -196,6 +198,15 @@ public class JobItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getPeriods() {
+        return periods;
+    }
+
+    public JobItem setPeriods(String periods) {
+        this.periods = periods;
+        return this;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -218,6 +229,7 @@ public class JobItem extends BaseItem implements Parcelable {
         dest.writeString(contno);
         dest.writeString(closeDate);
         dest.writeString(duedate);
+        dest.writeString(periods);
     }
 
     public static final Creator<JobItem> CREATOR = new Creator<JobItem>() {
@@ -250,7 +262,8 @@ public class JobItem extends BaseItem implements Parcelable {
                 .setCloseDate(closeDate)
                 .setProduct(product)
                 .setAddress(address)
-                .setDuedate(duedate);
+                .setDuedate(duedate)
+                .setPeriods(periods);
         return jobItem;
     }
 }

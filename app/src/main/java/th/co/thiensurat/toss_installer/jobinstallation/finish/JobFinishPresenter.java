@@ -10,7 +10,7 @@ import java.util.List;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertJobList;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertItemToGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 
 /**
@@ -50,7 +50,7 @@ public class JobFinishPresenter extends BaseMvpPresenter<JobFinishInterface.View
             @Override
             public void onSuccess(JobItemResultGroup result) {
                 if (result.getStatus().equals("SUCCESS")) {
-                    jobItemList = ConvertJobList.creatJobItemList(result.getData());
+                    jobItemList = ConvertItemToGroup.creatJobItemList(result.getData());
                     getView().setJobItemToAdapter(jobItemList);
                 } else if (result.getStatus().equals("FAIL")) {
                     getView().onFail(result.getMessage().toString());

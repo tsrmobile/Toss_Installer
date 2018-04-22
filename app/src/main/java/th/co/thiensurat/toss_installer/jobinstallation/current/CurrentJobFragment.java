@@ -187,12 +187,9 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
         adapter.notifyDataSetChanged();
         adapter.setItemClick(this);
 
-        if (jobItemList.size() == 0) {
-            relativeLayoutFail.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        }
-
+        recyclerView.setVisibility(View.VISIBLE);
         relativeLayoutFail.setVisibility(View.GONE);
+        circularProgressView.setVisibility(View.GONE);
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
         itemTouchHelper = new ItemTouchHelper(callback);

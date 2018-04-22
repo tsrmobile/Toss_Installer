@@ -27,6 +27,7 @@ public class JobItemResult {
     private String contno;
     private String closeDate;
     private String duedate;
+    private String periods;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -156,5 +157,13 @@ public class JobItemResult {
 
     public void setDuedate(String duedate) {
         this.duedate = duedate;
+    }
+
+    public String getPeriods() {
+        return periods;
+    }
+
+    public void setPeriods(String periods) {
+        this.periods = periods;
     }
 }

@@ -1,5 +1,6 @@
 package th.co.thiensurat.toss_installer.payment.activity;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -11,9 +12,9 @@ import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
-import th.co.thiensurat.toss_installer.jobinstallation.fragmentmain.JobInstallFragment;
-import th.co.thiensurat.toss_installer.payment.fragment.PaymentFragment;
+import th.co.thiensurat.toss_installer.payment.paymentlist.PaymentFragment;
 
 public class PaymentActivity extends AppCompatActivity {
 
@@ -50,7 +51,9 @@ public class PaymentActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_OK);
+            Intent intent = new Intent(PaymentActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -59,7 +62,9 @@ public class PaymentActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)){
-            setResult(RESULT_OK);
+            Intent intent = new Intent(PaymentActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
         }
         return true;

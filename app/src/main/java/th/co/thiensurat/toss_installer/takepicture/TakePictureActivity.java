@@ -41,6 +41,7 @@ import th.co.thiensurat.toss_installer.BuildConfig;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
+import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
@@ -210,7 +211,9 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            setResult(RESULT_OK);
+            Intent intent = new Intent(TakePictureActivity.this, InstallationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);
             finish();
         } else if (item.getItemId() == R.id.menu_gallery) {
             Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -299,9 +302,16 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     private void onNextStep() {
         getPresenter().updateStep(jobItem.getOrderid(), Constance.STEP_2);
         getPresenter().updateStep(jobItem.getOrderid(), Constance.STEP_3);
-        Intent intent = new Intent(TakePictureActivity.this, TakeIDCardActivity.class);
-        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
+
+        if (getPresenter().getProductPayType(jobItem.getOrderid(), productcode, serial).equals("2")) {
+            Intent intent = new Intent(TakePictureActivity.this, TakeIDCardActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            startActivityForResult(intent, Constance.REQUEST_TAKE_IDCARD);
+        } else {
+            Intent intent = new Intent(TakePictureActivity.this, ContractActivity.class);
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            startActivityForResult(intent, Constance.REQUEST_PRINT_CONTRACT);
+        }
     }
 
     private void onNextInstall() {

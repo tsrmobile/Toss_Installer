@@ -549,14 +549,15 @@ public class ServiceManager {
     }
     /*************************************************End********************************************************/
 
-    public Call<Object> dueDate(String orderid, String duedate) {
+    /********************************************Change duedate**************************************************/
+    public Call<Object> dueDate(String orderid, String duedate, String empid) {
         return Service.newInstance( BASE_URL )
                 .getApi( api )
-                .updateDueDate(orderid, duedate);
+                .updateDueDate(orderid, duedate, empid);
     }
 
-    public void requestUpdateDueDate(String orderid, String duedate, final ServiceManagerCallback<Object> callback) {
-        dueDate(orderid, duedate).enqueue(new Callback<Object>() {
+    public void requestUpdateDueDate(String orderid, String duedate, String empid, final ServiceManagerCallback<Object> callback) {
+        dueDate(orderid, duedate, empid).enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 Log.e("request duedate", response + "");
@@ -574,4 +575,32 @@ public class ServiceManager {
             }
         });
     }
+    /*************************************************End********************************************************/
+
+    /******************************************Get receipt number************************************************/
+    public Call<Object> receiptNumber(String data) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .getReceiptNumber(data);
+    }
+
+    public void requestReceiptNumber(String data, final ServiceManagerCallback<Object> callback) {
+        receiptNumber(data).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request Job payment", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /*************************************************End********************************************************/
 }

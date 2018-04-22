@@ -74,6 +74,7 @@ public class Constance {
     public static int REQUEST_PAYMENT = 28;
     public static int REQUEST_PAYMENT_PAGE = 29;
     public static int REQUEST_PAYMENT_DETAIL = 30;
+    public static int REQUEST_PAYMENT_ITEM_LIST = 31;
 
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
@@ -99,6 +100,7 @@ public class Constance {
     public static final String KEY_PRODUCT_CODE = "PRODUCT_CODE";
 
     public static final String KEY_SORT_ID = "KEY_SORT_ID";
+    public static final String KEY_SORT_PAYMENT_ID = "KEY_SORT_PAYMENT_ID";
     public static final String KEY_CONTNO = "KEY_CONTNO";
     public static final String KEY_SERIAL_ITEM = "KEY_SERIAL_ITEM";
     //public static final String KEY_PRODUCT_CODE = "KEY_PRODUCT_CODE";
@@ -111,6 +113,8 @@ public class Constance {
     public static final String KEY_CUSTOMER_NAME = "KEY_CUSTOMER_NAME";
     public static final String KEY_FIRST_OPEN = "KEY_FIRST_OPEN";
     public static final String EXTRA_DEVICE_ADDRESS = "EXTRA_DEVICE_ADDRESS";
+
+    public static final String KEY_PAYMENT_RECEIPT_NUMBER = "KEY_RECEIPT_NUMBER";
 
     public static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,

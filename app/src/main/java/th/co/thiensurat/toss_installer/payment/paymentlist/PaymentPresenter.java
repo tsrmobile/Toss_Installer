@@ -1,4 +1,4 @@
-package th.co.thiensurat.toss_installer.payment.fragment;
+package th.co.thiensurat.toss_installer.payment.paymentlist;
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -12,7 +12,7 @@ import java.util.List;
 import th.co.thiensurat.toss_installer.api.ServiceManager;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
-import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertJobList;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertItemToGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 
 /**
@@ -53,9 +53,9 @@ public class PaymentPresenter extends BaseMvpPresenter<PaymentInterface.View> im
         serviceManager.requestJobPayment(data, empid, new ServiceManager.ServiceManagerCallback<JobItemResultGroup>() {
             @Override
             public void onSuccess(JobItemResultGroup result) {
+                jobItemList.clear();
                 if (result.getStatus().equals("SUCCESS")) {
-                    jobItemList = ConvertJobList.creatJobItemList(result.getData());
-                    //setJobToTable(jobItemList);
+                    jobItemList = ConvertItemToGroup.creatJobItemList(result.getData());
                     getView().setJobPaymentToAdapter(jobItemList);
                 } else if (result.getStatus().equals("FAIL")) {
                     getView().onFail(result.getMessage().toString());

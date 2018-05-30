@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".deposit.channel.DepositChannelActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/bottom">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/toolbar"
+                layout="@layout/toolbar_2"/>
+
+            <RadioGroup
+                android:id="@+id/radio_cash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:padding="16dp"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/head_office"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/table_data_row_odd"
+                    android:gravity="left|center"
+                    android:paddingLeft="4dp"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/radiobutton_drawable"
+                    android:text="แผนกการเงิน สนญ./สาขา"
+                    android:button="@null"/>
+
+                <RadioButton
+                    android:id="@+id/bank"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/table_data_row_even"
+                    android:gravity="left|center"
+                    android:paddingLeft="4dp"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/radiobutton_drawable"
+                    android:text="ธนาคาร"
+                    android:button="@null"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <RadioButton
+                    android:id="@+id/counter_service"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/table_data_row_odd"
+                    android:gravity="left|center"
+                    android:paddingLeft="4dp"
+                    android:layout_gravity="right"
+                    android:drawableRight="@drawable/radiobutton_drawable"
+                    android:text="เคาน์เตอร์เซอร์วิส"
+                    android:button="@null"/>
+
+            </RadioGroup>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp"/>
+
+            <LinearLayout
+                android:id="@+id/office_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <include
+                    layout="@layout/office_layout" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/counter_service_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <include
+                    layout="@layout/counter_service_layout" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="right">
+
+        <Button
+            android:id="@+id/button_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:text="ถัดไป"
+            android:textColor="@color/white"
+            android:visibility="visible" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

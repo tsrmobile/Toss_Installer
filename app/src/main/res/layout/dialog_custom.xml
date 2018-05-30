@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:gravity="center"
+        android:text="ปิดงาน"
+        android:textSize="24sp"
+        android:fontFamily="serif"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:layout_marginLeft="16dp"
+        android:text="* กรณีงานติดตั้งให้ใส่เลขที่สัญญา"
+        android:fontFamily="serif"
+        android:textColor="@color/Red"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="* กรณีส่งสินค้าให้ใส่ Tracking No."
+        android:fontFamily="serif"
+        android:textColor="@color/Red"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/border_rounded_colorprimarydark">
+
+        <EditText
+            android:id="@+id/edt_referrence"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:paddingLeft="8dp"
+            android:hint="ใส่เลขที่อ้างอิงเพื่อปิดงาน"
+            android:textSize="16sp"/>
+
+        <RelativeLayout
+            android:id="@+id/button_scanbarcode"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_alignParentRight="true">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_barcode"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -49,7 +49,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <EditText
-                    android:id="@+id/addr_detial"
+                    android:id="@+id/addr_detial_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
@@ -92,7 +92,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <Spinner
-                    android:id="@+id/spinner_province"
+                    android:id="@+id/spinner_province_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingLeft="8dp"
@@ -133,7 +133,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <Spinner
-                    android:id="@+id/spinner_district"
+                    android:id="@+id/spinner_district_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingLeft="8dp"
@@ -174,7 +174,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <Spinner
-                    android:id="@+id/spinner_sub_district"
+                    android:id="@+id/spinner_sub_district_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:paddingLeft="8dp"
@@ -215,7 +215,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <EditText
-                    android:id="@+id/addr_zipcode"
+                    android:id="@+id/addr_zipcode_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
@@ -259,7 +259,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <EditText
-                    android:id="@+id/addr_phone"
+                    android:id="@+id/addr_phone_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
@@ -303,7 +303,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <EditText
-                    android:id="@+id/addr_phonework"
+                    android:id="@+id/addr_phonework_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
@@ -347,7 +347,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <EditText
-                    android:id="@+id/addr_mobile"
+                    android:id="@+id/addr_mobile_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
@@ -391,7 +391,7 @@
                 android:background="@drawable/border_rounded_colorprimarydark">
 
                 <EditText
-                    android:id="@+id/addr_email"
+                    android:id="@+id/addr_email_payment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TOSS Installer&amp;Payment</string>
+    <string name="app_name">TOSS System</string>
 
     <string name="openDrawer"></string>
     <string name="closeDrawer"></string>
@@ -23,4 +23,12 @@
     <string name="printing">Printing...</string>
 
     <string name="date_format">dd/MM/yyyy</string>
+
+    <string name="requestPermissions">requestPermissions</string>
+
+    <string name="settings">settings</string>
+    <string name="permission_denied_explanation">permission_denied_explanation</string>
+
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="default_notification_channel_name" translatable="true">News</string>
 </resources>

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import th.co.thiensurat.toss_installer.api.ServiceManager;
-import th.co.thiensurat.toss_installer.api.request.UploadImage;
 import th.co.thiensurat.toss_installer.base.BaseMvpPresenter;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;

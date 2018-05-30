@@ -65,15 +65,15 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
         return R.layout.fragment_payment_address;
     }
 
-    @BindView(R.id.addr_detial) EditText editTextDetial;
-    @BindView(R.id.spinner_province) Spinner spinnerProvince;
-    @BindView(R.id.spinner_district) Spinner spinnerDistrict;
-    @BindView(R.id.spinner_sub_district) Spinner spinnerSubDistrict;
-    @BindView(R.id.addr_zipcode) EditText editTextZipcode;
-    @BindView(R.id.addr_phone) EditText editTextPhone;
-    @BindView(R.id.addr_phonework) EditText editTextWork;
-    @BindView(R.id.addr_mobile) EditText editTextMobile;
-    @BindView(R.id.addr_email) EditText editTextEmail;
+    @BindView(R.id.addr_detial_payment) EditText editTextDetial;
+    @BindView(R.id.spinner_province_payment) Spinner spinnerProvince;
+    @BindView(R.id.spinner_district_payment) Spinner spinnerDistrict;
+    @BindView(R.id.spinner_sub_district_payment) Spinner spinnerSubDistrict;
+    @BindView(R.id.addr_zipcode_payment) EditText editTextZipcode;
+    @BindView(R.id.addr_phone_payment) EditText editTextPhone;
+    @BindView(R.id.addr_phonework_payment) EditText editTextWork;
+    @BindView(R.id.addr_mobile_payment) EditText editTextMobile;
+    @BindView(R.id.addr_email_payment) EditText editTextEmail;
     @BindView(R.id.button_update) Button buttonUpdate;
     @Override
     public void bindView(View view) {
@@ -272,7 +272,7 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
                 .setMobile(editTextMobile.getText().toString())
                 .setEmail(editTextEmail.getText().toString());
         itemListLocal.add(addressItemLocal);
-        getPresenter().updateData(jobItem.getOrderid(), "AddressPayment", itemListLocal);
+        getPresenter().updateData(orderid, "AddressPayment", itemListLocal);
     }
 
     @Override
@@ -321,6 +321,6 @@ public class PaymentAddressFragment extends BaseMvpFragment<PaymentAddressInterf
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
-        getPresenter().updateAddressSync(orderid);
+        //getPresenter().updateAddressSync(orderid);
     }
 }

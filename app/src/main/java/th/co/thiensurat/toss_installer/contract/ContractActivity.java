@@ -1,6 +1,5 @@
 package th.co.thiensurat.toss_installer.contract;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -13,24 +12,16 @@ import android.content.ServiceConnection;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.util.Base64;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -45,26 +36,16 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.centerm.smartpos.aidl.printer.AidlPrinter;
-import com.centerm.smartpos.aidl.printer.AidlPrinterStateChangeListener;
-import com.centerm.smartpos.aidl.printer.PrintDataObject;
-import com.centerm.smartpos.aidl.printer.PrintDataObject.ALIGN;
-import com.centerm.smartpos.aidl.printer.PrintDataObject.SPACING;
-import com.centerm.smartpos.aidl.printer.PrinterParams;
-import com.centerm.smartpos.aidl.printer.PrinterParams.DATATYPE;
-import com.centerm.smartpos.aidl.printer.PrinterParams.TYPEFACE;
 import com.centerm.smartpos.aidl.sys.AidlDeviceManager;
 import com.centerm.smartpos.constant.Constant;
-import com.centerm.smartpos.constant.DeviceErrorCode;
 import com.centerm.smartpos.util.LogUtil;
 import com.datecs.api.emsr.EMSR;
 import com.datecs.api.printer.Printer;
 import com.datecs.api.printer.ProtocolAdapter;
-import com.github.danielfelgar.drawreceiptlib.ReceiptBuilder;
 import com.google.gson.Gson;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -88,27 +69,23 @@ import th.co.thiensurat.toss_installer.contract.adapter.ContactItemAdapter;
 import th.co.thiensurat.toss_installer.contract.item.ContactItem;
 import th.co.thiensurat.toss_installer.contract.item.ObjectImage;
 import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.DocumentController;
-import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.PrintTextInfo;
 import th.co.thiensurat.toss_installer.contract.printer.documentcontroller.ThemalPrintController;
 import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServer;
 import th.co.thiensurat.toss_installer.contract.printer.utils.PrinterServerListener;
 import th.co.thiensurat.toss_installer.contract.signaturepad.SignatureActivity;
-import th.co.thiensurat.toss_installer.contract.utils.ReceiptConfiguration;
+import th.co.thiensurat.toss_installer.utils.ReceiptConfiguration;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
-import th.co.thiensurat.toss_installer.takepicturecheckin.MapCheckinActivity;
+import th.co.thiensurat.toss_installer.payment.activity.PaymentActivity;
 import th.co.thiensurat.toss_installer.takepicturecheckin.result.CheckinResultActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
-import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.DateFormateUtilities;
 import th.co.thiensurat.toss_installer.utils.ImageConfiguration;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 import th.co.thiensurat.toss_installer.utils.Utils;
-
-import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 
 public class ContractActivity extends BaseMvpActivity<ContractInterface.Presenter>
         implements ContractInterface.View {
@@ -482,6 +459,11 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     }
 
     @Override
+    public void onPrinting() {
+        customDialog.dialogPrinting();
+    }
+
+    @Override
     public void onLongLoad() {
         customDialog.dialogLongLoading();
     }
@@ -516,8 +498,10 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
     @Override
     public void onJobClosed() {
-        startActivity(new Intent(ContractActivity.this, MainActivity.class));
-        finish();
+        Intent intent = new Intent(ContractActivity.this, PaymentActivity.class);
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivityForResult(intent, Constance.REQUEST_PAYMENT);
+        //finish();
     }
 
     @Override
@@ -648,7 +632,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
     }
 
     private void printTask(final PrinterRunnable runnable) {
-        customDialog.dialogLoading();
+        onPrinting();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -667,7 +651,7 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
 
                     Log.e("Critical error occurs: ", e.getMessage());
                 } finally {
-                    customDialog.dialogDimiss();
+                    onDismiss();
                 }
             }
         });
@@ -913,7 +897,6 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
                     imgConfiguration.getResizedBitmap(bmp2, 220, 60), installationPath);
         } catch (Exception e) {
         }
-        //return installationPath.getAbsolutePath();
     }
     /***********************************************************************************************/
 
@@ -932,8 +915,10 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
             File f = new File(image.getImageName());
             Uri uri = Uri.fromFile(f);
             File file = FileUtils.getFile(ContractActivity.this, uri);
+
             RequestBody requestFile =
                     RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
             MultipartBody.Part body =
                     MultipartBody.Part.createFormData("file[]", file.getName(), requestFile);
             parts.add(body);
@@ -966,14 +951,6 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         getPresenter().uploadDataToServer(requestBody);
     }
     /***********************************************************************************************/
-
-    /*class MyBroadCastReceiver extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.e("base", "action:" +intent.getAction());
-        }
-    }*/
 
     public void bindService() {
         Intent intent = new Intent();
@@ -1029,60 +1006,3 @@ public class ContractActivity extends BaseMvpActivity<ContractInterface.Presente
         return true;
     }
 }
-
-/*themalPrintController = new ThemalPrintController(ContractActivity.this, printer, printAddress);
-                List<List<PrintTextInfo>> documents = new ArrayList<>();
-                List<PrintTextInfo> document;
-                if (printType.equals("contact")) {
-                    document = documentController.getTextContract(jobItem, addressItemList, productItemList, number);
-                } else {
-                    document = documentController.getTextInstallation(jobItem, addressItemList, productItemList, number);
-                }
-                documents.add(document);
-                for (List<PrintTextInfo> listInfo : documents) {
-                    for (PrintTextInfo info : listInfo) {
-                        if (info.text.equals("printShortHeader")) {
-                            themalPrintController.printShortHeader();
-                        } else if (info.text.equals("printHeader")) {
-                            themalPrintController.printHeader();
-                        } else if (info.text.equals("selectPageMode")) {
-                            themalPrintController.selectPageMode();
-                        } else if (info.text.equals("setContractPageRegion")) {
-                            themalPrintController.setContractPageRegion();
-                        } else if (info.text.equals("printContractPageTitle")) {
-                            themalPrintController.printContractPageTitle();
-                        } else if (info.text.equals("beginContractPage")) {
-                            themalPrintController.beginContractPage();
-                        } else if (info.text.equals("endContractPage")) {
-                            themalPrintController.endContractPage();
-                        } else if (info.text.equals("selectStandardMode")) {
-                            themalPrintController.selectStandardMode();
-                        } else if (info.text.contains("setPageRegion")) {
-                            themalPrintController.setPageRegion(info.text);
-                        } else if (info.text.contains("beginPage")) {
-                            themalPrintController.beginPage(info.text);
-                        } else if (info.text.contains("endPage")) {
-                            themalPrintController.endPage();
-                        } else if (info.text.contains("printTitleBackground")) {
-                            themalPrintController.printTitleBackground(info.text);
-                        } else if (info.text.contains("printFrame")) {
-                            themalPrintController.printFrame(info.text);
-                        } else if (info.text.equals("k_viruchWithCustomer")) {
-                            themalPrintController.printSignatureKViruchWithCustomer(path);
-                        } else if (info.text.equals("customerWithInstaller")) {
-                            themalPrintController.printSignatureInstallerWithCustomer(generateSignForPrintReceiptInstallation());
-                        } else if (info.text.equals("signatureWitness")) {
-                            themalPrintController.printSignatureKViruchWithCustomer(witnessPath.getAbsolutePath());
-                        } else {
-                            if (info.language.equals("TH")) {
-                                themalPrintController.sendThaiMessage(info.text);
-                            } else {
-                                themalPrintController.sendEnglishMessage(info.text);
-                            }
-                        }
-                    }
-                }
-
-                printer.reset();
-                printer.feedPaper(110);
-                printer.flush();*/

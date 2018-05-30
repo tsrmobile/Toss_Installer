@@ -29,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.zip.ZipEntry;
@@ -385,7 +387,7 @@ public class BackupAndRestoreActivity extends BaseMvpActivity<BackupAndRestoreIn
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            customDialog.dialogLongLoading();
+            customDialog.dialogCompressing();
         }
 
         @Override

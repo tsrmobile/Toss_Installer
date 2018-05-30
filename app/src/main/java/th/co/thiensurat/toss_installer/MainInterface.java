@@ -15,11 +15,10 @@ public class MainInterface {
     public interface View extends BaseMvpInterface.View {
         void onSuccess();
         //void showNotificationSyncIcon();
-        void setAddressSync(List<RequestUpdateAddress.updateBody> updateBodyList);
     }
 
     public interface Presenter extends BaseMvpInterface.Presenter<MainInterface.View> {
-        void getAddressNotSync();
-        void requestAddressSync(List<RequestUpdateAddress.updateBody> updateBodyList);
+        //void getAddressNotSync();
+        void updateCurrentLocation(String id, double lat, double lon);
     }
 }

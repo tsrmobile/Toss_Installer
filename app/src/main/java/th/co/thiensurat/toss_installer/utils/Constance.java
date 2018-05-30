@@ -18,7 +18,9 @@ public class Constance {
     public static String TABLE_DISTRICT = "Amphur";
     public static String TABLE_SUB_DISTRICT = "District";
     public static String TABLE_STEP = "step";
-    public static int DB_CURRENT_VERSION = 34;
+    public static String TABLE_PAYMENT = "payment";
+    public static String TABLE_DEPOSIT = "deposit";
+    public static int DB_CURRENT_VERSION = 38;
 
     public static final String STEP_1 = "step_1";
     public static final String STEP_2 = "step_2";
@@ -30,11 +32,6 @@ public class Constance {
 
     public static final String printContactStatus = "productPrintContact";
     public static final String printInstallStatus = "productPrintInstall";
-
-    public static int STATUS_DEFAULT = 21;
-    public static int STATUS_JOB_FINISH = 01;
-    public static int STATUS_CANCEL_ORDER = 90;
-    public static int STATUS_CANCEL_INSTALL = 91;
 
     public static String PRODUCT_STATUS_WAIT = "รอการติดตั้ง";
     public static String PRODUCT_STATUS_READY = "พร้อมติดตั้ง";
@@ -75,18 +72,20 @@ public class Constance {
     public static int REQUEST_PAYMENT_PAGE = 29;
     public static int REQUEST_PAYMENT_DETAIL = 30;
     public static int REQUEST_PAYMENT_ITEM_LIST = 31;
+    public static int REQUEST_DEPOSTI_CHANNEL = 32;
+    public static int REQUEST_DEPOSTI = 33;
+    public static int REQUEST_NEW_DETAIL = 34;
+    public static int REQUEST_CHOICE_INSTALL = 35;
+    public static int REQUEST_OLD_INSTALL = 36;
+    public static int REQUEST_NEW_INSTALL = 37;
+    public static int REQUEST_DELIVERY = 38;
+
+
+    public static final int REQUEST_PERMISSIONS = 99;
 
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
     public static final String DATEPICKER_TAG = "datepicker";
-
-    public static final String STATE_SCAN = "STATE_SCAN";
-    public static final String STATE_NEXT = "STATE_NEXT";
-    public static final String STATE_STATUS = "STATE_STATUS";
-    public static final String STATE_PRODUCT_CODE = "STATE_PRODUCT_CODE";
-    public static final String STATE_DASHBOARD = "STATE_DASHBOARD";
-    public static final String STATE_JOB = "STATE_JOB";
-    public static final String STATE_INSTALLATION_IMAGE = "STATE_INSTALLATION_IMAGE";
 
     public static final String KEY_EMPID = "EMPID";
     public static final String KEY_TITLE = "TITLE";
@@ -94,6 +93,7 @@ public class Constance {
     public static final String KEY_LASTNAME = "LASTNAME";
     public static final String KEY_POSITION = "POSITION";
     public static final String KEY_DEPARTMENT = "DEPARTMENT";
+    public static final String KEY_EMPLOYEE_TYPE = "EMPLOYEETYPE";
 
     public static final String KEY_SESSION = "SESSION";
     public static final String KEY_SERIAL = "SERIAL";
@@ -110,11 +110,16 @@ public class Constance {
     public static final String KEY_JOB_ITEM = "KEY_JOB_ITEM";
     public static final String KEY_JOB_ADDR = "KEY_JOB_ADDR";
     public static final String KEY_JOB_PRODUCT = "KEY_JOB_PRODUCT";
-    public static final String KEY_CUSTOMER_NAME = "KEY_CUSTOMER_NAME";
-    public static final String KEY_FIRST_OPEN = "KEY_FIRST_OPEN";
-    public static final String EXTRA_DEVICE_ADDRESS = "EXTRA_DEVICE_ADDRESS";
+    public static final String KEY_PRODUCT_PAYTYPE = "KEY_PRODUCT_PAYTYPE";
+    public static final String KEY_PRODUCT_RECEIVE = "KEY_PRODUCT_RECEIVE";
 
-    public static final String KEY_PAYMENT_RECEIPT_NUMBER = "KEY_RECEIPT_NUMBER";
+    public static final String KEY_CHANNEL = "KEY_CHANNEL";
+    public static final String KEY_CHANNEL_NAME = "KEY_CHANNEL_NAME";
+    public static final String KEY_RECEIVER = "KEY_RECEIVER";
+    public static final String KEY_REF = "KEY_REF";
+
+    public static final String KEY_LAT = "KEY_LAT";
+    public static final String KEY_LON = "KEY_LON";
 
     public static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -126,4 +131,41 @@ public class Constance {
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
+    public static final int BANK_LIMIT = 50000;
+    public static final int HEAD_OFFICE_LIMIT = 50000;
+    public static final int COUNTER_SERVICE_LIMIT = 50000;
+
+    public static final String[] arrBranch = { "กรุณาเลือกสาขา"
+            , "สำนักงานใหญ่"
+            , "สาขานครราชสีมา"
+            , "สาขาเชียงใหม่"
+            , "สาขาพิษณุโลก"
+            , "สาขาชลบุรี"
+            , "สาขาเพชรบุรี"
+            , "สาขาระยอง"
+            , "สาขาราชบุรี"
+            , "สาขาปราจีนบุรี"
+            , "สาขาขอนแก่น"
+            , "สาขานครสวรรค์"
+            , "สาขาจันทบุรี"
+            , "สาขานครศรีธรรมราช"
+            , "สาขาอุบลราชธานี"
+            , "สาขาอุดรธานี"
+            , "ศูนย์ร้อยเอ็ด"
+            , "สาขาสงขลา"
+            , "สาขาฉะเชิงเทรา"
+            , "สาขาลพบุรี"
+            , "สาขานครปฐม"
+            , "สาขาสมุทรปราการ"
+            , "สาขาภูเก็ต"
+            , "สาขาปทุมธานี"
+            , "สาขาสุราษฎร์"
+            , "สาขามุกดาหาร"
+            , "สาขาบุรีรัมย์"
+            , "สาขาหาดใหญ่"
+            , "สาขาลำปาง"
+            , "สาขาเชียงราย"
+            , "สาขาเพชรบุรณ์"
+            , "สาขาตรัง"
+    };
 }

@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "905133369130",
-    "project_id": "tossinstaller"
+    "firebase_url": "https://tossinstaller.firebaseio.com",
+    "project_id": "tossinstaller",
+    "storage_bucket": "tossinstaller.appspot.com"
   },
   "client": [
     {
@@ -13,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "905133369130-9ovb5pllf84eme9timbordi49u8630o7.apps.googleusercontent.com",
+          "client_id": "905133369130-nurim9v04313c09t3h1d7grit2036rfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "th.co.thiensurat.toss_installer",
+            "certificate_hash": "777834dc375139fcedc9d4a24feabd2ee0d9590c"
+          }
+        },
+        {
+          "client_id": "905133369130-lghlrace76ocro90fgj7mhjbfu26hgt2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "th.co.thiensurat.toss_installer",
@@ -21,13 +31,17 @@
           }
         },
         {
-          "client_id": "905133369130-g5i57nv0iv76mjcsfbipp8tvmg00cpts.apps.googleusercontent.com",
+          "client_id": "905133369130-7uubihdfrlcsfltgt57nbpat75e3iv8k.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "905133369130-c6ic1bh3b5t8lg9q07g6kfa0qn85tadg.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAGnxebFBsTNCLAxaWlAt4AGQTvh6rWZ5s"
+          "current_key": "AIzaSyCMTS0NevcTWxN8Du9rINuISKyXAOr7r58"
         }
       ],
       "services": {
@@ -42,7 +56,7 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

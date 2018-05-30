@@ -18,6 +18,7 @@ public class AuthenItem extends BaseItem implements Parcelable {
     private String lastname;
     private String positionName;
     private String departmentName;
+    private String employeeType;
 
     public AuthenItem() {
 
@@ -77,6 +78,15 @@ public class AuthenItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getEmployeeType() {
+        return employeeType;
+    }
+
+    public AuthenItem setEmployeeType(String employeeType) {
+        this.employeeType = employeeType;
+        return this;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -91,6 +101,7 @@ public class AuthenItem extends BaseItem implements Parcelable {
         dest.writeString(lastname);
         dest.writeString(positionName);
         dest.writeString(departmentName);
+        dest.writeString(employeeType);
     }
 
     protected AuthenItem(Parcel in) {
@@ -101,6 +112,7 @@ public class AuthenItem extends BaseItem implements Parcelable {
         lastname         = in.readString();
         positionName     = in.readString();
         departmentName   = in.readString();
+        employeeType     = in.readString();
     }
 
     @Override
@@ -111,7 +123,8 @@ public class AuthenItem extends BaseItem implements Parcelable {
                 .setFirstname(firstname)
                 .setLastname(lastname)
                 .setPositionName(positionName)
-                .setDepartmentName(departmentName);
+                .setDepartmentName(departmentName)
+                .setEmployeeType(employeeType);
         return item;
     }
 

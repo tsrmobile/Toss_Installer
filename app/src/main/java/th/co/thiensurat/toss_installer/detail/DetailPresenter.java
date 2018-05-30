@@ -55,10 +55,9 @@ public class DetailPresenter extends BaseMvpPresenter<DetailInterface.View> impl
     @Override
     public void setAddressDetail(String orderid, List<AddressItem> addressItemList) {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        if (dbHelper.isTableExists(Constance.TABLE_ADDRESS)) {
+        /*if (dbHelper.isTableExists(Constance.TABLE_ADDRESS)) {
             dbHelper.emptyTable(Constance.TABLE_ADDRESS);
-        }
-
+        }*/
         dbHelper.setTableAddressDetial(orderid, addressItemList);
     }
 

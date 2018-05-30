@@ -10,5 +10,5 @@
         android:layout_alignParentLeft="true"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="7dp"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/new_logo" />
 </RelativeLayout>

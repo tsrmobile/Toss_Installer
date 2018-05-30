@@ -2,16 +2,14 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardUseCompatPadding="true"
-    app:cardElevation="1dp"
-    app:cardCornerRadius="4dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
+        android:id="@+id/layout_cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="4dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -28,6 +26,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textSize="16sp"
                     android:text="สินค้า"/>
 
                 <TextView
@@ -36,6 +35,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
+                    android:textSize="16sp"
                     android:text="IL11600026"/>
 
             </LinearLayout>
@@ -49,6 +49,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textSize="16sp"
                     android:text="รุ่น"/>
 
 
@@ -58,6 +59,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
+                    android:textSize="16sp"
                     android:text="IL11600026"/>
 
             </LinearLayout>
@@ -71,6 +73,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textSize="16sp"
                     android:text="เลขเครื่อง"/>
 
                 <TextView
@@ -79,6 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="right"
+                    android:textSize="16sp"
                     android:text="IL11600026"/>
             </LinearLayout>
 
@@ -194,7 +198,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
                 android:background="@color/table_data_row_even">
 
                 <TextView
@@ -202,6 +205,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="left|center"
+                    android:textSize="16sp"
                     android:text="ราคา"/>
 
                 <TextView
@@ -209,6 +213,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textSize="16sp"
                     android:gravity="right|center"/>
 
             </LinearLayout>
@@ -222,13 +227,13 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
                     android:background="@color/table_data_row_even">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:textSize="16sp"
                         android:text="ผ่อน"/>
 
                     <TextView
@@ -237,6 +242,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="right"
+                        android:textSize="16sp"
                         android:text="12 งวด"/>
 
                 </LinearLayout>
@@ -244,13 +250,13 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
                     android:background="@color/table_data_row_even">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:textSize="16sp"
                         android:text="งวดละ"/>
 
                     <TextView
@@ -259,6 +265,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="right"
+                        android:textSize="16sp"
                         android:text="3000"/>
 
                 </LinearLayout>
@@ -268,7 +275,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
                 android:background="@color/table_data_row_even">
 
                 <TextView
@@ -276,6 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="left|center"
+                    android:textSize="16sp"
                     android:text="ส่วนลด"/>
 
                 <TextView
@@ -283,14 +290,14 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="right|center"/>
+                    android:gravity="right|center"
+                    android:textSize="16sp"/>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
                 android:background="@color/table_data_row_odd">
 
                 <LinearLayout
@@ -303,6 +310,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="left|center"
+                        android:textSize="16sp"
                         android:text="ราคาสุทธิ"
                         android:textStyle="bold"/>
 
@@ -312,13 +320,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="right|center"
+                        android:textSize="16sp"
                         android:textStyle="bold"/>
                 </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
-
 
     </LinearLayout>
 

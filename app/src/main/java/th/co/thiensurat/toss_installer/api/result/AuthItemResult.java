@@ -12,6 +12,7 @@ public class AuthItemResult {
     private String lastName;
     private String positionName;
     private String departmentName;
+    private String employeeType;
 
     public AuthItemResult() {
 
@@ -63,5 +64,13 @@ public class AuthItemResult {
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
+    }
+
+    public String getEmployeeType() {
+        return employeeType;
+    }
+
+    public void setEmployeeType(String employeeType) {
+        this.employeeType = employeeType;
     }
 }

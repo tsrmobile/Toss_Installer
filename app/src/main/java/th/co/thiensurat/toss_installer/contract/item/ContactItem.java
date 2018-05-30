@@ -12,6 +12,8 @@ public class ContactItem {
     private String empid;
     private String installdate;
     private String installend;
+    private String type;
+    private String referrence;
     private List<ObjectImage> images;
 
     public String getOrderid() {
@@ -56,6 +58,24 @@ public class ContactItem {
 
     public ContactItem setImages(List<ObjectImage> images) {
         this.images = images;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public ContactItem setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public String getReferrence() {
+        return referrence;
+    }
+
+    public ContactItem setReferrence(String referrence) {
+        this.referrence = referrence;
         return this;
     }
 }

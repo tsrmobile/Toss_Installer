@@ -32,8 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="01/12/2560"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -60,8 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="TSS610300000000001"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -87,8 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="601200001"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -115,8 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="C60110002"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -143,8 +139,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="เธียรสุรัตน์ จำกัด (มหาชน)"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -171,8 +166,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="0107556000213"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -202,8 +196,7 @@
                 android:gravity="right|center"
                 android:scrollHorizontally="false"
                 android:ellipsize="none"
-                android:textSize="16sp"
-                android:text="@string/address" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -233,8 +226,7 @@
                 android:gravity="right|center"
                 android:scrollHorizontally="false"
                 android:ellipsize="none"
-                android:textSize="16sp"
-                android:text="@string/address"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -242,7 +234,14 @@
             android:layout_width="match_parent"
             android:layout_height="8dp"/>
 
-        <LinearLayout
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -317,7 +316,7 @@
                 android:textSize="16sp"
                 android:text="IL11600031"/>
 
-        </LinearLayout>
+        </LinearLayout>-->
 
         <View
             android:layout_width="match_parent"
@@ -335,7 +334,7 @@
                 android:gravity="left|center"
                 android:layout_weight="1"
                 android:textSize="16sp"
-                android:text="ค่างวดที่ 1/6"/>
+                android:text="ค่างวดที่"/>
 
             <TextView
                 android:id="@+id/payment_current"
@@ -344,8 +343,7 @@
                 android:gravity="right|center"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/Red"
-                android:text="1,100.00"/>
+                android:textColor="@color/Red"/>
 
         </LinearLayout>
 
@@ -371,8 +369,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="หนึ่งพันหนึ่งร้อยบาทถ้วน"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -392,15 +389,14 @@
                 android:gravity="left|center"
                 android:layout_weight="1"
                 android:textSize="16sp"
-                android:text="คงเหลืองวดที่ 2 - 6"/>
+                android:text="คงเหลืองวดที่"/>
 
             <TextView
                 android:id="@+id/payment_balance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right|center"
-                android:textSize="16sp"
-                android:text="5,500.00"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 

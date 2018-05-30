@@ -30,7 +30,8 @@ public class ConvertAuthItem {
                     .setFirstname(dataItemResult.getFirstname())
                     .setLastname(dataItemResult.getLastname())
                     .setPositionName(dataItemResult.getPositionName())
-                    .setDepartmentName(dataItemResult.getDepartmentName());
+                    .setDepartmentName(dataItemResult.getDepartmentName())
+                    .setEmployeeType(dataItemResult.getEmployeeType());
             items.add( item );
         }
         return items;

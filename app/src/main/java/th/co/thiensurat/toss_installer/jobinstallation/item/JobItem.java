@@ -29,6 +29,8 @@ public class JobItem extends BaseItem implements Parcelable {
     private String closeDate;
     private String duedate;
     private String periods;
+    private String sendType;
+    private String installType;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -52,6 +54,8 @@ public class JobItem extends BaseItem implements Parcelable {
         closeDate           = in.readString();
         duedate             = in.readString();
         periods             = in.readString();
+        sendType            = in.readString();
+        installType         = in.readString();
     }
 
     public String getOrderid() {
@@ -207,6 +211,24 @@ public class JobItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getSendType() {
+        return sendType;
+    }
+
+    public JobItem setSendType(String sendType) {
+        this.sendType = sendType;
+        return this;
+    }
+
+    public String getInstallType() {
+        return installType;
+    }
+
+    public JobItem setInstallType(String installType) {
+        this.installType = installType;
+        return this;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -230,6 +252,8 @@ public class JobItem extends BaseItem implements Parcelable {
         dest.writeString(closeDate);
         dest.writeString(duedate);
         dest.writeString(periods);
+        dest.writeString(sendType);
+        dest.writeString(installType);
     }
 
     public static final Creator<JobItem> CREATOR = new Creator<JobItem>() {
@@ -263,7 +287,9 @@ public class JobItem extends BaseItem implements Parcelable {
                 .setProduct(product)
                 .setAddress(address)
                 .setDuedate(duedate)
-                .setPeriods(periods);
+                .setPeriods(periods)
+                .setSendType(sendType)
+                .setInstallType(installType);
         return jobItem;
     }
 }

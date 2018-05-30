@@ -211,9 +211,10 @@ public class TakePictureActivity extends BaseMvpActivity<TakePictureInterface.Pr
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            Intent intent = new Intent(TakePictureActivity.this, InstallationActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            setResult(RESULT_OK, intent);
+            //Intent intent = new Intent(TakePictureActivity.this, InstallationActivity.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK);
+            //startActivity(intent);
             finish();
         } else if (item.getItemId() == R.id.menu_gallery) {
             Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

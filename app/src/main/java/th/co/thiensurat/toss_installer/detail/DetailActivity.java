@@ -54,14 +54,19 @@ import th.co.thiensurat.toss_installer.utils.MyApplication;
 public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> implements DetailInterface.View {
 
     private int position;
-    private JobItem jobItem;
     private JobItemGroup itemGroup;
     private StringBuilder sb;
     private TextView textViewTitle;
     private AddressItem addressItem;
     private CustomDialog customDialog;
+    /*private AddressItemGroup addressItemGroup;
+    private ProductItemGroup productItemGroup = new ProductItemGroup();*/
+
+    private JobItem jobItem;
     private AddressItemGroup addressItemGroup;
-    private ProductItemGroup productItemGroup = new ProductItemGroup();
+    private ProductItemGroup productItemGroup;
+    private List<AddressItem> addressItemList;
+    private List<ProductItem> productItemList;
 
     @Override
     public DetailInterface.Presenter createPresenter() {
@@ -141,7 +146,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
 
     @Override
     public void setCancelSuccess() {
-        /*startActivity(new Intent(DetailActivity.this, MainActivity.class));
+        /*startActivity(new Intent(NewDetailActivity.this, MainActivity.class));
         finish();*/
         setResult(RESULT_OK);
         finish();
@@ -173,12 +178,16 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
     }
 
     private void getItemFromIntent() {
-        JobItem jitem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
-        AddressItemGroup addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
-        List<AddressItem> addressItemList = addressItemGroup.getData();
+        jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        addressItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_ADDR);
+        //productItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_PRODUCT);
+        /*Log.e("address size", addressItemGroup.getData().size() + "");
+        Log.e("product size", productItemGroup.getProduct().size() + "");*/
+        //List<AddressItem> addressItemList = addressItemGroup.getData();
 
-        setJobItem(jitem, addressItemGroup);
+        setJobItem(jobItem, addressItemGroup);
 
+        addressItemList = addressItemGroup.getData();
         getPresenter().setAddressDetail(jobItem.getOrderid(), addressItemList);
         getPresenter().setTableStep(jobItem.getOrderid());
     }
@@ -195,6 +204,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                 buttonNext.startAnimation(new AnimateButton().animbutton());
                 Intent intent = new Intent(DetailActivity.this, InstallationActivity.class);
                 intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+                //intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
                 startActivityForResult(intent, Constance.REQUEST_INSTALLATION);
             }
         };
@@ -227,7 +237,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (!input.getText().toString().isEmpty()) {
-                                    //getPresenter().setCancelJob(DetailActivity.this, jobItem.getOrderid(), input.getText().toString());
+                                    //getPresenter().setCancelJob(NewDetailActivity.this, jobItem.getOrderid(), input.getText().toString());
                                     getPresenter().requestUpdate(input.getText().toString(), "91", MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), jobItem.getOrderid());
                                 } else {
                                     dialog.dismiss();
@@ -248,12 +258,12 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
         };
     }
 
-    private View.OnClickListener onAssessment() {
+    /*private View.OnClickListener onAssessment() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String url = "";
-                new FinestWebView.Builder(DetailActivity.this).theme(R.style.FinestWebViewTheme)
+                new FinestWebView.Builder(NewDetailActivity.this).theme(R.style.FinestWebViewTheme)
                         .titleDefault("Vimeo")
                         .showUrl(false)
                         .statusBarColorRes(R.color.colorPrimaryDark)
@@ -276,7 +286,7 @@ public class DetailActivity extends BaseMvpActivity<DetailInterface.Presenter> i
                         .show(url);
             }
         };
-    }
+    }*/
 
     @Override
     public void setAddressDetail(List<AddressItem> addressDetail) {

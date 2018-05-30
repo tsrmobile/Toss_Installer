@@ -4,7 +4,11 @@ import android.content.Context;
 import android.util.Log;
 
 
+import com.google.gson.Gson;
 import com.hwangjr.rxbus.RxBus;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,6 +86,33 @@ public class AuthPresenter extends BaseMvpPresenter<AuthInterface.View> implemen
             @Override
             public void onFailure(Throwable t) {
                 getView().onDismiss();
+            }
+        });
+    }
+
+    @Override
+    public void updateFCMToken(String empid, String token) {
+        serviceManager.updateFCMToken(empid, token, new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
+                        getView().onUpdateSuccess();
+                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
+                        getView().onFail(jsonObject.getString("message"));
+                    } else {
+                        getView().onFail(jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("json obj", e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("fail", t.getLocalizedMessage());
             }
         });
     }

@@ -99,6 +99,7 @@ public class ImageConfiguration {
                     ".jpg",
                     storageDir
             );
+
         } catch (IOException e) {
 
         }

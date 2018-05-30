@@ -1,18 +1,17 @@
 package th.co.thiensurat.toss_installer.payment.paymentitem;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.layernet.thaidatetimepicker.date.DatePickerDialog;
 import com.layernet.thaidatetimepicker.time.RadialPickerLayout;
@@ -26,16 +25,16 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.base.BaseMvpActivity;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItemGroup;
-import th.co.thiensurat.toss_installer.jobinstallation.item.ConvertItemToGroup;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
-import th.co.thiensurat.toss_installer.payment.detail.CustomerPaymentDetailActivity;
 import th.co.thiensurat.toss_installer.payment.paymentitem.adapter.PaymentItemAdapter;
+import th.co.thiensurat.toss_installer.payment.paymentpage.PaymentPageActivity;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
@@ -51,9 +50,11 @@ public class PaymentItemActivity extends BaseMvpActivity<PaymentItemInterface.Pr
     private AddressItem addressItem;
     private AddressItemGroup addressItemGroup;
     private ProductItemGroup productItemGroup;
+    private ProductItemGroup newProductItemGroup;
 
     private PaymentItemAdapter adapter;
     private List<ProductItem> productItemList;
+    private List<ProductItem> newProductItemList;
 
     private CustomDialog customDialog;
     private LinearLayoutManager layoutManager;
@@ -120,6 +121,13 @@ public class PaymentItemActivity extends BaseMvpActivity<PaymentItemInterface.Pr
         customDialog.dialogSuccess(success);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_menu, menu);
+        return true;
+    }
+
     private void setToolbar() {
         toolbar.setTitle("");
         textViewTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -150,12 +158,23 @@ public class PaymentItemActivity extends BaseMvpActivity<PaymentItemInterface.Pr
 
     @Override
     public void onItemClick(View view, int position) {
-        MyApplication.getInstance().getPrefManager().setPreferrence("code", adapter.getCode());
-        Intent intent = new Intent(PaymentItemActivity.this, CustomerPaymentDetailActivity.class);
-        intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
-        intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
-        intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
-        startActivityForResult(intent, Constance.REQUEST_PAYMENT_DETAIL);
+        try {
+            if (!adapter.getStatus().equals("จ่ายแล้ว")) {
+                Intent intent = new Intent(PaymentItemActivity.this, PaymentPageActivity.class);
+                intent.putExtra(Constance.KEY_PRODUCT_CODE, adapter.getCode());
+                intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+                intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+                intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
+                startActivityForResult(intent, Constance.REQUEST_PAYMENT);
+            }
+        } catch (Exception e) {
+            Intent intent = new Intent(PaymentItemActivity.this, PaymentPageActivity.class);
+            intent.putExtra(Constance.KEY_PRODUCT_CODE, adapter.getCode());
+            intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
+            intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+            intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
+            startActivityForResult(intent, Constance.REQUEST_PAYMENT);
+        }
     }
 
     @Override
@@ -218,6 +237,11 @@ public class PaymentItemActivity extends BaseMvpActivity<PaymentItemInterface.Pr
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             setResult(RESULT_OK);
+            finish();
+        } else if (item.getItemId() == R.id.menu_home) {
+            Intent intent = new Intent(PaymentItemActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         }
         return super.onOptionsItemSelected(item);

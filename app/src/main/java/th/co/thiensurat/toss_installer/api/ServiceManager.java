@@ -1,6 +1,7 @@
 package th.co.thiensurat.toss_installer.api;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -12,10 +13,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Url;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
+import th.co.thiensurat.toss_installer.api.request.RequestPayment;
 import th.co.thiensurat.toss_installer.api.request.RequestUpdateAddress;
 import th.co.thiensurat.toss_installer.api.result.AuthItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.JobItemResultGroup;
+import th.co.thiensurat.toss_installer.payment.activity.PaymentActivity;
 import th.co.thiensurat.toss_installer.utils.Constance;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
@@ -32,6 +35,7 @@ public class ServiceManager {
     private static ServiceManager instance;
     private static ApiService api;
     private Call<Object> dataUpdate;
+    private Call<Object> requestPayment;
     private Call<AuthItemResultGroup> requestAuthenCall;
 
     public interface ServiceManagerCallback<T>{
@@ -448,9 +452,9 @@ public class ServiceManager {
     }
 
     public void requestBackup(RequestBody requestBody, MultipartBody.Part file, MultipartBody.Part filezip, final ServiceManagerCallback callback) {
-        backup(requestBody, file, filezip).enqueue(new Callback() {
+        backup(requestBody, file, filezip).enqueue(new Callback<Object>() {
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(Call<Object> call, Response<Object> response) {
                 Log.e("request Back up", response + "");
                 if( callback != null ){
                     callback.onSuccess( response.body() );
@@ -534,15 +538,19 @@ public class ServiceManager {
             @Override
             public void onResponse(Call<JobItemResultGroup> call, Response<JobItemResultGroup> response) {
                 Log.e("request Job payment", response + ", " + response.body().getStatus());
-                if( callback != null ){
-                    callback.onSuccess( response.body() );
+                if (callback != null) {
+                    callback.onSuccess(response.body());
                 }
             }
 
             @Override
             public void onFailure(Call<JobItemResultGroup> call, Throwable t) {
-                if( callback != null ){
-                    callback.onFailure( t );
+                try {
+                    if (callback != null) {
+                        callback.onFailure(t);
+                    }
+                } catch (Exception e) {
+
                 }
             }
         });
@@ -578,14 +586,14 @@ public class ServiceManager {
     /*************************************************End********************************************************/
 
     /******************************************Get receipt number************************************************/
-    public Call<Object> receiptNumber(String data) {
+    public Call<Object> receiptNumber(String data, String contno) {
         return Service.newInstance( BASE_URL )
                 .getApi( api )
-                .getReceiptNumber(data);
+                .getReceiptNumber(data, contno);
     }
 
-    public void requestReceiptNumber(String data, final ServiceManagerCallback<Object> callback) {
-        receiptNumber(data).enqueue(new Callback<Object>() {
+    public void requestReceiptNumber(String data, String contno, final ServiceManagerCallback<Object> callback) {
+        receiptNumber(data, contno).enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
                 Log.e("request Job payment", response + "");
@@ -603,4 +611,186 @@ public class ServiceManager {
         });
     }
     /*************************************************End********************************************************/
+
+    /************************************************Payment*****************************************************/
+    public Call<Object> payment(RequestPayment body) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .requestPayment(body);
+    }
+
+    public void requestPayment(List<RequestPayment.paymentBody> items, final ServiceManagerCallback<Object> callback) {
+        RequestPayment body = new RequestPayment();
+        body.setBody(items);
+
+        requestPayment = payment( body );
+        requestPayment.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request pay", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /*****************************************************End**********************************************************/
+
+    /**
+     *
+     * New api
+     *
+     */
+
+    /*************************************************Update token**************************************************/
+    public Call<Object> token(String id, String token) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .updateToken(id, token);
+    }
+
+    public void updateFCMToken(String id, String token, final ServiceManagerCallback callback) {
+        token(id, token).enqueue(new Callback<Object>() {
+
+
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request update token", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Log.e("FCM", t.getLocalizedMessage());
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+
+    /******************************************************End******************************************************/
+
+    /*************************************************Update token**************************************************/
+    public Call<Object> latlon(String id, double lat, double lon) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .updateLocation(id, lat, lon);
+    }
+
+    public void updateLatLon(String id, double lat, double lon, final ServiceManagerCallback callback) {
+        latlon(id, lat, lon).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request update LatLon", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Log.e("failure update LatLon", t.getLocalizedMessage());
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /******************************************************End******************************************************/
+
+    /*************************************************Get List**************************************************/
+    public Call<JobItemResultGroup> getList(String data, String empid) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .getListProduct(data, empid);
+    }
+
+    public void getListProduct(String data, String empid, final ServiceManagerCallback callback) {
+        getList(data, empid).enqueue(new Callback<JobItemResultGroup>() {
+            @Override
+            public void onResponse(Call<JobItemResultGroup> call, Response<JobItemResultGroup> response) {
+                Log.e("request get list", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JobItemResultGroup> call, Throwable t) {
+                Log.e("failure list", t.getLocalizedMessage());
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /******************************************************End******************************************************/
+
+    /**********************************************Get list detail**********************************************/
+    public Call<JobItemResultGroup> getDetail(String orderid) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .getListDetail(orderid);
+    }
+
+    public void getDetailList(String orderid, final ServiceManagerCallback callback) {
+        getDetail(orderid).enqueue(new Callback<JobItemResultGroup>() {
+            @Override
+            public void onResponse(Call<JobItemResultGroup> call, Response<JobItemResultGroup> response) {
+                Log.e("request list detail", response + "");
+                if( callback != null ){
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JobItemResultGroup> call, Throwable t) {
+                Log.e("failure list detail", t.getLocalizedMessage());
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /****************************************************End****************************************************/
+
+    /*************************************************Close Job*************************************************/
+    public Call close(RequestBody requestBody) {
+        return Service.newInstance( BASE_URL )
+                .getApi( api )
+                .requestCloseJob(requestBody);
+    }
+
+    public void closeJob(RequestBody requestBody, final ServiceManagerCallback callback) {
+        close(requestBody).enqueue(new Callback<Object>() {
+
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                Log.e("request Upload data", response + "");
+                if( callback != null ){
+                    Log.e("response body", response.body() + "");
+                    callback.onSuccess( response.body() );
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                if( callback != null ){
+                    callback.onFailure( t );
+                }
+            }
+        });
+    }
+    /*****************************************************End***********************************************************/
+
 }

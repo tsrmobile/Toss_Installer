@@ -178,7 +178,7 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
 
     @Override
     public void setJobItemToAdapter(List<JobItem> ItemList) {
-        jobItemList = new ArrayList<>();
+        //jobItemList = new ArrayList<>();
         jobItemList = getOrderItem(ItemList);
         waveSwipeRefreshLayout.setRefreshing(false);
 
@@ -210,9 +210,13 @@ public class CurrentJobFragment extends BaseMvpFragment<CurrentJobInterface.Pres
         AddressItemGroup addressItemGroup = new AddressItemGroup();
         addressItemGroup.setData(jobItem.getAddress());
 
+        ProductItemGroup productItemGroup = new ProductItemGroup();
+        productItemGroup.setProduct(jobItem.getProduct());
+
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
         intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
+        //intent.putExtra(Constance.KEY_JOB_PRODUCT, productItemGroup);
         startActivityForResult(intent, Constance.REQUEST_JOB_DETAIL);
     }
 

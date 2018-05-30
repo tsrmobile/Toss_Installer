@@ -320,6 +320,6 @@ public class InstallAddressFragment extends BaseMvpFragment<InstallAddressInterf
     @Override
     public void OnSuccess(String success) {
         Toast.makeText(getActivity(), success, Toast.LENGTH_LONG).show();
-        getPresenter().updateAddressSync(orderid);
+        //getPresenter().updateAddressSync(orderid);
     }
 }

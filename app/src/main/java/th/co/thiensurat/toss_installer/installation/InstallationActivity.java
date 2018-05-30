@@ -169,6 +169,7 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
 
     private void getDataFromIntent() {
         jobItem = getIntent().getParcelableExtra(Constance.KEY_JOB_ITEM);
+        //productItemGroup = getIntent().getParcelableExtra(Constance.KEY_JOB_PRODUCT);
         if (getPresenter().checkItem()) {
             getPresenter().getProductDetail(jobItem.getOrderid());
         } else {
@@ -230,12 +231,14 @@ public class InstallationActivity extends BaseMvpActivity<InstallationInterface.
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             Intent intent = new Intent(InstallationActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            setResult(RESULT_OK, intent);
+            /*intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            setResult(RESULT_OK, intent);*/
+            startActivity(intent);
             finish();
         } else if (item.getItemId() == R.id.menu_home) {
             Intent intent = new Intent(InstallationActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            /*intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);*/
             startActivity(intent);
             finish();
         }

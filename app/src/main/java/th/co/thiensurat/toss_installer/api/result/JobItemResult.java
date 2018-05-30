@@ -28,6 +28,8 @@ public class JobItemResult {
     private String closeDate;
     private String duedate;
     private String periods;
+    private String sendType;
+    private String installType;
     private List<ProductItem> product;
     private List<AddressItem> address;
 
@@ -165,5 +167,21 @@ public class JobItemResult {
 
     public void setPeriods(String periods) {
         this.periods = periods;
+    }
+
+    public String getSendType() {
+        return sendType;
+    }
+
+    public void setSendType(String sendType) {
+        this.sendType = sendType;
+    }
+
+    public String getInstallType() {
+        return installType;
+    }
+
+    public void setInstallType(String installType) {
+        this.installType = installType;
     }
 }

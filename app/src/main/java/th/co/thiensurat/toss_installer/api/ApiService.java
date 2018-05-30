@@ -19,6 +19,7 @@ import retrofit2.http.Query;
 import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
+import th.co.thiensurat.toss_installer.api.request.RequestPayment;
 import th.co.thiensurat.toss_installer.api.request.RequestUpdateAddress;
 import th.co.thiensurat.toss_installer.api.result.AuthItemResultGroup;
 import th.co.thiensurat.toss_installer.api.result.InstallItemResultGroup;
@@ -27,12 +28,17 @@ import th.co.thiensurat.toss_installer.contract.item.ContactItem;
 
 import static th.co.thiensurat.toss_installer.api.ApiURL.AUTH_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.BACKUP_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.CLOSE_JOB_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.CONTACT_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.FCM_TOKEN_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_MAP_API_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.ITEM_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_PAYMENT_PAY;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_PAYMENT_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_UPDATE_DUEDATE;
 import static th.co.thiensurat.toss_installer.api.ApiURL.JOB_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.LIST_PRODUCT_URL;
+import static th.co.thiensurat.toss_installer.api.ApiURL.LOCATION_UPDATE;
 import static th.co.thiensurat.toss_installer.api.ApiURL.UPDATE_URL;
 import static th.co.thiensurat.toss_installer.api.ApiURL.UPLOAD_URL;
 
@@ -79,6 +85,7 @@ public interface ApiService {
 
     @Multipart
     @POST( BACKUP_URL )
+    //Call<Object> requestBackup(@Part("description") RequestBody description, @Part List<MultipartBody.Part> file);
     Call<Object> requestBackup(@Part("description") RequestBody description, @Part MultipartBody.Part file, @Part MultipartBody.Part filezip);
 
     @Streaming
@@ -92,42 +99,38 @@ public interface ApiService {
     Call<JobItemResultGroup> getJobPayment(@Query("data") String data, @Query("empid") String id);
 
     @GET( JOB_PAYMENT_URL )
-    Call<Object> getReceiptNumber(@Query("data") String data);
+    Call<Object> getReceiptNumber(@Query("data") String data, @Query("contno") String contno);
+
+    @POST( JOB_PAYMENT_PAY )
+    Call<Object> requestPayment(@Body RequestPayment payment);
 
     @GET( JOB_UPDATE_DUEDATE )
     Call<Object> updateDueDate(@Query("orderid") String orderid, @Query("duedate") String duedate, @Query("empid") String id);
 
-    /*@POST( UPDATE_URL )
-    Call<Object> requestJobFinish(@Body ContactItem body);
 
-    @GET( SUMMARY_URL )
-    Call<DashboardItemResultGroup> getSummary(@Query("data") String data, @Query("empid") String empid);
+    /**
+     * New api
+     *
+     * @param id
+     * @param token
+     * @return
+     */
+    @GET( FCM_TOKEN_URL )
+    Call<Object> updateToken(@Query("id") String id, @Query("token") String token);
 
-    @GET( JOB_URL )
-    Call<JobItemResultGroup> getJobList(@Query("data") String data, @Query("empid") String id);
+    @GET( LOCATION_UPDATE )
+    Call<Object> updateLatlon(@Query("id") String id, @Query("lat") double lat, @Query("lon") double lon);
 
-    @GET( JOB_URL )
-    Call<JobItemResultGroup> getJobSuccess(@Query("data") String data, @Query("empid") String id);
+    @GET( LOCATION_UPDATE )
+    Call<Object> updateLocation(@Query("id") String id, @Query("lat") double lat, @Query("lon") double lon);
 
-    @GET( JOB_URL )
-    Call<JobItemResultGroup> getJobUnSuccess(@Query("data") String data, @Query("empid") String id);
+    @GET( LIST_PRODUCT_URL )
+    Call<JobItemResultGroup> getListProduct(@Query("data") String data, @Query("empid") String empid);
 
-    @GET( UPDATE_URL )
-    Call<Object> requestUpdate(@Query("action") String action, @Query("cancelnote") String note, @Query("statusid") String status, @Query("empid") String empid, @Query("orderid") String orderid);
-
-    @GET( UPDATE_URL )
-    Call<Object> requestUpdateJobFinish(@Query("action") String action, @Query("orderid") String orderid, @Query("installstart") String start, @Query("installend") String end, @Query("usercode") String usercode);
+    @GET( LIST_PRODUCT_URL )
+    Call<JobItemResultGroup> getListDetail(@Query("orderid") String orderid);
 
     @Multipart
-    @POST( UPDATE_URL )
-    Call<Object> requestJobFinish(@Query("action") String action, @Part RequestFinish body);
-
-    @GET( UPDATE_URL )
-    Call<Object> requestUpdateSerial(@Query("action") String action, @Query("orderid") String orderid, @Query("productcode") String productcode, @Query("serial") String serial);
-
-    @GET( GOOGLE_MAP_API_URL )
-    Call<Object> getDistance(@Query("units") String imperial, @Query("origins") String origins, @Query("destinations") String destinations, @Query("key") String key);
-
-    @POST( UPLOAD_URL )
-    Call<Object> requestUpload(@Body UploadImage body);*/
+    @POST( CLOSE_JOB_URL )
+    Call<Object> requestCloseJob(@Part("description")RequestBody requestBody);
 }

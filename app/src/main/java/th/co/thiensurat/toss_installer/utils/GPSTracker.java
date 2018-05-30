@@ -193,7 +193,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     public boolean checkLocationPermission() {
         String permission = "android.permission.ACCESS_FINE_LOCATION";
-        int res = res = this.checkCallingOrSelfPermission(permission);
+        int res = mContext.checkCallingOrSelfPermission(permission);
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 }

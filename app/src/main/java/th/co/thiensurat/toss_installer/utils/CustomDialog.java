@@ -12,11 +12,15 @@ import android.support.v4.app.FragmentActivity;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
+import th.co.thiensurat.toss_installer.auth.AuthActivity;
 import th.co.thiensurat.toss_installer.contract.ContractActivity;
 import th.co.thiensurat.toss_installer.installation.InstallationActivity;
+import th.co.thiensurat.toss_installer.payment.activity.PaymentActivity;
+import th.co.thiensurat.toss_installer.payment.paymentpage.PaymentPageActivity;
 import th.co.thiensurat.toss_installer.productwithdraw.WithdrawProductActivity;
 import th.co.thiensurat.toss_installer.setting.ConfigurationActivity;
 import th.co.thiensurat.toss_installer.setting.backupandrestore.BackupAndRestoreActivity;
+import th.co.thiensurat.toss_installer.systemnew.detail.NewDetailActivity;
 
 import static th.co.thiensurat.toss_installer.utils.Constance.REQUEST_SETTINGS;
 
@@ -44,6 +48,24 @@ public class CustomDialog {
         sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
         sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
         sweetAlertDialog.setTitleText("กำลังโหลด...");
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.show();
+    }
+
+    public static void dialogCompressing() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        sweetAlertDialog.setTitleText("กำลังสำรองข้อมูล...");
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.show();
+    }
+
+    public static void dialogPrinting() {
+        sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.getProgressHelper().setBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        sweetAlertDialog.setTitleText("กำลังพิมพ์...");
         sweetAlertDialog.setCancelable(false);
         sweetAlertDialog.show();
     }
@@ -97,6 +119,12 @@ public class CustomDialog {
                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog dialog) {
+                        if (context instanceof MainActivity) {
+                            dialog.dismiss();
+                            MyApplication.getInstance().getPrefManager().clear();
+                            context.startActivity(new Intent(context, AuthActivity.class));
+                            ((MainActivity) context).finish();
+                        }
                         dialog.dismiss();
                     }
                 }).show();
@@ -114,9 +142,15 @@ public class CustomDialog {
                         dialog.dismiss();
                         if (context instanceof ContractActivity) {
                             ((ContractActivity)context).addStep();
-                        }else if (context instanceof BackupAndRestoreActivity) {
+                        } else if (context instanceof BackupAndRestoreActivity) {
                             ((BackupAndRestoreActivity) context).setResult(Activity.RESULT_OK);
                             ((BackupAndRestoreActivity) context).finish();
+                        } else if (context instanceof PaymentPageActivity) {
+                            Intent intent = new Intent(context, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            ((PaymentPageActivity) context).startActivity(intent);
+                        } else if (context instanceof NewDetailActivity) {
+                            ((NewDetailActivity) context).setResult();
                         }
                     }
                 }).show();

@@ -25,11 +25,14 @@ public class ProductItem extends BaseItem implements Parcelable {
     private String productPackageID;
     private String productPayPeriods;
     private String productPayPerPeriods;
+    private String productPaymentChannel;
     private String productID;
     private String productSerial;
     private String productStatus;
     private String productPrintContact;
     private String productPrintInstall;
+    private String productPayAmount;
+    private String productPayActual;
 
     public ProductItem() {
     }
@@ -50,11 +53,14 @@ public class ProductItem extends BaseItem implements Parcelable {
         productPackageID        = in.readString();
         productPayPeriods       = in.readString();
         productPayPerPeriods    = in.readString();
+        productPaymentChannel   = in.readString();
         productID               = in.readString();
         productSerial           = in.readString();
         productStatus           = in.readString();
         productPrintContact     = in.readString();
         productPrintInstall     = in.readString();
+        productPayAmount        = in.readString();
+        productPayActual        = in.readString();
     }
 
     public String getProductCode() {
@@ -183,6 +189,15 @@ public class ProductItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getProductPaymentChannel() {
+        return productPaymentChannel;
+    }
+
+    public ProductItem setProductPaymentChannel(String productPaymentChannel) {
+        this.productPaymentChannel = productPaymentChannel;
+        return this;
+    }
+
     public String getProductID() {
         return productID;
     }
@@ -228,6 +243,24 @@ public class ProductItem extends BaseItem implements Parcelable {
         return this;
     }
 
+    public String getProductPayAmount() {
+        return productPayAmount;
+    }
+
+    public ProductItem setProductPayAmount(String productPayAmount) {
+        this.productPayAmount = productPayAmount;
+        return this;
+    }
+
+    public String getProductPayActual() {
+        return productPayActual;
+    }
+
+    public ProductItem setProductPayActual(String productPayActual) {
+        this.productPayActual = productPayActual;
+        return this;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -250,11 +283,14 @@ public class ProductItem extends BaseItem implements Parcelable {
         dest.writeString(productPackageID);
         dest.writeString(productPayPeriods);
         dest.writeString(productPayPerPeriods);
+        dest.writeString(productPaymentChannel);
         dest.writeString(productID);
         dest.writeString(productSerial);
         dest.writeString(productStatus);
         dest.writeString(productPrintContact);
         dest.writeString(productPrintInstall);
+        dest.writeString(productPayAmount);
+        dest.writeString(productPayActual);
     }
 
     public static final Creator<ProductItem> CREATOR = new Creator<ProductItem>() {
@@ -286,11 +322,14 @@ public class ProductItem extends BaseItem implements Parcelable {
                 .setProductPackageID(productPackageID)
                 .setProductPayPeriods(productPayPeriods)
                 .setProductPayPerPeriods(productPayPerPeriods)
+                .setProductPaymentChannel(productPaymentChannel)
                 .setProductID(productID)
                 .setProductSerial(productSerial)
                 .setProductStatus(productStatus)
                 .setProductPrintContact(productPrintContact)
-                .setProductPrintInstall(productPrintInstall);
+                .setProductPrintInstall(productPrintInstall)
+                .setProductPayAmount(productPayAmount)
+                .setProductPayActual(productPayActual);
         return productItem;
     }
 }

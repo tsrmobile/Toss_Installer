@@ -52,7 +52,14 @@ public class MyPreferenceManager {
             editor.putString(Constance.KEY_LASTNAME, item.getLastname());
             editor.putString(Constance.KEY_POSITION, item.getPositionName());
             editor.putString(Constance.KEY_DEPARTMENT, item.getDepartmentName());
+            editor.putString(Constance.KEY_EMPLOYEE_TYPE, item.getEmployeeType());
         }
+        editor.commit();
+    }
+
+    public void setLocation(double lat, double lon) {
+        editor.putString(Constance.KEY_LAT, String.valueOf(lat));
+        editor.putString(Constance.KEY_LON, String.valueOf(lon));
         editor.commit();
     }
 

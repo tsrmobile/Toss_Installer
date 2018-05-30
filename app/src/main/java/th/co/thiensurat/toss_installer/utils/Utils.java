@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.result.data.DataItem;
+import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 
 
 /**
@@ -60,7 +61,21 @@ public class Utils {
         return null;
     }
 
-    public static String fullDate(String str) {
+    public static String ConvertDateFormatDB(String strdate) {
+        SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormatDB = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date date = null;
+        try {
+            date = dateFormatDB.parse(strdate);
+
+            return dbFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /*public static String fullDate(String str) {
         String dateTime = null;
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
@@ -143,7 +158,7 @@ public class Utils {
 
         yearFormat = new SimpleDateFormat("yy");
         return yearFormat.format(date);
-    }
+    }*/
 
     public static String ConvertMItoKM(String distance) {
         String[] dis = distance.split(" ");
@@ -238,6 +253,34 @@ public class Utils {
 
     public static int getTimeout(long sessionTime) {
         return Math.abs((int) ((new Date().getTime() - sessionTime) / 1000) / 60);
+    }
+
+    private static int[] checkProductPayType(List<ProductItem> productItemList) {
+        String temp = "";
+        String temp2 = "";
+        int[] arr = new int[productItemList.size()];
+        for (int i = 0; i < productItemList.size(); i++) {
+            ProductItem item = productItemList.get(i);
+            arr[i] = Integer.parseInt(item.getProductPayType());
+        }
+        return arr;
+    }
+
+    public static int diffPayType(List<ProductItem> productItemList){
+        int[] numArray = checkProductPayType(productItemList);
+        ArrayList<Integer> diffNum = new ArrayList<>();
+        for (int i = 0; i < numArray.length; i++) {
+            if (!diffNum.contains(numArray[i])) {
+                diffNum.add(numArray[i]);
+            } else {
+                diffNum.clear();
+            }
+        }
+        if (diffNum.size() > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
 

@@ -1,6 +1,9 @@
 package th.co.thiensurat.toss_installer.utils;
 
 import android.app.Application;
+import android.content.Intent;
+
+import th.co.thiensurat.toss_installer.Main2Activity;
 
 /**
  * Created by teera-s on 5/19/2016 AD.
@@ -27,5 +30,10 @@ public class MyApplication extends Application {
             pref = new MyPreferenceManager(this);
         }
         return pref;
+    }
+
+    public void startService() {
+        Intent intent = new Intent(mInstance, LocationMonitoringService.class);
+        startService(intent);
     }
 }

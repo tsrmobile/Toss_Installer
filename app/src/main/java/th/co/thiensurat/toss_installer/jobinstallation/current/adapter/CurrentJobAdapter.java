@@ -44,7 +44,7 @@ import th.co.thiensurat.toss_installer.utils.helper.ItemTouchHelperViewHolder;
 import th.co.thiensurat.toss_installer.utils.helper.OnCustomerListChangedListener;
 import th.co.thiensurat.toss_installer.utils.helper.OnStartDragListener;
 
-import static com.google.android.gms.internal.zzagr.runOnUiThread;
+import static com.google.android.gms.internal.zzahn.runOnUiThread;
 import static th.co.thiensurat.toss_installer.api.ApiURL.GOOGLE_BASE_URL;
 import static th.co.thiensurat.toss_installer.utils.Utils.ConvertDateFormat;
 
@@ -119,49 +119,81 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
         try {
             date = sdf.parse(item.getInstallStartDate());
             endDate = sdf.parse(item.getInstallEndDate());
-        }catch(Exception ex){
+        } catch(Exception ex){
             ex.printStackTrace();
         }
 
         try {
             if (item.getInstallStartDate().isEmpty()) {
+                holder.textViewBegin.setVisibility(View.GONE);
                 holder.textViewDate.setVisibility(View.GONE);
                 holder.textViewTime.setVisibility(View.GONE);
             } else {
+                holder.textViewBegin.setVisibility(View.VISIBLE);
+                holder.textViewBegin.setText("เริ่มติดตั้ง: ");
                 holder.textViewDate.setText(ConvertDateFormat(item.getInstallStartDate()));
                 holder.textViewTime.setText(timeFormat.format(date) + " น.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            holder.textViewDate.setVisibility(View.GONE);
-            holder.textViewTime.setVisibility(View.GONE);
+            try {
+                if (!item.getDuedate().isEmpty()) {
+                    date = sdf.parse(item.getDuedate());
+                    holder.textViewBegin.setVisibility(View.VISIBLE);
+                    holder.textViewBegin.setText("วันที่นัดชำระ: ");
+                    holder.textViewDate.setText(ConvertDateFormat(item.getDuedate()));
+                    holder.textViewTime.setText(timeFormat.format(date) + " น.");
+                }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                holder.textViewBegin.setVisibility(View.GONE);
+                holder.textViewDate.setVisibility(View.GONE);
+                holder.textViewTime.setVisibility(View.GONE);
+            }
         }
 
         try {
             if (item.getInstallEndDate().isEmpty()) {
+                holder.textViewUntil.setVisibility(View.GONE);
                 holder.textViewEndDate.setVisibility(View.GONE);
                 holder.textViewEndTime.setVisibility(View.GONE);
             } else {
+                holder.textViewUntil.setVisibility(View.VISIBLE);
+                holder.textViewUntil.setText("จนถึง: ");
                 holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
                 holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            holder.textViewEndDate.setVisibility(View.GONE);
-            holder.textViewEndTime.setVisibility(View.GONE);
-        }
-
-        try {
-            if (item.getInstallEnd().isEmpty()) {
+            try {
+                if (!item.getInstallEnd().isEmpty()) {
+                    holder.textViewUntil.setVisibility(View.VISIBLE);
+                    holder.textViewUntil.setText("วันที่ติดตั้ง: ");
+                    holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
+                    holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
+                }
+            } catch (Exception e2) {
+                e.printStackTrace();
+                holder.textViewUntil.setVisibility(View.GONE);
                 holder.textViewEndDate.setVisibility(View.GONE);
                 holder.textViewEndTime.setVisibility(View.GONE);
-            } else {
+            }
+        }
+
+        /*try {
+            if (item.getInstallEnd().isEmpty()) {
+                holder.textViewUntil.setVisibility(View.GONE);
+                holder.textViewEndDate.setVisibility(View.GONE);
+                holder.textViewEndTime.setVisibility(View.GONE);
+            } else  {
+                holder.textViewUntil.setVisibility(View.VISIBLE);
                 holder.textViewUntil.setText("วันที่ติดตั้ง: ");
                 holder.textViewEndDate.setText(ConvertDateFormat(item.getInstallEndDate()));
                 holder.textViewEndTime.setText(timeFormat.format(endDate) + " น.");
             }
         } catch (Exception e) {
             e.printStackTrace();
+            holder.textViewUntil.setVisibility(View.GONE);
             holder.textViewEndDate.setVisibility(View.GONE);
             holder.textViewEndTime.setVisibility(View.GONE);
         }
@@ -173,6 +205,7 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                 holder.textViewTime.setVisibility(View.GONE);
             } else {
                 date = sdf.parse(item.getDuedate());
+                holder.textViewBegin.setVisibility(View.VISIBLE);
                 holder.textViewBegin.setText("วันที่นัดชำระ: ");
                 holder.textViewDate.setText(ConvertDateFormat(item.getDuedate()));
                 holder.textViewTime.setText(timeFormat.format(date) + " น.");
@@ -180,8 +213,9 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
         } catch (Exception e) {
             e.printStackTrace();
             holder.textViewBegin.setVisibility(View.GONE);
+            holder.textViewBegin.setVisibility(View.GONE);
             holder.textViewUntil.setVisibility(View.GONE);
-        }
+        }*/
 
         List<AddressItem> addressItems  = item.getAddress();
         for (int i = 0; i < addressItems.size(); i++) {
@@ -231,6 +265,9 @@ public class CurrentJobAdapter extends RecyclerView.Adapter<CurrentJobAdapter.Vi
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onResponse(Call call, Response response) {
+                            if (response.isSuccessful()) {
+
+                            }
                             Log.e("distance", response + "");
                             Gson gson = new Gson();
                             try {

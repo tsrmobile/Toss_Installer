@@ -93,6 +93,7 @@ public class ContactItemAdapter extends RecyclerView.Adapter<ContactItemAdapter.
         @BindView(R.id.layout_installment) LinearLayout linearLayout;
         @BindView(R.id.textview_preriod) TextView textViewPreriod;
         @BindView(R.id.textview_perpreriod) TextView textViewPerPreriod;
+        @BindView(R.id.layout_cardview) LinearLayout linearLayoutCarcView;
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);

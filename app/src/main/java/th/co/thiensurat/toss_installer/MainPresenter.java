@@ -51,9 +51,36 @@ public class MainPresenter extends BaseMvpPresenter<MainInterface.View> implemen
     }
 
     @Override
+    public void updateCurrentLocation(String id, double lat, double lon) {
+        serviceManager.updateLatLon(id, lat, lon, new ServiceManager.ServiceManagerCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Gson gson = new Gson();
+                try {
+                    JSONObject jsonObject = new JSONObject(gson.toJson(result));
+                    if ("SUCCESS".equals(jsonObject.getString("status"))) {
+                        Log.e("msg", jsonObject.getString("message"));
+                    } else if ("FAIL".equals(jsonObject.getString("status"))) {
+                        Log.e("msg", jsonObject.getString("message"));
+                    } else {
+                        Log.e("msg", jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("json obj", e.getLocalizedMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("json obj", t.getLocalizedMessage());
+            }
+        });
+    }
+
+    /*@Override
     public void getAddressNotSync() {
         dbHelper = new DBHelper(context,  Constance.DBNAME, null, Constance.DB_CURRENT_VERSION);
-        getView().setAddressSync(dbHelper.getAddressNotSync(context));
+        //getView().setAddressSync(dbHelper.getAddressNotSync(context));
     }
 
     @Override
@@ -80,5 +107,5 @@ public class MainPresenter extends BaseMvpPresenter<MainInterface.View> implemen
                 Log.e("fail", t.getLocalizedMessage());
             }
         });
-    }
+    }*/
 }

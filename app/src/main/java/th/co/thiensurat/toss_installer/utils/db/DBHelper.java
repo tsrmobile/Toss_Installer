@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import th.co.thiensurat.toss_installer.api.request.RequestPayment;
 import th.co.thiensurat.toss_installer.api.request.RequestUpdateAddress;
 import th.co.thiensurat.toss_installer.api.result.data.DataItem;
 import th.co.thiensurat.toss_installer.contract.item.ObjectImage;
+import th.co.thiensurat.toss_installer.deposit.item.DepositItem;
 import th.co.thiensurat.toss_installer.productwithdraw.item.InstallItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.AddressItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.JobItem;
@@ -23,6 +25,7 @@ import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItem;
 import th.co.thiensurat.toss_installer.jobinstallation.item.ProductItemGroup;
 import th.co.thiensurat.toss_installer.takepicture.item.ImageItem;
 import th.co.thiensurat.toss_installer.utils.Constance;
+import th.co.thiensurat.toss_installer.utils.Utils;
 
 /**
  * Created by teerayut.k on 11/13/2017.
@@ -33,7 +36,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private DataItem item;
     private ExDBHelper exDBHelper;
     private SQLiteDatabase sqlite;
-    private StringBuilder sb, sb2, sb3, sb4, sb5, sb6;
+    private StringBuilder sb, sb2, sb3, sb4, sb5, sb6, sb7, sb8;
 
     public static final String JOB_ORDERID = "Orderid";
     public static final String JOB_IDCARD = "IDCard";
@@ -110,6 +113,29 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String STEP_CREATED = "step_create";
     public static final String STEP_UPDATED = "step_update";
 
+    public static final String PAYMENT_ID = "payment_id";
+    public static final String PAYMENT_CONTNO = "payment_contno";
+    public static final String PAYMENT_PRODUCT_CODE = "payment_product_code";
+    public static final String PAYMENT_PERIOD = "payment_period";
+    public static final String PAYMENT_METHOD = "payment_method";
+    public static final String PAYMENT_TYPE = "payment_type";
+    public static final String PAYMENT_DUEDATE = "payment_duedate";
+    public static final String PAYMENT_PAYDATE = "payment_paydate";
+    public static final String PAYMENT_AMOUNT = "payment_amount";
+    public static final String PAYMENT_ACTUAL = "payment_actual";
+    public static final String PAYMENT_RECEIPTNO = "payment_receiptno";
+    public static final String PAYMENT_DATE = "payment_date";
+
+    public static final String DEPOSIT_ID = "deposit_id";
+    public static final String DEPOSIT_CONTNO = "deposit_contno";
+    public static final String DEPOSIT_REF1 = "deposit_ref1";
+    public static final String DEPOSIT_REF2 = "deposit_ref2";
+    public static final String DEPOSIT_CHANNEL = "deposit_channel";
+    public static final String DEPOSIT_DATE = "deposit_date";
+    public static final String DEPOSIT_AMOUNT = "deposit_amount";
+    public static final String DEPOSIT_EMPID = "deposit_empid";
+    public static final String DEPOSIT_OFFICER = "deposit_office";
+
     public DBHelper(Context context) {
         super(context, null, null, 0);
     }
@@ -136,8 +162,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sb.append(" " + WORK + " TEXT,");
         sb.append(" " + EMAIL + " TEXT,");
         sb.append(" " + SYNC + " TEXT)");
-        String CREATE_TABLE_ADDRESS = sb.toString();
-        sqLiteDatabase.execSQL(CREATE_TABLE_ADDRESS);
+        sqLiteDatabase.execSQL(sb.toString());
 
         sb2 = new StringBuilder();
         sb2.append("CREATE TABLE " + Constance.TABLE_IMAGE + " (");
@@ -148,8 +173,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sb2.append(" " + IMG_URL + " TEXT,");
         sb2.append(" " + IMG_PRODUCT_CODE + " TEXT,");
         sb2.append(" " + IMG_SYNC + " TEXT)");
-        String CREATE_TABLE_IMAGE = sb2.toString();
-        sqLiteDatabase.execSQL(CREATE_TABLE_IMAGE);
+        sqLiteDatabase.execSQL(sb2.toString());
 
         sb3 = new StringBuilder();
         sb3.append("CREATE TABLE " + Constance.TABLE_PRODUCT + " (");
@@ -176,8 +200,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sb3.append(" " + PRODUCT_PRERIOD + " TEXT,");
         sb3.append(" " + PRODUCT_PERPRERIOD + " TEXT,");
         sb3.append(" " + PRODUCT_SYNC + " TEXT)");
-        String CREATE_TABLE_PRODUCT = sb3.toString();
-        sqLiteDatabase.execSQL(CREATE_TABLE_PRODUCT);
+        sqLiteDatabase.execSQL(sb3.toString());
 
         sb5 = new StringBuilder();
         sb5.append("CREATE TABLE " + Constance.TABLE_INSTALL_ITEM + " (");
@@ -188,8 +211,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sb5.append(" " + STOCK_ITEM_NAME + " TEXT,");
         sb5.append(" " + STOCK_ITEM_DATE + " TEXT,");
         sb5.append(" " + STOCK_ITEM_STATUS + " TEXT)");
-        String CREATE_TABLE_ITEM = sb5.toString();
-        sqLiteDatabase.execSQL(CREATE_TABLE_ITEM);
+        sqLiteDatabase.execSQL(sb5.toString());
 
         sb4 = new StringBuilder();
         sb4.append("CREATE TABLE " + Constance.TABLE_STEP + " (");
@@ -204,8 +226,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sb4.append(" " + STEP_7 + " TEXT,");
         sb4.append(" " + STEP_CREATED + " TEXT,");
         sb4.append(" " + STEP_UPDATED + " TEXT)");
-        String CREATE_TABLE_STEP = sb4.toString();
-        sqLiteDatabase.execSQL(CREATE_TABLE_STEP);
+        sqLiteDatabase.execSQL(sb4.toString());
 
         sb6 = new StringBuilder();
         sb6.append("CREATE TABLE " + Constance.TABLE_JOB + " (");
@@ -222,8 +243,36 @@ public class DBHelper extends SQLiteOpenHelper {
         sb6.append(" " + JOB_STATUS + " TEXT,");
         sb6.append(" " + JOB_PRESALE + " TEXT,");
         sb6.append(" " + JOB_CLOSEDATE + " TEXT)");
-        String CREATE_TABLE_JOB = sb6.toString();
-        sqLiteDatabase.execSQL(CREATE_TABLE_JOB);
+        sqLiteDatabase.execSQL(sb6.toString());
+
+        sb7 = new StringBuilder();
+        sb7.append("CREATE TABLE " + Constance.TABLE_PAYMENT + " (");
+        sb7.append(PAYMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
+        sb7.append(" " + PAYMENT_CONTNO + " TEXT,");
+        sb7.append(" " + PAYMENT_PRODUCT_CODE + " TEXT,");
+        sb7.append(" " + PAYMENT_PERIOD + " TEXT,");
+        sb7.append(" " + PAYMENT_METHOD + " TEXT,");
+        sb7.append(" " + PAYMENT_TYPE + " TEXT,");
+        sb7.append(" " + PAYMENT_DUEDATE + " TEXT,");
+        sb7.append(" " + PAYMENT_PAYDATE + " TEXT,");
+        sb7.append(" " + PAYMENT_AMOUNT + " TEXT,");
+        sb7.append(" " + PAYMENT_ACTUAL + " TEXT,");
+        sb7.append(" " + PAYMENT_RECEIPTNO + " TEXT,");
+        sb7.append(" " + PAYMENT_DATE + " TEXT)");
+        sqLiteDatabase.execSQL(sb7.toString());
+
+        sb8 = new StringBuilder();
+        sb8.append("CREATE TABLE " + Constance.TABLE_DEPOSIT + " (");
+        sb8.append(DEPOSIT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,");
+        sb8.append(" " + DEPOSIT_CONTNO + " TEXT,");
+        sb8.append(" " + DEPOSIT_CHANNEL + " TEXT,");
+        sb8.append(" " + DEPOSIT_AMOUNT + " TEXT,");
+        sb8.append(" " + DEPOSIT_DATE + " TEXT,");
+        sb8.append(" " + DEPOSIT_REF1 + " TEXT,");
+        sb8.append(" " + DEPOSIT_REF2 + " TEXT,");
+        sb8.append(" " + DEPOSIT_EMPID + " TEXT,");
+        sb8.append(" " + DEPOSIT_OFFICER + " TEXT)");
+        sqLiteDatabase.execSQL(sb8.toString());
     }
 
     @Override
@@ -245,6 +294,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String DROP_ITEM_JOB = "DROP TABLE IF EXISTS " + Constance.TABLE_JOB;
         sqLiteDatabase.execSQL(DROP_ITEM_JOB);
+
+        String DROP_ITEM_PAYMENT = "DROP TABLE IF EXISTS " + Constance.TABLE_PAYMENT;
+        sqLiteDatabase.execSQL(DROP_ITEM_PAYMENT);
+
+        String DROP_ITEM_DEPOSIT = "DROP TABLE IF EXISTS " + Constance.TABLE_DEPOSIT;
+        sqLiteDatabase.execSQL(DROP_ITEM_DEPOSIT);
 
         onCreate(sqLiteDatabase);
     }
@@ -400,8 +455,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean checkItem(String tablename, String colwhere, String orderid) {
         boolean collect = false;
         sqlite = this.getReadableDatabase();
-        Cursor cursor = sqlite.query (tablename, null,colwhere + " = ? ",
-                        new String[] {orderid},
+        Cursor cursor = sqlite.query (tablename, null, colwhere + " = ? ",
+                        new String[] { orderid },
                         null, null, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -410,6 +465,20 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return collect;
     }
+
+    /*public boolean checkItemWithAND(String tablename, String colwhere, String colAnd, String orderid, String valueAND) {
+        boolean collect = false;
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query (tablename, null, colwhere + " = ? AND " + colAnd + " = ?",
+                new String[] { orderid, valueAND },
+                null, null, null);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                collect = true;
+            }
+        }
+        return collect;
+    }*/
 
     public ProductItemGroup getProductByID(String orderid) {
         sqlite = this.getReadableDatabase();
@@ -1008,5 +1077,88 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         return stringList;
+    }
+
+    public void setTablePayment(List<RequestPayment.paymentBody> paymentBodies) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sqlite = this.getWritableDatabase();
+        for (RequestPayment.paymentBody body : paymentBodies) {
+            ContentValues values = new ContentValues();
+            values.put(PAYMENT_CONTNO, body.getContno());
+            values.put(PAYMENT_PRODUCT_CODE, body.getProductcode());
+            values.put(PAYMENT_PERIOD, body.getPeriod());
+            values.put(PAYMENT_METHOD, body.getPaymenttype());
+            values.put(PAYMENT_TYPE, body.getPaymentreceive());
+            values.put(PAYMENT_DUEDATE, body.getDuedate());
+            values.put(PAYMENT_PAYDATE, Utils.ConvertDateFormatDB(body.getPaydate()));
+            values.put(PAYMENT_AMOUNT, body.getAmount());
+            values.put(PAYMENT_ACTUAL, body.getActual());
+            values.put(PAYMENT_RECEIPTNO, body.getReceiptno());
+            values.put(PAYMENT_DATE, body.getReceiptdate());
+
+            sqlite.insert(Constance.TABLE_PAYMENT, null, values);
+        }
+        sqlite.close();
+    }
+
+    public List<DepositItem> getAllPayment() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String date = sdf.format(new Date());
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query
+                (Constance.TABLE_PAYMENT, null,  PAYMENT_METHOD + " = 1",
+                        null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        List<DepositItem> depositItemList = new ArrayList<DepositItem>();
+        while (!cursor.isAfterLast()) {
+            depositItemList.add(new DepositItem()
+                    .setId(cursor.getString(cursor.getColumnIndex(PAYMENT_ID)))
+                    .setContno(cursor.getString(cursor.getColumnIndex(PAYMENT_CONTNO)))
+                    .setDate(cursor.getString(cursor.getColumnIndex(PAYMENT_PAYDATE)))
+                    .setAmount(cursor.getString(cursor.getColumnIndex(PAYMENT_ACTUAL)))
+            );
+            cursor.moveToNext();
+        }
+
+        return depositItemList;
+    }
+
+    public boolean getPaymentStatus(String code) {
+        boolean collect = false;
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query
+                (Constance.TABLE_PAYMENT, null, PAYMENT_PRODUCT_CODE + " = ?",
+                        new String[] { code }, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        if (!cursor.isAfterLast()) {
+            collect = true;
+        }
+
+        cursor.close();
+        sqlite.close();
+        return collect;
+    }
+
+    public String getDepositRef2() {
+        String ref2 = "";
+        sqlite = this.getReadableDatabase();
+        Cursor cursor = sqlite.query
+                (Constance.TABLE_DEPOSIT, null, null,
+                        null, null, null, DEPOSIT_REF2 + " DESC");
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        if (!cursor.isAfterLast()) {
+            ref2 = cursor.getString(cursor.getColumnIndex(DEPOSIT_REF2));
+        }
+
+        return ref2;
     }
 }

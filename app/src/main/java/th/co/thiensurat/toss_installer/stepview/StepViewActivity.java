@@ -75,7 +75,7 @@ public class StepViewActivity extends BaseMvpActivity<StepViewInterface.Presente
         /*if (getPresenter().checkStep(jobItem.getOrderid())) {
             getPresenter().getStepValue(jobItem.getOrderid());
         } else {
-            Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
+            Intent intent = new Intent(getApplicationContext(), NewDetailActivity.class);
             intent.putExtra(Constance.KEY_JOB_ITEM, jobItem);
             intent.putExtra(Constance.KEY_JOB_ADDR, addressItemGroup);
             startActivity(intent);

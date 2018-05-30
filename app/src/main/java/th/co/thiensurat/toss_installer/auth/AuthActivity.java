@@ -3,6 +3,7 @@ package th.co.thiensurat.toss_installer.auth;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -12,11 +13,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import th.co.thiensurat.toss_installer.Main2Activity;
 import th.co.thiensurat.toss_installer.MainActivity;
 import th.co.thiensurat.toss_installer.R;
 import th.co.thiensurat.toss_installer.api.request.RequestAuth;
@@ -25,7 +29,6 @@ import th.co.thiensurat.toss_installer.network.ConnectionDetector;
 import th.co.thiensurat.toss_installer.utils.AnimateButton;
 import th.co.thiensurat.toss_installer.utils.ChangeTintColor;
 import th.co.thiensurat.toss_installer.utils.Constance;
-import th.co.thiensurat.toss_installer.utils.CurrencLocation;
 import th.co.thiensurat.toss_installer.utils.CustomDialog;
 import th.co.thiensurat.toss_installer.utils.MyApplication;
 
@@ -35,7 +38,6 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     private boolean clickBackAain;
     private CustomDialog customDialog;
     private ChangeTintColor changeTintColor;
-    private CurrencLocation currencLocation;
 
     @Override
     public AuthInterface.Presenter createPresenter() {
@@ -50,7 +52,6 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     @BindView(R.id.edt_user) EditText username;
     @BindView(R.id.edt_pwd) EditText password;
     @BindView(R.id.button_login) Button buttonLogin;
-    @BindView(R.id.button_forget) Button buttonForget;
     @Override
     public void bindView() {
         ButterKnife.bind(this);
@@ -60,13 +61,11 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
     public void setupInstance() {
         customDialog = new CustomDialog(AuthActivity.this);
         changeTintColor = new ChangeTintColor(AuthActivity.this);
-        currencLocation = new CurrencLocation(AuthActivity.this);
     }
 
     @Override
     public void setupView() {
         buttonLogin.setOnClickListener(onLogin());
-        buttonForget.setOnClickListener(onForget());
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -104,15 +103,6 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
         };
     }
 
-    private View.OnClickListener onForget() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonForget.startAnimation(new AnimateButton().animbutton());
-            }
-        };
-    }
-
     private void getUsernamePassword() {
         List<RequestAuth.authenBody> authenBodyList = new ArrayList<>();
         authenBodyList.add(new RequestAuth.authenBody()
@@ -139,9 +129,19 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
 
     @Override
     public void onSuccess() {
-        onNextPage();
+        try {
+            String token = FirebaseInstanceId.getInstance().getToken();
+            Log.e("token", token);
+            getPresenter().updateFCMToken(MyApplication.getInstance().getPrefManager().getPreferrence(Constance.KEY_EMPID), token);
+        } catch (Exception e) {
+            Log.e("save token", e.getMessage());
+        }
     }
 
+    @Override
+    public void onUpdateSuccess() {
+        onNextPage();
+    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -182,6 +182,7 @@ public class AuthActivity extends BaseMvpActivity<AuthInterface.Presenter> imple
 
     private void nextPage() {
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        //startActivity(new Intent(getApplicationContext(), Main2Activity.class));
         finish();
     }
 

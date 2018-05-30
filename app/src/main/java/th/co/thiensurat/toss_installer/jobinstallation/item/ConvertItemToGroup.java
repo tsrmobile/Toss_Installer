@@ -40,15 +40,11 @@ public class ConvertItemToGroup {
                     .setProduct(jobResult.getProduct())
                     .setAddress(jobResult.getAddress())
                     .setDuedate(jobResult.getDuedate())
-                    .setPeriods(jobResult.getPeriods());
+                    .setPeriods(jobResult.getPeriods())
+                    .setSendType(jobResult.getSendType())
+                    .setInstallType(jobResult.getInstallType());
             items.add(jobItem);
         }
         return items;
-    }
-
-    public static ProductItemGroup createProductItemGroup(List<ProductItem> productItems) {
-        ProductItemGroup productItemGroup = new ProductItemGroup();
-        productItemGroup.setProduct(productItems);
-        return productItemGroup;
     }
 }

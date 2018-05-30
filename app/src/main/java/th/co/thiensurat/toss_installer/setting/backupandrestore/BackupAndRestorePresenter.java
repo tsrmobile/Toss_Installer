@@ -75,6 +75,8 @@ public class BackupAndRestorePresenter extends BaseMvpPresenter<BackupAndRestore
                         getView().onFail(jsonObject.getString("message"));
                     }
                 } catch (JSONException e) {
+                    getView().onDismiss();
+                    getView().onFail("พบข้อผิดพลาดในการสำรองข้อมูล");
                     Log.e("json obj", e.getLocalizedMessage());
                 }
             }
@@ -82,6 +84,7 @@ public class BackupAndRestorePresenter extends BaseMvpPresenter<BackupAndRestore
             @Override
             public void onFailure(Throwable t) {
                 getView().onDismiss();
+                getView().onDeleteFileZip();
                 Log.e("fail", t.getLocalizedMessage());
             }
         });

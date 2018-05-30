@@ -60,12 +60,13 @@ public class JobInstallFragment extends BaseMvpFragment<JobInstallInterface.Pres
 
     @Override
     public void setupView() {
+        setTabLayout();
         //((MainActivity) getActivity()).setTitle("รายการงานติดตั้ง");
     }
 
     @Override
     public void initialize() {
-        getPresenter().getAllJob();
+        //getPresenter().getAllJob();
     }
 
     private void setTabLayout() {
